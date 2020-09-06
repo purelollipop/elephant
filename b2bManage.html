@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>B2B管理</title>
+    <script src="../vue/vue.js"></script>
+    <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+    <link rel="stylesheet" href="../resource/css/tableCustom.css">
+</head>
+<style>
+    #handlebut{
+        margin-top: 10px;
+    }
+    .retainTable{
+        margin-top: 10px;
+    }
+    .retainTable>thead>tr>th{
+        border: 1px #E7E7E7 solid;
+    }
+    .retainTable>tbody>tr>td{
+        border: 1px #E7E7E7 solid;
+        padding: 0px 2px;
+    }
+    .newFlog{
+        margin-top: 10px;
+    }
+    .noticeFlightWindButton{
+        float:right;
+        margin: 15px;
+        display: flex;
+    }
+    .allSearch{
+        display: flex;
+        margin-bottom: 5px;
+        /*width: 300px;*/
+        /*position: absolute;*/
+        /*top: -200px;*/
+        /*display: none;*/
+        /*visibility: hidden;*/
+    }
+    .allSearch>div{
+        width: 200px;
+        margin: 3px 3px;
+    }
+</style>
+<body>
+<div id="VueNoticeFlight">
+    <noticeflight ref="noticeFlightTable"></noticeflight>
+</div>
+<!--主体展示table-->
+<template id="noticeflight">
+    <div>
+        <!--主体-->
+        <div class="tableDiv">
+            <div id="handlebut">
+                <i-Button size="small" type="primary" icon="ios-search" @click="allSearchFun">搜索</i-Button>
+            </div>
+            <!--搜索-->
+            <div style="margin: 10px" v-if="searchFlag">
+                <div class="allSearch">
+                    <i-input class="chooseChild" v-model="searchObj.aviation">
+                        <span slot="prepend">航空公司</span>
+                    </i-input>
+                    <i-select v-model="searchObj.active" placeholder="生效">
+                        <i-option value="0">有效</i-option>
+                        <i-option value="1">无效</i-option>
+                    </i-select>
+                    <i-button size="small" type="success" icon="ios-search" @click="sureSearch">确定搜索</i-button>
+                </div>
+            </div>
+            <!-- 主表格 -->
+            <table class="retainTable" style="width: 100%;table-layout: fixed;word-break: break-all;">
+                <thead>
+                <tr class="TableHead">
+                    <th style="width: 40px">序号</th>
+                    <th>航空公司</th>
+                    <th>office号</th>
+                    <th>网站用户名</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(ele,index) in tableObj" :key="index">
+                    <!--序号-->
+                    <td>{{(20 * (num - 1)) + index + 1}}</td>
+                    <!--航空公司-->
+                    <td>{{ele.aviation}}</td>
+                    <!--office号-->
+                    <td>{{ele.office}}</td>
+                    <!--网站用户名-->
+                    <td>{{ele.username}}</td>
+                    <!--操作-->
+                    <td>
+                        <i-button size="small" type="warning" @click="operatingLook(ele,index)">打开</i-button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <!--分页逻辑-->
+            <div style="float: right;margin-top: 20px">
+                <span>总计{{count}}条</span>
+                <button type="button" class="" @click="firstpage">第一页</button>
+                <button type="button" class="" @click="uppage">前一页</button>
+                共<span>{{pages}}</span>页&nbsp;&nbsp;
+                第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;"
+                              :value="num" ref="num">&nbsp;页&nbsp;&nbsp;
+                <button class="" @click="gotopage">转到</button>
+                <button class="" @click="downpage">后一页</button>
+                <button class="" @click="llastpage">最后一页</button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script type="text/javascript" src="../resource/iview-2.0/dist/iview.min.js"></script>
+<script type="text/javascript" src="../vue/vuex.js"></script>
+<script type="text/javascript" src="../vue/axios.min.js"></script>
+<script type="text/javascript" src="../vue/vue-router.js"></script>
+
+<script type="text/javascript">
+    //主体table
+    Vue.component('noticeflight', {
+        template: '#noticeflight',
+        data() {
+            return {
+                //主表格
+                tableObj:null,
+                //搜索开关
+                searchFlag:false,
+                //搜索对象
+                searchObj:{
+                    aviation:"",
+                    active:""
+                },
+                num:1,
+                pages:undefined,
+                count:undefined,
+            }
+        },
+        mounted() {
+            this.objDataFun();
+        },
+        methods: {
+            //表格数据渲染
+            objDataFun(page=this.num,search = this.searchObj){
+                // search = JSON.parse(JSON.stringify(search));
+                // search.page = page;
+                axios({
+                    method: 'post',
+                    url: '../bingo/b2blogin.php?action=all_b2b',
+                    data: {page:page},
+                }).then(res=>{
+                    this.tableObj = res.data.list;
+                    let leng1 = this.tableObj.length;
+                    this.pages = res.data.pages;//总页
+                    this.count = leng1;//总条
+                }).catch((error) => {
+                    console.log(error)
+                })
+            },
+            //搜索开关
+            allSearchFun(){
+                this.searchFlag = !this.searchFlag
+            },
+            //搜索按钮
+            sureSearch (){
+                this.searchObj.searchFlag = true;
+                this.objDataFun(1,this.searchObj);
+            },
+            //打开
+            operatingLook(ele){
+                let username = ele.username;
+                let password = ele.password;
+                let url = ele.url;
+                let aviation = ele.aviation;
+                axios({
+                    method: 'get',
+                    url: 'http://127.0.0.1:8976/',
+                    params:{
+                        username,
+                        pwd:password,
+                        url,
+                        carrier:aviation,
+                    }
+                }).then(res=>{
+
+                }).catch((error) => {
+                    console.log(error)
+                    this.$Message.error({
+                        content:'请启动服务',
+                        duration:5,
+                        closable:true,
+                    })
+                })
+                // window.open('http://127.0.0.1:8976/?'+'username={$one['+username+']}&pwd={$one['+password+']}&url={$one['+url+']}&carrier={$one['+aviation+']}')
+            },
+            //分页函数
+            //向后转页面 —
+            uppage:function(){
+                if(this.num>1){
+                    this.num -= 1;
+                }else if(this.num<1){
+                    alert('没有该页码')
+                }else{
+                    return
+                }
+                this.axfun(this.num);
+            },
+            //向前转页面 +
+            downpage:function(){
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if(this.num<this.pages){
+                    this.num = this.num + 1;
+                }else{
+                    return
+                };
+                this.axfun(this.num)
+            },
+            //直接去某页面
+            gotopage:function () {
+                let val = this.$refs.num.value;
+                if(val > this.pages||val<1){
+                    //页数框页码重置
+                    this.$refs.num.value = this.num;
+                    alert('没有该页码');
+                }else{
+                    this.num = Math.round(this.num);
+                    this.num = val;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去首页
+            firstpage:function () {
+                //如果num已经是第一页了，就不再请求了
+                if(this.num == 1){
+                    return
+                }
+                this.num = 1;
+                this.axfun(this.num)
+            },
+            //直接去末尾页
+            llastpage:function () {
+                //如果已经等于最后已页，就不再请求
+                if(this.num == this.pages){
+                    return
+                }
+                this.num = this.pages;
+                this.axfun(this.num)
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun:function(page){
+                //根据不同的值 来做ajax不同请求 当choose为true;则搜索是开启状态，否则是关闭状态
+                //若搜索为真，则直接调用搜索函数，把之前保存的搜索条件传过去；请求搜索后的结果;
+                //若搜索为假，则直接调用请求函数，直接拿值；
+                if(this.searchObj.searchFlag){
+                    this.objDataFun(page,this.searchObj)
+                }else{
+                    this.objDataFun(page,this.searchObj)
+                }
+            },
+        },
+
+    });
+    new Vue({
+        el: '#VueNoticeFlight',
+        data: {},
+        computed: {}
+    })
+</script>
+</body>
+</html>

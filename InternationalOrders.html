@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>国际总订单</title>
+    <script src="../vue/vue.js"></script>
+    <script src="../vue/vue-router.js"></script>
+    <script src="../vue/vuex.js"></script>
+    <script src="../vue/axios.min.js"></script>
+    <link href="../resource/css/InternationalOrders.css"  rel="stylesheet">
+
+</head>
+<body>
+<div class="tabs-container">
+    <div id="bg">
+        <div class="alert" id="msn">
+            <h5 class="h5">搜索功能</h5>
+            <ul v-for="(item,index) in items">
+                <li class="p-info">
+                    {{item.action}}
+                </li>
+                <li class="p-info">
+                    {{item.page}}
+                </li>
+            <li class="p-info">
+                <label>票台为：{{item.ticketTable}}</label>
+                <select>
+                    <option >= 全部 =</option>
+                    <option>去哪儿</option>
+                    <option>淘宝</option>
+                </select>
+            </li>
+            <li class="p-info">
+                <label>订单号中包含有：{{item.orderNo}}</label>
+            </li>
+            <li class="p-info">
+                <label>起飞时间的范围为：</label>
+                <span>{{item.orderTimeStart}}</span>
+                <span>{{item.depTimeEnd}}</span>
+            </li>
+            <li class="p-info">
+                <label>乘客姓名：{{item.passname}}</label>
+            </li>
+            <li class="p-info">
+                <label>利润的范围为：</label>
+                <span>利润大于：{{item.profitMin}}</span>
+                <span>利润小于：{{item.profitMax}}</span>
+            </li>
+            <li class="p-info">
+                票号：{{item.ticketNo}}
+            </li>
+            <li class="p-info">
+                <label>政策人/客电为：</label>
+                <select>{{item.policyCode}}
+                    <option>= 全部 =</option>
+                    <option>刘协</option>
+                    <option>黄骞</option>
+                    <option>王珍</option>
+                    <option>肖乐</option>
+                    <option>杨柳</option>
+                    <option>汤灿</option>
+                    <option>李娟婷</option>
+                    <option>王娜</option>
+                    <option>张淑涵</option>
+                    <option>粟聪利</option>
+                    <option>许意</option>
+                    <option>卢婷</option>
+                    <option>周敏</option>
+                    <option>刘思佳</option>
+                </select>
+            </li>
+            <li class="p-info">
+                <label>出票渠道：</label>
+                <select>{{item.ticketObject}}
+                    <option>= 全部 =</option>
+                    <option>B2B</option>
+                    <option>OP</option>
+                    <option>官网</option>
+                </select>
+            </li>
+            <li class="p-info">
+                <label>支付方式中包含有：{{item.paySubjects}}</label>
+            </li>
+            <li class="p-info">
+                <label>订单状态：{{item.orderStatus}}</label>
+                <select>
+                    <option>= 全部 =</option>
+                    <option>预定失败</option>
+                    <option>预定成功</option>
+                    <option>支付失败</option>
+                    <option>支付成功</option>
+                    <option>自动出票</option>
+                    <option>手工出票</option>
+                    <option>回帖完成</option>
+                    <option>回帖失败</option>
+                </select>
+            </li>
+            <li class="p-info">
+                <label>OTA状态：{{item.platformStatus}}</label>
+                <select>
+                    <option>= 全部 =</option>
+                    <option>买家取消，交易关闭</option>
+                    <option>出票中</option>
+                    <option>支付成功</option>
+                    <option>支付成功，等待出票</option>
+                    <option>支付超时失效，关闭交易</option>
+                    <option>预定失败，未付款</option>
+                    <option>预定成功，付款给卖家</option>
+                    <option>预定成功，已付款，冻结买家定金</option>
+                </select>
+            </li>
+            <li class="p-info">
+                <label>
+                    出票人中包含有：{{item.drawer}}
+                </label>
+            </li>
+            <li class="p-info">
+                行程类型：{{item.tripType}}
+            </li>
+            </ul>
+            <p class="p-btn">
+                <input type="button" value="取消">
+                <input type="button" value="确定">
+            </p>
+        </div>
+    </div>
+
+    <div id="cont">
+        <span id="close">
+            <input type="button" value="关闭">
+        </span>
+    </div>
+    <div class="test">国际总订单</div>
+    <div class="search">
+        <input type="button" value="搜索" onclick="search();" class="btn">
+        <img src="../images/font/search01.png">
+    </div>
+    <div id="app" class="container">
+        <table class="table" style="font-size: 12px" border="1" cellspacing="0" cellpadding="0" id="Table">
+            <thead >
+            <tr>
+                <th>主键id</th>
+                <th>下单时间</th>
+                <th>票台</th>
+                <th>行程类型</th>
+                <th>订单号</th>
+                <th>小编</th>
+                <th>币种</th>
+                <th>乘机人数</th>
+                <th>收款</th>
+                <th>政策代码</th>
+                <th>政策备注</th>
+                <th>政策人</th>
+                <th>客电</th>
+                <th>平台状态</th>
+                <th>是否置顶</th>
+                <th>航司</th>
+                <th>出票渠道</th>
+                <th>支付单号</th>
+                <th>支付方式</th>
+                <th>订单状态</th>
+                <th>操作人</th>
+                <th>乘客姓名</th>
+                <th>距离现在的时间</th>
+                <th>航班信息</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for=" (item,index) in row">
+                <td>
+                    {{item.id}}
+                </td>
+                <td>
+                    {{item.orderTime}}
+                </td>
+                <td>
+                    {{item.ticketTable}}
+                </td>
+                <td >
+                    {{item.tripType}}
+                </td>
+                <td>
+                    {{item.orderNo}}
+                </td>
+                <td>
+                    {{item.pnrCode}}
+                </td>
+                <td>
+                    {{item.currency}}
+                </td>
+                <td>
+                    {{item.population}}
+                </td>
+                <td>
+                    {{item.collection}}
+                </td>
+                <td>
+                    {{item.policyCode}}
+                </td>
+                <td>
+                    {{item.remarks}}
+                </td>
+                <td>
+                    {{item.policyPerson}}
+                </td>
+                <td>
+                    {{item.contactNumber}}
+                </td>
+                <td>
+                    {{item.platformStatus}}
+                </td>
+                <td>
+                    {{item.mode}}
+                </td>
+                <td>
+                    {{item.carrier}}
+                </td>
+                <td>
+                    {{item.payNumber}}
+                </td>
+                <td>
+                    {{item.paySubjects}}
+                </td>
+                <td>
+                    {{item.ticketObject}}
+                </td>
+                <td>
+                    {{item.paySubjects}}
+                </td>
+                <td>
+                    {{item.orderStatus}}
+                </td>
+                <td>
+                    {{item.drawer}}
+                </td>
+                <td>
+                    {{item.name}}
+                </td>
+                <td  v-for="value in item.flight">
+                    <select>
+                        <option>
+                            flightNumber:{{value.flightNumber}}
+                        </option>
+                        <option>
+                            depAirport:{{value.depAirport}}
+                        </option>
+                        <option>
+                            stopCities:{{value.stopCities}}
+                        </option>
+                        <option>
+                            arrAirport:{{value.arrAirport}}
+                        </option>
+                        <option>
+                            depData:{{value.depData}}
+                        </option>
+                        <option>
+                            depTime:{{value.depTime}}
+                        </option>
+                        <option>
+                            cabin:{{value.cabin}}
+                        </option>
+                        <option>
+                            maxSeats:{{value.maxSeats}}
+                        </option>
+                        <option>
+                            realcabin:{{value.realcabin}}
+                        </option>
+                        <option>
+                            realseats:{{value.realseats}}
+                        </option>
+                        <option>
+                            seatsUrgent:{{value.seatsUrgent}}
+                        </option>
+                        <option>
+                            timeUrgent:{{value.timeUrgent}}
+                        </option>
+                    </select>
+                </td>
+
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+</div>
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                row: []
+            }
+        },
+        created() {
+            axios.get('data2.json').then(response => {
+                this.row = response.data.row;
+                console.log(JSON.parse(JSON.stringify(response.data))['row']);
+            });
+        }
+    })
+</script>
+<script>
+    new Vue({
+        el: '#bg',
+        data() {
+            return {
+                items: []
+            }
+        },
+        created() {
+            axios.get('data.json').then(response => {
+                this.items = response.data.items;
+                console.log(JSON.parse(JSON.stringify(response.data))['items']);
+            });
+        }
+    })
+</script>
+<script src="../resource/javascripts/InternationalOrders.js"></script>
+</body>
+</html>

@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../vue/vue.js"></script>
+    <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+    <!--基础样式-->
+    <style>
+        body, h1, h2, h3, h4, h5, h6, hr, p, blockquote, /* structural elements 结构元素 */
+        dl, dt, dd, ul, ol, li, /* list elements 列表元素 */
+        pre, /* text formatting elements 文本格式元素 */
+        form, fieldset, legend, button, input, textarea, /* form elements 表单元素 */
+        th, td /* table elements 表格元素 */ {
+            margin: 0;
+            padding: 0;
+        }
+        body,
+        button, input, select, textarea /* for ie */ {
+            font: 12px/1.5 tahoma, arial, \5b8b\4f53, sans-serif;
+        }
+        ul, ol { list-style: none; }
+        button, input, select, textarea { font-size: 100%; }
+        table { border-collapse: collapse; border-spacing: 0; }
+        #tableDiv{
+            /*margin-top: 50px;*/
+        }
+        table{
+            /*margin-top: -135px;*/
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            /*border: 1px silver solid;*/
+        }
+        tbody>tr{
+            height: 40px;
+        }
+        table tr>th{
+            margin-left: 5px;
+            border-bottom: 1px #DCDEE2 solid;
+            border-top: 1px #DCDEE2 solid;
+        }
+        table tr>td{
+            /*border: 1px #DCDEE2 solid;*/
+            text-align: center;
+        }
+        tbody>tr:hover{
+            background-color: #F0FAFF;
+        }
+        .TableHead>th{
+            padding: 10px 4px;
+            /*color: #cc0000;*/
+        }
+        .butt{
+            background-color: #F0FAFF;
+            cursor: pointer;
+            display: inline-block;
+            margin: 1px 0 1px 0;
+            padding: 0 5px;
+            border: 1px silver solid;
+        }
+        .butt:hover{
+            background-color: orange;
+        }
+        .butt:active{
+            background-color: cornflowerblue;
+        }
+        .bijia>div{
+            display: flex;
+            justify-content: center;
+            margin-top: 2px;
+        }
+        .bijia>div>div{
+            margin-left: 4px;
+        }
+        div[data-red='red']{
+            color: red;
+            /*background-color: red;*/
+        }
+        td[data-red='red']{
+            color: #cc0000;
+        }
+        .tableDiv{
+            margin: 40px 0px;
+        }
+        .pageInput{
+            margin: 10px;
+            width:40px;
+            height:15px;
+            padding:2px;
+            display: inline;
+        }
+    </style>
+    <!--查找弹窗和table样式-->
+    <style type="text/css">
+        /*查找标签样式*/
+        .searchclass{
+            display: inline-block;
+            position: fixed;
+            left: 230px;
+            z-index: 1;
+        }
+        #searchdiv{
+            display: inline-block;
+            position: absolute;
+            left: -24px;
+            border-style: solid;
+            border-color: #00b7ee transparent transparent;
+            border-width: 25px 25px 0px ;
+            cursor: pointer;
+        }
+        #picture{
+            position: absolute;
+            left: -10px;
+            width: 20px;
+            height: 20px;
+            background-image: url('../images/font/f3.png');
+            background-size: 100% 100%;
+            cursor: pointer;
+            z-index: 3;
+        }
+        /*查找的主体样式*/
+        .foundwindow{
+            position: fixed;
+            top: 100px;
+            left: 400px;
+            width: 300px;
+            height: auto;
+            z-index: 1;
+            background-color: white;
+            box-shadow: 0px 0px 7px;
+            padding: 10px;
+        }
+        .foundwindow>#add .form-group>div{
+            margin-top: 10px;
+        }
+        .foundwindow>#add .form-group>div>span{
+            width: 100px;
+        }
+        .foundwindow>button{
+            margin-left: 5px;
+            float: right;
+        }
+        /*主体table样式*/
+        .table th,.table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+        .table .tablecontent th{
+            color:#080808;
+            font-weight: 500;
+        }
+        .logtable tr{
+            height:30px;
+        }
+        .theadA{
+            /*border: 0.1px solid;*/
+            /*border-color:#E7EAEC;;*/
+            background: white;
+
+            /*background-color: #E4F1F8;*/
+        }
+        .theadA>tr>th{
+            border: 1px #DCDEE2 solid;
+            text-align: center;
+        }
+        .tablecontent>td{
+            border: 1px #DCDEE2 solid;
+            text-align: center;
+        }
+        .refundtable{
+            position: relative;
+
+        }
+        .refundtable tbody tr:nth-child(odd){
+            background-color: #f1f1f1;
+        }
+        .refundtable tbody tr:hover{
+            /*background-color:#dee5ff;*/
+            background: radial-gradient(#dee5ff,white);
+        }
+        .tablebutt{ /*table里面的button*/
+            background-color: inherit;
+            border: 0.5px silver solid;
+            width: 30px;
+            height: 20px;
+        }
+        .tablebutt:hover{
+            background-color: #dee5ff;
+        }
+        .tablebutt2:hover{
+            background-color: lightskyblue;
+        }
+        /*分页样式*/
+        .page{
+            float: right;
+            margin: 10px 10px;
+        }
+    </style>
+    <style type="text/css">
+        /*航班信息*/
+        .flight>div>div{
+            display: inline-block;
+            margin-left: 3px;
+        }
+        /*票号*/
+        .ticketNums{
+            /*height: 15px;*/
+            margin: 0 auto;
+            width: 100px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow:ellipsis;
+        }
+        /*页码输入框*/
+        .pageInput{
+            width:40px;
+            height:22px;
+            padding:5px;
+            display: inline;
+            font-size: .9em;
+        }
+        /*一键改签、个人锁单、未锁单样式*/
+        .butspan{
+            display: inline-block;
+            position: absolute;
+            margin-top: 5px;
+            right:10%;
+            z-index: 99
+        }
+        .butspan>span{
+            margin-left: 10px;
+        }
+        .butspan>input{
+            margin-left: 5px;
+        }
+        .ivu-input-wrapper{
+            width:80%;
+        }
+        .ivu-input-icon{
+            line-height: 26px;
+        }
+        .ivu-input{
+            height:25px;
+            border-color: #999;
+        }
+        .form-control{
+            border: 1px solid #999;
+            border-radius: 4px;
+            height:23px;
+            width:145px;
+        }
+        /*日志的主体框样式*/
+        .logwindow{
+            position: absolute;
+            top: 15px;
+            margin-left: 31%;
+            margin-top: 50px;
+            width:400px;
+            height:400px;
+            /*z-index: 9;*/
+            background-color: white;
+            box-shadow: 0px 0px 7px;
+            padding: 10px;
+            overflow-y: scroll;
+        }
+        /*日志按钮样式*/
+        .logbutton{
+            cursor:pointer;
+            box-shadow: 0px 0px 1px 0px gray;
+        }
+        .logbutton:hover{
+            cursor:pointer;
+            box-shadow: 1px 1px 1px 1px gray;
+            /*border:1px solid orange;*/
+            background-color: orange;
+        }
+        /*单独搜索*/
+        .search{
+            display: inline-block;
+            position: absolute;
+            left: 280px;
+            z-index: 9;
+            padding-top: 2px;
+        }
+    </style>
+    <style type="text/css">
+        /*报表样式*/
+        .statement{
+            position: fixed;
+            top: 52%;
+            left: 50%;
+            width: 900px;
+            height: auto;
+            background-color: white;
+            /*border: 1px silver solid;*/
+            box-shadow: 0px 0px 10px 1px;
+            transform:translate(-50%,-50%);
+            /*margin-left:-30%;*/
+            /*margin-top:-200px;*/
+            max-height: 546px;
+        }
+        #statementChild{
+            padding: 5px;
+        }
+        #statementChild>div{
+            margin-top: 4px;
+            /*width: 200px;*/
+        }
+        /*乘机人table*/
+        .stamentTable{
+            max-height: 90px;
+            overflow-y: scroll;
+        }
+        .childOne{
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+        .childOne>div{
+            /*width: 29%;*/
+            margin: 5px 0px 0px 5px;
+        }
+        .SizeBlue{
+            /*display: flex;*/
+            color: #4084BF;
+        }
+        .formHeight{
+            height: 38px
+        }
+        .ivu-form-item-error-tip{
+            top: 15%;
+            left: 85%;
+            width: 25px;
+            /*display: none;*/
+        }
+    </style>
+</head>
+<body>
+<div id="vuedom">
+    <foundwintable></foundwintable>
+    <div class="searchclass" @click="searchshowfun">
+        <div style="position: relative">
+            <div id="searchdiv"></div>
+            <div id="picture"></div>
+        </div>
+    </div>
+    <!--<div class="search">
+        <i-Input search enter-button="单号搜索" style="width: 270px" @on-click="searchAloneFun"/>
+    </div>-->
+    <div class="butspan" v-show="nameValue=='unchange'">
+        <button @click="manuallForm" style="margin-right: 20px">手动改签</button>
+        <button @click="change_all()" style="margin-right: 20px">一键改签</button>
+        <span>个人锁单</span><input type="radio" name="lock" @click="lock(1)" ref="lock1"/>
+        <span>未锁单</span><input type="radio" name="lock" @click="lock(2)" ref="lock2"/>
+    </div>
+    <div class="butspan" v-show="nameValue=='dealchange'">
+        <button @click="textOutFun" style="margin-right: 20px">报表下载</button>
+    </div>
+    <Tabs  v-model="nameValue" type="card" @on-click="refresh(nameValue)" :animated="false">
+        <Tab-Pane label="未改签" name="unchange" style="min-height: 900px">
+            <unchangetable :report-id.sync="reportId" v-if="nameValue=='unchange'" v-on:closeform="closeForm"></unchangetable>
+        </Tab-Pane>
+        <Tab-Pane label="已处理" name="dealchange" style="min-height: 900px">
+            <dealchangetable  v-if="nameValue=='dealchange'"></dealchangetable>
+        </Tab-Pane>
+    </Tabs>
+</div>
+<!--搜索框-->
+<template id="foundwin">
+    <div class="foundwindow" v-show="search_show">
+        <span style="font-size: 14px;font-weight: bold">搜索功能</span>
+        <div id="add">
+            <div class="form-group">
+                <div class="input-group m-b" >
+                    <!--<form-item >-->
+                        <span>订单来源：&#12288;</span>
+                        <i-select style="width:150px;" size="small" v-model="$store.state.search_obj.tickettable">
+                            <i-option  value="酷讯" >酷讯</i-option>
+                            <i-option  value="同程" >同程</i-option>
+                            <i-option  value="八千翼" >八千翼</i-option>
+                            <i-option  value="xss" >xss</i-option>
+                            <i-option  value="xsg" >xsg</i-option>
+                            <i-option  value="ttr" >ttr</i-option>
+                            <i-option  value="pai" >pai</i-option>
+                            <i-option  value="平安航旅" >平安航旅</i-option>
+                            <i-option  value="向上航服" >向上航服</i-option>
+                            <i-option  value="湘潭平安航服" >湘潭平安航服</i-option>
+                            <i-option  value="携程" >携程</i-option>
+                        </i-select>
+                    <!--</form-item>-->
+                    <!--<span class="input-group-addon">订单来源：</span><input class="form-control" v-model="$store.state.search_obj.tickettable">-->
+                </div>
+                <div class="input-group m-b" >
+                    <span class="input-group-addon">改期订单号：</span><input class="form-control" v-model="$store.state.search_obj.platformorder">
+                </div>
+                <div class="input-group m-b" v-show="name=='dealchange'">
+                    <span class="input-group-addon">出票订单号：</span><input class="form-control" v-model="$store.state.search_obj.OrderNumbe">
+                </div>
+                <div class="input-group m-b" >
+                    <span class="input-group-addon">初始日期：&#12288;</span><Date-picker type="date"  @on-change="changeStartDate" placeholder="Select start date"></Date-picker>
+                </div>
+                <div class="input-group m-b" >
+                    <span class="input-group-addon">结束日期：&#12288;</span><Date-picker type="date"  @on-change="changeEndDate" placeholder="Select end date"></Date-picker>
+                </div>
+                <div class="input-group m-b" >
+                    <span class="input-group-addon">改签乘客：&#12288;</span><input class="form-control" v-model="$store.state.search_obj.passenger">
+                </div>
+                <div class="input-group m-b" >
+                    <span class="input-group-addon">原 票 号 ：&#12288;</span><input class="form-control" v-model="$store.state.search_obj.ticketnum">
+                </div>
+                <div class="input-group m-b" >
+                    <span class="input-group-addon">处 理 人 ：&#12288;</span><input class="form-control" v-model="$store.state.search_obj.processor">
+                </div>
+                <div class="input-group m-b" v-show="name=='dealchange'">
+                    <span class="input-group-addon">处理状态：</span>
+                    <select style="margin-left: -5px; height: 21px;  border-radius: 4px;" name="goodsName" v-model="$store.state.search_obj.status">
+                        <option value="" selected="selected">全选</option>
+                        <option value="1">已改签</option>
+                        <option value="2">拒绝</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <button @click="search" >搜索</button>
+        <button @click="cancel"style="margin-right: 10px">取消</button>
+    </div>
+</template>
+<!--未改签页面-->
+<template id="unchange">
+    <div class="changetable" style="padding:1px;margin-top: -17px">
+        <statewind v-if="reportId" :report-id.sync="reportId" :stata-obj.sync="stataObj" v-on="$listeners"></statewind>
+        <table class="table" style="text-align: center; font-size: 12px">
+            <colgroup>
+                <col style="width: auto;"><!--序号-->
+                <col style="width: auto;"><!--订单来源-->
+                <col style="width: auto;"><!--订单号-->
+                <col style="width: auto;"><!--申请时间-->
+                <col style="width: 80px;"><!--改签乘客-->
+                <col style="width: auto;"><!--原票号-->
+                <col style="width: auto;"><!--原航班-->
+                <col style="width: auto;"><!--原航班时间-->
+                <col style="width: auto;"><!--新航班时间-->
+                <col style="width: auto;"><!--申请时长-->
+                <col style="width: auto;"><!--操作-->
+                <col style="width: auto;"><!--状态-->
+                <col style="width: auto;"><!--处理人-->
+            </colgroup>
+            <thead class="theadA">
+            <tr>
+                <th height="35px">序号</th>
+                <th>订单来源</th>
+                <th>订单号</th>
+                <th>申请时间</th>
+                <th>改签乘客</th>
+                <th>原票号</th>
+                <th>原航班</th>
+                <th>原航班时间</th>
+                <th>新航班时间</th>
+                <th>申请时长</th>
+                <th>操作</th>
+                <th>状态</th>
+                <th>处理人</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="tablecontent" v-for="(ele,index) in tableObj" :key="index">
+                <!--序号-->
+                <td>{{index | indexFilter(num)}}</td>
+                <!--订单来源-->
+                <td>{{ele.tickettable}}</td>
+                <!--订单号-->
+                <td>{{ele.platformorder}}</td>
+                <!--申请时长-->
+                <td>{{ele.applytime }}</td>
+                <!--改签乘客-->
+                <td :title="ele.changepassengers">
+                    <div  class="ticketNums">{{ele.changepassengers}}</div>
+                </td>
+                <td :title="ele.oldticketnums"><!--原票号-->
+                    <div class="ticketNums">{{ele.oldticketnums}}</div>
+                </td>
+                <td class="flight"><!--原航班-->
+                    <div>
+                        <div>{{ele.olddepport}}</div><!--原出发机场-->
+                        <div>{{ele.oldarrport}}</div><!--原到达机场-->
+                        <div>{{ele.oldflight}}</div><!--原航班号-->
+                        <div>{{ele.oldsubclass}}</div><!--原舱位-->
+                    </div>
+                    <div v-if="ele.oldflightback">
+                        <div>{{ele.olddepportback}}</div><!--原返程出发机场-->
+                        <div>{{ele.oldarrportback}}</div><!--原返程到达机场-->
+                        <div>{{ele.oldflightback}}</div><!--原航班号-->
+                        <div>{{ele.oldsubclassback}}</div><!--原舱位-->
+                    </div>
+                </td>
+                <!--原航班时间-->
+                <td>
+                    <div>{{ele.oldflytime }}</div><!--原航班时间-->
+                    <div v-if="ele.oldflytimeback">{{ele.oldflytimeback }}</div><!--原返程航班时间-->
+                </td>
+                <!--新航班时间-->
+                <td>
+                    <div>{{ele.flytime }}</div><!--新航班时间-->
+                    <div v-if="ele.flytimeback">{{ele.flytimeback }}</div><!--新返程航班时间-->
+                </td>
+                <!--申请时长-->
+                <td>
+                    <div style="color: red">{{ele.applytime | applytimeFilter}}分钟</div>
+                </td>
+                <!--操作-->
+                <td>
+                    <button class="tablebutt" v-if="!ele.processor" @click="change_lock(ele.id,index)">锁定</button>
+                    <div v-else-if="ele.processor==username||permission==1">
+                        <button class="tablebutt" style="display: inline-block" @click="change_determine(ele.id,ele.oldflight,ele.flytime,ele.order_id)">改签</button>&nbsp;
+                        <button class="tablebutt" style="display: inline-block" @click="change_refuse(ele.id)">拒绝</button>
+                    </div>
+                </td>
+                <td><!--状态-->
+                    <div v-if="ele.changestatus==0">未改签</div>
+                    <div v-else-if="ele.changestatus==1">已处理</div>
+                    <div v-else-if="ele.changestatus==2">拒绝</div>
+                </td>
+                <td><!--处理人-->
+                    <div v-if="!ele.processor"></div>
+                    <div v-else-if="ele.processor==username">
+                        <button class="tablebutt" @click="change_unlock(ele.id, index)">解锁</button>
+                    </div>
+                    <div v-else-if="ele.processor!=username&&permission==1">
+                        {{ele.processor}}&nbsp;
+                        <button class="tablebutt" @click="change_unlock(ele.id, index)">解锁</button>
+                    </div>
+                    <div v-else>{{ele.processor}}</div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="page">
+            <div>
+                <button @click="headpage()">首页</button>
+                <button @click="uppage()">上一页</button>
+                共<span>&nbsp;{{pages}}&nbsp;</span>页&nbsp;&nbsp;
+                第&nbsp;<input type="text" class="pageInput" :value="num" ref="num">&nbsp;页&nbsp;&nbsp;
+                <button @click="gotopage()">转到</button>
+                <button @click="downpage">下一页</button>
+                <button @click="endpage">末页</button>
+                &nbsp;&nbsp;共&nbsp;{{count}}&nbsp;条记录
+            </div>
+        </div>
+    </div>
+</template>
+<!--已处理页面-->
+<template id="dealchange">
+    <div class="changetable" style="padding:1px;margin-top: -17px">
+        <statewind v-if="reportId" :report-id.sync="reportId" :stata-obj="stataObj"></statewind>
+        <table class="table" style="text-align: center; font-size: 12px">
+            <colgroup>
+                <col style="width: auto;"><!--序号-->
+                <col style="width: auto;"><!--订单来源-->
+                <col style="width: auto;"><!--订单号-->
+                <col style="width: auto;"><!--申请时间-->
+                <col style="width: auto;"><!--改签乘客-->
+                <col style="width: auto;"><!--原票号-->
+                <col style="width: auto;"><!--原航班-->
+                <col style="width: auto;"><!--原航班时间-->
+                <col style="width: auto;"><!--新航班时间-->
+                <col style="width: auto;"><!--处理时间-->
+                <col style="width: auto;"><!--状态-->
+                <col style="width: auto;"><!--处理人-->
+            </colgroup>
+            <thead class="theadA">
+            <tr>
+                <th height="35px">序号</th>
+                <th>订单来源</th>
+                <th>订单号</th>
+                <th>申请时间</th>
+                <th>改签乘客</th>
+                <th>原票号</th>
+                <th>原航班</th>
+                <th>原航班时间</th>
+                <th>新航班时间</th>
+                <th>处理时间</th>
+                <th>状态</th>
+                <th>处理人</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="tablecontent" v-for="(ele,index) in tableObj" :key="index">
+                <td>{{index | indexFilter(num)}}</td><!--序号-->
+                <td>{{ele.tickettable}}</td><!--订单来源-->
+                <td>{{ele.platformorder}}</td><!--订单号-->
+                <td><!--申请时间-->
+                    <div @click="log(ele.id)" class="logbutton">{{ele.applytime }}</div>
+                </td>
+                <td :title="ele.changepassengers" ><!--改签乘客-->
+                    <div style="width: 70px;height: 20px;overflow: hidden;">{{ele.changepassengers}}</div>
+                </td>
+                <td :title="ele.oldticketnums"><!--原票号-->
+                    <div class="ticketNums">{{ele.oldticketnums}}</div>
+                </td>
+                <td>{{ele.oldflight}}</td><!--原航班-->
+                <td>{{ele.oldflytime }}</td><!--原航班时间-->
+                <td>{{ele.flytime }}</td><!--新航班时间-->
+                <td>{{ele.dealtime }}</td><!--处理时间-->
+                <td><!--状态-->
+                    <div class="logbutton" @click="showForm(ele.id,ele.order_id,ele.flytime)">
+                        <div v-if="ele.changestatus==0">未改签</div>
+                        <div v-else-if="ele.changestatus==1">已改签</div>
+                        <div v-else-if="ele.changestatus==2">拒绝</div>
+                    </div>
+                </td>
+                <td><!--处理人-->
+                    <div>{{ele.processor}}</div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="page">
+            <div>
+                <button @click="headpage">首页</button>
+                <button @click="uppage">上一页</button>
+                共<span>&nbsp;{{pages}}&nbsp;</span>页&nbsp;&nbsp;
+                第&nbsp;<input type="text" class="pageInput" :value="num" ref="num">&nbsp;页&nbsp;&nbsp;
+                <button type="button" @click="gotopage">转到</button>
+                <button @click="downpage">下一页</button>
+                <button @click="endpage">末页</button>
+                &nbsp;&nbsp;共&nbsp;{{count}}&nbsp;条记录
+            </div>
+        </div>
+        <log :logid.sync="logid" v-if="logid"></log>
+    </div>
+</template>
+<!--操作日志-->
+<template id="log">
+    <div class="logwindow">
+        <span style="font-size: 14px;font-weight: bold">订单日志</span>
+        <div id="logwindow">
+            <table class="table logtable">
+                <tr>
+                    <th style="width: 70px;">用户名</th>
+                    <th style="width: 100px;">时间</th>
+                    <th>操作</th>
+                </tr>
+                <tr class="tablecontent" v-for="(arr,index) in logtable">
+                    <th>{{arr.operator}}</th>
+                    <th>{{arr.time }}</th>
+                    <th>{{arr.action}}</th>
+                </tr>
+            </table>
+        </div>
+        <button @click="closelog" style="float: right; margin-top: 10px">关闭</button>
+    </div>
+</template>
+<!--报表-->
+<template id="statewind">
+    <div class="statement" >
+        <i-form
+                onsubmit="return false"
+                :model="stataObj" ref="stataObj" :rules="stataObjRules" id="statementChild">
+            <div>
+                <p style="border-bottom:1px solid #0d8ddb">订单信息</p>
+                <div class="childOne">
+                    <div class="formHeight">
+                        <form-item  prop="tickettable" >
+                            <span>所属平台</span>
+                            <i-select style="width:200px;" size="small" v-model="stataObj.tickettable">
+                                <i-option  value="酷讯" >酷讯</i-option>
+                                <i-option  value="同程" >同程</i-option>
+                                <i-option  value="八千翼" >八千翼</i-option>
+                                <i-option  value="xss" >xss</i-option>
+                                <i-option  value="xsg" >xsg</i-option>
+                                <i-option  value="ttr" >ttr</i-option>
+                                <i-option  value="pai" >pai</i-option>
+                                <i-option  value="平安航旅" >平安航旅</i-option>
+                                <i-option  value="向上航服" >向上航服</i-option>
+                                <i-option  value="湘潭平安航服" >湘潭平安航服</i-option>
+                                <i-option  value="携程" >携程</i-option>
+                            </i-select>
+                        </form-item>
+                    </div>
+                    <!--改签单号-->
+                    <div class="SizeBlue formHeight">
+                        <!--<Form-Item prop="date">-->
+                        <span style="display: inline-block;margin-top: 7px">改签单号</span>
+                        <input required style="width: 200px;"  v-model="stataObj.platformorder" />
+                        <!--</Form-Item>-->
+                    </div>
+                    <!--出票单号-->
+                    <div class="SizeBlue formHeight">
+                        <!--<Form-Item prop="date">-->
+                        <span style="display: inline-block;margin-top: 7px">出票单号</span>
+                        <input required style="width: 200px;"  v-model="stataObj.OrderNumbe" @blur="getPlateformFun(stataObj.OrderNumbe)"/>
+                        <!--</Form-Item>-->
+                    </div>
+                    <div>
+                        <span>收款金额</span>
+                        <i-input style="width: 200px;" v-model="stataObj.AmountCollected"/>
+                    </div>
+                    <div>
+                        <span>航司回款</span>
+                        <i-input style="width: 200px;"  v-model="stataObj.Refundamount"/>
+                    </div>
+                    <div>
+                        <span>航司收费</span>
+                        <i-input style="width: 200px;"  v-model="stataObj.Shippingcharges"/>
+                    </div>
+                    <div>
+                        <span>出票金额</span>
+                        <i-input style="width: 200px;"  v-model="stataObj.Amountdrawn"/>
+
+                    </div>
+                    <div>
+                        <span>改期利润</span>
+                        <i-input style="width: 200px;" v-model="profit" readonly/>
+                    </div>
+                    <div class="SizeBlue formHeight">
+                        <form-item prop="platform">
+                            <span>改期渠道</span>
+                            <i-select v-model="stataObj.platform" style="width:200px;" size="small">
+                                <i-option  value="网电" >网电</i-option>
+                                <i-option  value="官网" >官网</i-option>
+                                <i-option  value="BSP" >BSP</i-option>
+                                <i-option  value="电话" >电话</i-option>
+                            </i-select>
+                        </form-item>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <p>旅客信息</p>
+                <div class="stamentTable">
+                    <table class="table" style="text-align: center">
+                        <colgroup  style="width:auto"></colgroup><!--选择-->
+                        <colgroup  style="width:auto"></colgroup><!--姓名-->
+                        <colgroup  style="width:auto"></colgroup><!--票号-->
+                        <colgroup  style="width:auto"></colgroup><!--航班证件号号-->
+                        <colgroup  style="width:auto"></colgroup><!--状态-->
+                        <thead class="theadA">
+                        <tr>
+                            <th>添加</th>
+                            <th class="SizeBlue">姓名</th>
+                            <th class="SizeBlue">改期后票号</th>
+                            <th>原票号</th>
+                            <th>删除</th>
+                        </tr>
+                        </thead>
+                        <tbody class="tbodyHeight">
+                        <tr v-for="(obj,inde) in stataObj.passengers" :key="inde">
+                            <td class="">
+                                <!--<button @click="add">添加新旅客</button>-->
+                                <i-button size="small" @click="add" type="warning" shape="circle">添加新旅客</i-button>
+                            </td>
+                            <td class="SizeBlue">
+                                <input type="text" v-model="obj.man"/>
+                            </td>
+                            <td class="SizeBlue">
+                                <input type="text" v-model="obj.ticketNums"/>
+                            </td>
+                            <td class="SizeBlue">
+                                <input type="text" v-model="obj.ticketNum"/>
+                            </td>
+                            <td class="">
+                                <i-button size="small" @click="delet(obj.delet,inde)" type="primary" shape="circle">删除该旅客</i-button>
+                                <!--<button @click="delet(obj.delet,inde)">删除该旅客</button>-->
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <p style="border-bottom:1px solid #0d8ddb">改期信息</p>
+                <div class="childOne">
+                    <div class="SizeBlue formHeight">
+                        <form-item prop="Paymentmethod">
+                            <span>支付航司方式</span>
+                            <i-select v-model="stataObj.Paymentmethod" style="width:200px;" size="small">
+                                <i-option  value="易宝" >易宝</i-option>
+                                <i-option  value="3823支付宝" >3823支付宝</i-option>
+                                <i-option  value="免费改期" >免费改期</i-option>
+                                <i-option  value="娟婷光大卡" >娟婷光大卡</i-option>
+                                <i-option  value="微信" >微信</i-option>
+                            </i-select>
+                        </form-item>
+                    </div>
+                    <div class="SizeBlue formHeight">
+                        <form-item prop="CustomerPaymentMethod">
+                            <span>客人支付方式</span>
+                            <i-select required v-model="stataObj.CustomerPaymentMethod" style="width:200px;" size="small">
+                                <i-option  value="线上" >线上</i-option>
+                                <i-option  value="线下支付宝" >线下支付宝</i-option>
+                                <i-option  value="线下微信" >线下微信</i-option>
+                                <i-option  value="线下链接" >线下链接</i-option>
+                                <i-option  value="免费改期" >免费改期</i-option>
+                            </i-select>
+                        </form-item>
+                    </div>
+                    <div class="formHeight">
+                        <form-item>
+                            <span>去电改期电话</span>
+                            <i-input style="width: 200px;"  v-model="stataObj.telephone"/>
+                        </form-item>
+                    </div>
+                    <div>
+                        <form-item prop="processor">
+                            <span class="SizeBlue formHeight">提交人员&#12288;&#12288;</span>
+                            <i-input required style="width: 200px;"  v-model="stataObj.processor"/>
+                        </form-item>
+                    </div>
+                    <div class="SizeBlue formHeight">
+                        <form-item prop="ReScheduler">
+                            <span >改期方式&#12288;&#12288;</span>
+                            <i-select required v-model="stataObj.ReScheduler" style="width:200px;" size="small">
+                                <i-option  value="正常改期">正常改期</i-option>
+                                <i-option  value="退票重出" >退票重出</i-option>
+                            </i-select>
+                        </form-item>
+                    </div>
+                    <div style="width: 31%">
+                        <i-input type="textarea" :autosize="true" v-model="stataObj.Remarks" placeholder="备注"/>
+                    </div>
+                    <div class="SizeBlue formHeight" ref="operationflytime">
+                        <!--<form-item prop="flytime">-->
+                            <span>改期出发日期</span>
+                            <Date-Picker
+                                    type="datetime"
+                                    v-model="stataObj.flytime"
+                                    style="width: 200px;"></Date-Picker>
+                        <!--</form-item>-->
+                    </div>
+                    <div class="SizeBlue formHeight" ref="operationtime">
+                        <form-item prop="arrtime" >
+                            <span>改期到达日期</span>
+                            <Date-Picker
+                                    type="datetime"
+                                    v-model="stataObj.arrtime"
+
+                                    @on-open-change="flyTimeFun"
+
+                                    style="width: 200px;"></Date-Picker>
+                        </form-item>
+                    </div>
+                    <div class="formHeight">
+                        <form-item prop="flight">
+                            <span>航班号</span>
+                            <i-input style="width: 200px;"  @on-blur="stataObjOldFlightFun" v-model="stataObj.flight"/>
+                        </form-item>
+                    </div>
+                </div>
+            </div>
+            <!--<div>-->
+                <form-item style="display: flex;justify-content: flex-end">
+                    <!--<i-button size="small" @click="saveOrd(stataObj.id),handleSubmit('stataObj')" type="primary" shape="circle">保存</i-button>-->
+                    <input class="butt"  @click="saveOrd('stataObj',reportId)" type="submit" value="保存" style="margin-right: 10px"/>
+                    <input  @click="close" class="butt" value="关闭" style="width: 40px"/>
+                </form-item>
+            <!--</div>-->
+        </i-form>
+    </div>
+</template>
+
+<script src="../vue/axios.min.js"></script>
+<script src="../vue/vue-router.js"></script>
+<script src="../vue/vuex.js"></script>
+<script src="../resource/iview-2.0/dist/iview.js"></script>
+<script src="../bingo/js/calc.min.js"></script>
+
+<script type="text/javascript">
+    Vue.config.devtools = true;
+    const store = new Vuex.Store({
+        state:{
+            //组件
+            name:"unchange",
+            tableChange:0,                   //个人锁单、未锁单：默认为0、个人锁单为1、未锁单为2
+            refresh:0,                       //刷新页面：默认为0、改变时刷新
+            search_show:false,              //搜索框显示开关
+            search_flag:0,                   //搜索标识，改变时触发监视器搜索
+            search_switch:false,            //搜索开关，当此状态为false时，说明搜索状态关闭，就不必去循环“搜索对象”，判断是否全为空
+            //搜索对象
+            search_obj: {
+                tickettable: null,           //订单来源
+                platformorder: null,         //改期订单号
+                OrderNumbe:null,             //出票订单号
+                starttime: null,             //申请时间-开始
+                endtime: null,               //申请时间-结束
+                passenger: null,             //改签乘客
+                ticketnum: null,             //原票号
+                processor: null,             //处理人
+                status: null,                //处理状态;1是已改签，2是拒绝
+            }
+        },
+        mutations:{
+            //清空所有请求条件
+            empty_condition(){
+                this.commit("empty_lock");
+                this.commit("empty_search");
+            },
+            //清空锁单条件
+            empty_lock(state){
+                state.tableChange = 0;
+            },
+            //清空搜索条件
+            empty_search(state){
+                state.search_switch = false;
+                for(let key in state.search_obj){
+                    state.search_obj[key] = null;
+                }
+            },
+        },
+    });
+    //未处理
+    Vue.component('unchangetable',{
+        template:'#unchange',
+        props:['reportId'],
+        data(){
+            return{
+                //改签列表对象
+                tableObj:null,
+                //最大页数
+                pages:0,
+                //当前用户
+                username:null,
+                //是否拥有高级权限
+                permission:null,
+                //改签单总数
+                count:0,
+                //当前页数，默认为1
+                num:1,
+            //    报表id 流程改变，该变量暂时失效
+            //     reportId:undefined,
+            //    报表数据载体
+                stataObj:undefined,
+            }
+        },
+        watch:{
+            //当点击个人锁单 和 未锁单时候触发
+            tableChange(){
+                if(this.tableChange == 1 || this.tableChange == 2){
+                    this.$store.commit("empty_search");
+                    this.order_change();
+                }
+            },
+            //搜索标识改变时触发搜索
+            search_flag(){
+                if(this.search_switch == true){
+                    this.order_change();
+                }
+            },
+            //刷新页面
+            refresh(){
+                this.$store.commit("empty_condition");
+                this.order_change();
+            },
+            reportId(){
+                if(this.reportId === -1){
+                    let time = new Date();
+                    this.stataObj = {
+                        AmountCollected: 0,
+                        Amountdrawn: 0,
+                        CustomerPaymentMethod: "",
+                        Paymentmethod: "",
+                        ReScheduler: "",
+                        Refundamount: 0,
+                        Remarks: "",
+                        Shippingcharges: 0,
+                        dealtime: time,
+                        passengers: [{man: "", ticketNum: "", ticketNums: ""}],
+                        platform: "",
+                        platformorder: "",
+                        processor: "",
+                        profit: 0,
+                        telephone: "",
+                        tickettable: "",
+                        permission:1,
+                        OrderNumbe:'',
+                    };
+                }
+            }
+        },
+        computed:{
+            name(){
+                return this.$store.state.name;
+            },
+            tableChange(){
+                return this.$store.state.tableChange;
+            },
+            refresh(){
+                return this.$store.state.refresh;
+            },
+            search_switch(){
+                return this.$store.state.search_switch;
+            },
+            search_flag(){
+                return this.$store.state.search_flag;
+            },
+            search_obj(){
+                return this.$store.state.search_obj;
+            },
+        },
+        methods:{
+            //请求获取未改签列表，搜索功能，翻页皆为此方法
+            order_change(page = 1){
+                //关闭搜索框
+                this.$store.state.search_show = false;
+                let data = {
+                    page
+                };
+                if (this.search_switch){
+                    for (let key in this.search_obj){
+                        if (this.search_obj[key]){
+                            data[key] = this.search_obj[key];
+                        }
+                    }
+                }else {
+                    if (this.tableChange == 1){
+                        data['personlock'] = 1;
+                    }else if (this.tableChange == 2){
+                        data['unlock'] = 1;
+                    }
+                }
+                axios({
+                    url:"../bingo/order_change.php?action=order_change",
+                    method:'post',
+                    data:data
+                }).then(res=>{
+                    if(res.data.sus){
+                        this.tableObj = res.data.data;
+                        this.pages = res.data.max_page;
+                        this.username = res.data.username;
+                        this.permission = res.data.permission;
+                        this.count = res.data.count;
+                        this.num = page;
+                    }else {
+                        this.tableObj = null;
+                        this.pages = 0;
+                        this.username = null;
+                        this.permission = null;
+                        this.count = 0;
+                        this.num = 1;
+                    }
+                }).catch(err=>{
+                    console.log(err);
+                });
+            },
+            //锁定
+            change_lock(id, index){
+                axios({
+                    url:"../bingo/order_change.php?action=change_lock",
+                    method:'post',
+                    data:{
+                        id
+                    }
+                }).then(res=>{
+                    if(res.data.sus){
+                        //alert("锁单成功");
+                        this.tableObj[index].processor = this.username;
+                    }else {
+                        alert("锁单失败");
+                    }
+                }).catch(err=>{
+                   console.log(err);
+                });
+            },
+            //解锁
+            change_unlock(id, index){
+                axios({
+                    url:"../bingo/order_change.php?action=change_unlock",
+                    method:'post',
+                    data:{
+                        id
+                    }
+                }).then(res=>{
+                    if(res.data.sus){
+                    //alert("解锁成功");
+                    this.tableObj[index].processor = null;
+                }else {
+                    alert("解锁失败");
+                }
+            }).catch(err=>{
+                    console.log(err);
+            });
+            },
+            //确认改签
+            change_determine(id,flight,flytime,order_id){
+                axios({
+                    url:"../bingo/order_change.php?action=change_determine",
+                    method:'post',
+                    data:{
+                        id
+                    }
+                }).then(res=>{
+                    if(res.data.sus){
+                    //alert("改签成功");
+                    // window.location.reload(true);
+                    //     this.reportId = id;
+                        this.$emit('update:reportId',id)
+                        res.data.data.permission = 1;
+                        res.data.data.flight = flight;
+                        res.data.data.flytime = flytime;
+                        res.data.data.order_id = order_id;
+                        this.stataObj = res.data.data;
+                    }else {
+                        alert("改签失败");
+                    }
+                }).catch(err=>{
+                        console.log(err);
+                });
+            },
+            //拒绝改签
+            change_refuse(id){
+                axios({
+                    url:"../bingo/order_change.php?action=change_refuse",
+                    method:'post',
+                    data:{
+                        id
+                    }
+                }).then(res=>{
+                    if(res.data.sus){
+                    //alert("决绝成功");
+                    window.location.reload(true);
+                    }else {
+                        alert("拒绝失败");
+                    }
+                }).catch(err=>{
+                        console.log(err);
+                });
+            },
+            /*翻页*/
+            //首页
+            headpage:function(){
+                this.axfun(1);
+            },
+            //尾页
+            endpage:function(){
+                this.axfun(this.pages);
+            },
+            //上一页
+            uppage:function(){
+                if (this.num > 1){
+                    this.axfun(this.num - 1);
+                }
+            },
+            //下一页
+            downpage:function(){
+                if (this.num < this.pages){
+                    this.axfun(this.num + 1);
+                }
+            },
+            //跳转
+            gotopage:function(){
+                let page = this.$refs.num.value;
+                if (page < 1 || page > this.pages){
+                    alert("没有该页码");
+                }else {
+                    page = Math.round(page);
+                    this.axfun(page);
+                }
+            },
+            //传入页码
+            axfun:function(page){
+                this.order_change(page);
+            }
+        },
+        filters:{
+            /*序号*/
+            indexFilter:function(data, num){
+                let n = (num - 1)*20;
+                n = data + n + 1;
+                return n;
+            },
+            /*时间格式*/
+            timeFilter(data){
+                // if (data){
+                    /*data = data.replace(/(^[0-9]{2})/,'');
+                    data = data.replace(/(:[0-9]{2}$)/,'');
+                    data = data.replace(/(00:00$)/,'');		*/
+                    //部分新航班时间未知，这里把系统自动生成的00:00去除，以免产生误解
+                    // return data;
+                // }
+            },
+            /*申请时长*/
+            applytimeFilter(applytime){
+                if (applytime){
+                    var time1 = new Date(applytime);
+                    var time2 = new Date();
+                    var m = Math.ceil((time2 - time1)/1000/60);
+                    return m;
+                }
+            }
+        },
+        created(){
+            this.$store.commit("empty_condition");
+            this.$store.state.name = "unchange";
+            this.order_change();
+        }
+    });
+    //已处理
+    Vue.component('dealchangetable',{
+        template:'#dealchange',
+        data(){
+            return{
+                //已处理列表对象
+                tableObj:null,
+                //最大页数
+                pages:0,
+                //当前用户
+                username:null,
+                //是否拥有高级权限
+                permission:null,
+                //已处理订单总数
+                count:0,
+                //当前页数，默认为1
+                num:1,
+                //日志id
+                logid:null,
+                //    报表id 流程改变，该变量暂时失效
+                reportId:undefined,
+                //    报表数据载体
+                stataObj:undefined,
+            }
+        },
+        watch:{
+            //搜索框开关改变时触发
+            search_show(){
+                if (this.search_show == true){
+                    this.logid = null;
+                }
+            },
+            //搜索标识改变时触发搜索
+            search_flag(){
+                if(this.search_switch == true){
+                    this.change_ok();
+                }
+            },
+            //刷新页面
+            refresh(){
+                this.$store.commit("empty_condition");
+                this.change_ok();
+            },
+        },
+        computed:{
+            name(){
+                return this.$store.state.name;
+            },
+            refresh(){
+                return this.$store.state.refresh;
+            },
+            search_switch(){
+                return this.$store.state.search_switch;
+            },
+            search_flag(){
+                return this.$store.state.search_flag;
+            },
+            search_obj(){
+                return this.$store.state.search_obj;
+            },
+            search_show(){
+                return this.$store.state.search_show;
+            },
+        },
+        methods:{
+            change_ok(page = 1){
+                //关闭搜索框、日志
+                this.$store.state.search_show = false;
+                this.logid = null;
+                let data = {
+                    page
+                };
+                if (this.search_switch){
+                    for (let key in this.search_obj){
+                        if (this.search_obj[key]){
+                            data[key] = this.search_obj[key];
+                        }
+                    }
+                }
+                axios({
+                    url:"../bingo/order_change.php?action=change_ok",
+                    method:'post',
+                    data:data,
+                }).then(res=>{
+                    if(res.data.sus){
+                        this.tableObj = res.data.data;
+                        this.pages = res.data.max_page;
+                        this.username = res.data.username;
+                        this.permission = res.data.permission;
+                        this.count = res.data.count;
+                        this.num = page;
+                    }else{
+                        this.tableObj = null;
+                        this.pages = 0;
+                        this.username = null;
+                        this.permission = null;
+                        this.count = 0;
+                        this.num = 1;
+                    }
+                }).catch(err=>{
+                    console.log(err);
+                });
+            },
+            //赋值id，开启日志窗口
+            log(id){
+                this.logid = id;
+            },
+            //是否展示报表弹窗
+            showForm(id,order_id,arrtime){
+                axios({
+                    url:'../bingo/order_change.php?action=statement_infos',
+                    method:'get',
+                    params:{
+                        id
+                    }
+                }).then(res=>{
+                    if(res.data.sus){
+                        res.data.data.permission = res.data.permission;
+                        res.data.data.order_id = order_id;
+                        // res.data.data.arrtime = arrtime;
+                        this.reportId = id;
+                        this.stataObj = res.data.data;
+                        console.log(this.stataObj)
+                    }else{
+                        alert('查询失败');
+                    }
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            /*翻页*/
+            //首页
+            headpage:function(){
+                this.axfun(1);
+            },
+            //尾页
+            endpage:function(){
+                this.axfun(this.pages);
+            },
+            //上一页
+            uppage:function(){
+                if (this.num > 1){
+                    this.axfun(this.num - 1);
+                }
+            },
+            //下一页
+            downpage:function(){
+                if (this.num < this.pages){
+                    this.axfun(this.num + 1);
+                }
+            },
+            //跳转
+            gotopage:function(){
+                let page = this.$refs.num.value;
+                if (page < 1 || page > this.pages){
+                    alert("没有该页码");
+                }else {
+                    page = Math.round(page);
+                    this.axfun(page);
+                }
+            },
+            //传入页码
+            axfun:function(page){
+                this.change_ok(page);
+            }
+        },
+        filters:{
+            /*序号*/
+            indexFilter:function(data, num){
+                let n = (num - 1)*20;
+                n = data + n + 1;
+                return n;
+            },
+            /*时间格式*/
+            timeFilter(data){
+                if (data){
+                    data = data.replace(/(^[0-9]{2})/,'');
+                    data = data.replace(/(:[0-9]{2}$)/,'');
+                    data = data.replace(/(00:00$)/,'');
+                    return data;
+                }
+            },
+        },
+        created(){
+            this.$store.commit("empty_condition");
+            this.$store.state.name = "dealchange";
+            this.change_ok();
+        }
+    });
+    //查询框
+    Vue.component('foundwintable',{
+        "template":'#foundwin',
+        data(){
+            return{ }
+        },
+        watch:{},
+        computed:{
+            name(){
+                return this.$store.state.name;
+            },
+            search_show(){
+                return this.$store.state.search_show;
+            },
+            search_switch(){
+                return this.$store.state.search_switch;
+            },
+        },
+        methods:{
+            //搜索框选择日期   由于iview时间格式是UTC时间（格林尼治标准时间），所以不能使用v-model双向绑定
+            //申请开始时间
+            changeStartDate(date){
+                this.$store.state.search_obj.starttime = date;
+            },
+            //申请结束时间
+            changeEndDate(date){
+                this.$store.state.search_obj.endtime = date;
+            },
+            //取消按钮
+            cancel(){
+                this.$store.state.search_show = false;      //关闭搜索框
+            },
+            //搜索按钮
+            search(){
+                this.$store.state.search_show = false;      //关闭搜索框
+                this.$store.state.tableChange = 0;          //清空锁单筛选条件
+                domvue.empty_checked();                      //清空锁单已选
+                this.$store.state.search_switch = true;     //打开搜索开关
+                this.$store.state.search_flag += 1;         //改变搜索标识
+            }
+        },
+        filters:{},
+        created(){
+        }
+    });
+    //日志
+    Vue.component('log',{
+        "template": "#log",
+        props:['logid'],
+        data(){
+            return{
+                //日志对象
+                logtable:null,
+            }
+        },
+        methods:{
+            closelog(){
+                this.$emit("update:logid",null);
+            }
+        },
+        filters:{
+            /*时间格式*/
+            timeFilter(data){
+                if (data){
+                    data = data.replace(/(^[0-9]{2})/,'');
+                    data = data.replace(/(:[0-9]{2}$)/,'');
+                    return data;
+                }
+            },
+        },
+        created(){
+            axios({
+                url:'../bingo/order_change.php?action=change_log',
+                method:'post',
+                data:{
+                    id:this.logid
+                }
+            }).then(res=>{
+                if(res.data.sus){
+                    this.logtable = res.data.data;
+                    //关闭查询框
+                    this.$store.state.search_show = false;
+                }
+            }).catch(err=>console.log(err))
+        }
+    });
+    //报表
+    Vue.component('statewind',{
+        template:'#statewind',
+        data(){
+            return{
+                //表单验证
+                passengers:undefined,
+                stataObjRules:{
+                    tickettable: [{required: true,message:'必填',trigger:'change'}],
+                    date: [{ required: true, message: '必填', trigger: 'blur' }],
+                    platform:[{required: true,message:'必填',trigger:'change'}],
+                    Paymentmethod:[{required: true,message:'必填',trigger:'change'}],
+                    ReScheduler:[{required: true,message:'必填',trigger:'change'}],
+                    CustomerPaymentMethod:[{required: true,message:'必填',trigger:'change'}],
+                    processor:[{required: true,message:'必填',trigger:'change'}],
+                    flight:[{required: true,message:'必填',trigger:'change'}],
+
+                },
+                //表单能否更改权限
+                stataObjPermission:null,
+            //
+            //     profit:null,
+            }
+        },
+        props:['reportId','stataObj'],
+        watch:{
+            passengers:function () {
+                this.$nextTick(()=>{
+                    let statement = document.getElementsByClassName('statement')[0];
+                    if(statement.offsetHeight%2!=0){
+                        statement.style.height = statement.offsetHeight+1+'px';
+                    }
+                })
+            },
+        },
+        //报表
+        computed:{
+            /*refundProfitTotal(){
+                if(this.stataObj.submitAirlineType == 1 || this.stataObj.submitAirlineType == 2){
+                    return this.stataObj.refundProfitTotal = calc.sub(this.stataObj.totalMoney, this.platformRefund)
+                }else{
+                    return this.stataObj.refundProfitTotal = calc.sub(this.refund, this.platformRefund)
+                }
+            },
+            //航司退款
+            refund(){
+                return this.stataObj.refund = calc.sub(this.stataObj.totalMoney, this.stataObj.deductionFee)
+            },
+            //平台退款
+            platformRefund(){
+                return this.stataObj.platformRefund = calc.sub(this.stataObj.saleTotal, this.stataObj.refundCost)
+            }*/
+            profit:{
+                get () {
+                    let a = calc.add(this.stataObj.AmountCollected,this.stataObj.Refundamount);
+                    let b = calc.add(this.stataObj.Shippingcharges,this.stataObj.Amountdrawn);
+                    return calc.sub(a,b)
+                },
+                /*set(value){
+                    return value
+                }*/
+            }
+        },
+        methods:{
+            add:function () {
+                //创建一个新对象，里面加一个自己定义的名值对，但是原本已存在的是没有该值得
+                let a = {delet:1};
+                this.stataObj.passengers.push(a)
+            },
+            delet:function (flag,index) {
+                //利用上面定义的名值对，来删除自己新增的对象，默认已存在的对象（旅客），是没有该名值对的
+                if(flag==1||this.reportId==-1){
+                    if(this.stataObj.passengers.length===1){
+                        return
+                    }
+                    this.stataObj.passengers.splice(index,1);
+                }else{
+                    alert('默认旅客不可删除')
+                }
+            },
+            //保存报表
+            saveOrd(name,id){
+                this.stataObj.profit = this.profit;
+                let flytime = this.$refs.operationflytime.getElementsByClassName('ivu-input')[0].value;
+                let arrtime = this.$refs.operationtime.getElementsByClassName('ivu-input')[0].value;
+                this.$set(this.stataObj,'flytime',flytime)
+                this.$set(this.stataObj,'arrtime',arrtime)
+                if(this.reportId==-1){
+                    if(this.stataObjPermission){
+                        //验证出发日期和到达日期是否填写
+                        if(!this.stataObj.flytime || !this.stataObj.arrtime){
+                            this.$Message.error({
+                                content:'改期出发日期或改期到达日期必须填写',
+                                duration:30,
+                                closable:true,
+                            });
+                            return
+                        }
+                        //验证表单
+                        this.$refs[name].validate((valid) => {
+                            if (!valid) {
+                                this.$Message.error('请填写必填项');
+                            }else{
+                                axios({
+                                    url:'../bingo/order_change.php?action=insert_statement',
+                                    method:"post",
+                                    data:this.stataObj
+                                }).then(res=>{
+                                    if(res.data.sus){
+                                        alert('保存成功')
+                                        window.location.reload(true)
+                                    }else{
+                                        alert("保存失败"+res.data.data)
+                                    }
+                                }).catch(err=>console.log(err))
+                            }
+                        })
+                    }else if(!this.permission==1){
+                        alert('没有更改权限')
+                    }
+                }else{
+                    this.$refs[name].validate((valid) => {
+                        if(!this.stataObj.flytime || !this.stataObj.arrtime) {
+                            this.$Message.error({
+                                content: '改期出发日期或改期到达日期必须填写',
+                                duration: 30,
+                                closable: true,
+                            });
+                            return
+                        }
+                        if (!valid) {
+                            this.$Message.error('请填写必填项');
+                        }else{
+                            this.stataObj.id = id;
+                            axios({
+                                url:'../bingo/order_change.php?action=update_statement',
+                                method:"post",
+                                data:this.stataObj
+                            }).then(res=>{
+                                if(res.data.sus){
+                                    alert('保存成功')
+                                    window.location.reload(true)
+                                }else{
+                                    alert("保存失败"+res.data.data)
+                                }
+                            }).catch(err=>console.log(err))
+                        }
+                    })
+                }
+
+            },
+            //关闭报表
+            close:function () {
+                // this.$listeners.closeForm()
+                if(this.$listeners.closeform){
+                    this.$listeners.closeform()
+                }else{
+                    this.$emit('update:reportId',null)
+                }
+            },
+        //    获取后台其他默认值（通过订单号）
+            getPlateformFun(OrderNumbe){
+                if(this.reportId===-1){
+                    axios({
+                        url:'../bingo/order_change.php?action=default',
+                        method:'get',
+                        params:{
+                            OrderNumbe
+                        }
+                    }).then(res=>{
+                        this.stataObj.tickettable = res.data.tickettable;
+                        // this.stataObj.platformorder = res.data.platformorder;
+                        this.stataObj.processor = res.data.processor;
+                        this.stataObj.passengers = res.data.passengers;
+                        console.log(this.stataObj.tickettable)
+                    }).catch(err=>{console.log(err)})
+                }
+            },
+        //    修改老航班号为新航班号
+            stataObjOldFlightFun(){
+                this.$set(this.stataObj, 'flight', event.target.value)
+            },
+        //    粘贴渲染值
+            flyTimeFun(data){
+                if(!data){
+                    this.$set(this.stataObj,'arrtime',this.$refs.operationtime.getElementsByClassName('ivu-input')[0].value)
+                }
+            }
+        },
+        created(){
+            this.passengers = this.stataObj.passengers;
+            this.stataObjPermission = this.stataObj.permission;
+        },
+    });
+    let domvue = new Vue({
+        el:'#vuedom',
+        store,
+        data:{
+            nameValue:'unchange',
+        //    报表id，此处仅用来调出报表,而在未处理和已处理，则是需要使用真正id的
+        //    2020.1.17 补录 解释 或许与手工改签报表有关，其他订单打开报表需要id,但是手工录入初始时候没有id 后期注意！！
+            reportId:undefined,
+        },
+        computed:{},
+        methods:{
+            //个人锁单、未锁单
+            lock(data){
+                this.$store.state.tableChange = data;
+            },
+            //刷新页面
+            refresh(data){
+                this.$store.state.refresh += 1;
+                this.empty_checked();
+            },
+            //清除锁单已选
+            empty_checked(){
+                this.$refs.lock1.checked = false;
+                this.$refs.lock2.checked = false;
+            },
+            //手动改期
+            manuallForm(){
+                this.reportId = -1;
+            },
+            //关闭弹窗
+            closeForm(){
+                this.reportId = undefined
+            },
+            //一键改签(功能待废弃)
+            change_all(){
+                axios({
+                    url:"../bingo/order_change.php?action=change_all",
+                    method:'post',
+                    data:{}
+                }).then(res=>{
+                    if(res.data.sus){
+                    //alert("锁单成功");
+                    window.location.reload(true);
+                    }else {
+                        alert("一键改签失败");
+                    }
+                }).catch(err=>{
+                        console.log(err);
+                });
+            },
+            //搜索框显示开关
+            searchshowfun(){
+                this.$store.state.search_show = !this.$store.state.search_show;
+            },
+        //    报表下载
+            textOutFun(){
+                axios({
+                    url:"../bingo/order_change.php?action=out",
+                    method:'post',
+                    responseType: 'blob',
+                    data:this.$store.state.search_obj
+                }).then(response=>{
+                    if(response.data.size>0){
+                        let filename = '改签报表';
+                        let url = window.URL.createObjectURL(response.data)
+                        let link = document.createElement('a')
+                        link.style.display = 'none'
+                        link.href = url
+                        link.setAttribute('download', filename + '.xls')
+                        document.body.appendChild(link)
+                        link.click()
+                    }else{
+                        alert('日期错误或暂无数据');
+                    }
+                }).catch(err=>{
+                    console.log(err);
+                });
+            },
+        //    单独搜索
+            searchAloneFun(){
+
+            }
+        }
+    });
+</script>
+</body>
+
+</html>

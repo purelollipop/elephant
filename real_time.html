@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>国际总订单</title>
+  <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+  <script src="../vue/vue.js"></script>
+  <script src="../resource/iview-2.0/dist/iview.min.js"></script>
+  <style>
+  .ivu-table-cell {
+    padding: 10px;
+    /*padding-right: 2px;*/
+  }
+
+  /*.ivu-card-body {*/
+  /*padding: 2px;*/
+  /*!*padding-left: 0px;*!*/
+  /*!*padding-right: 0px;*!*/
+  /*!*padding-bottom: 3px;*!*/
+
+  /*}*/
+
+  /*.chooseChild {*/
+  /*width: 180px;*/
+  /*!*margin-right: 10px;*!*/
+  /*margin-top: 5px;*/
+  /*}*/
+
+  /*.ivu-input-group {*/
+  /*display: table;*/
+  /*border-collapse: separate;*/
+  /*position: relative;*/
+  /*font-size: 12px;*/
+  /*top: 0px;*/
+  /*}*/
+
+  /*.ivu-select-single .ivu-select-selection .ivu-select-placeholder {*/
+  /*color: #000000;*/
+  /*}*/
+  </style>
+</head>
+<body>
+<div id="orderApp">
+  <com-Accomplish></com-Accomplish>
+</div>
+<template id="test">
+  <Row span="24">
+    <i-Col>
+      <Card dis-hover style="margin-bottom: 2px;">
+        <i-Button type="primary" size="small" @click="closeSearch">
+          <Icon type="ios-search"></Icon>
+          搜索
+        </i-Button>
+        <Card v-if="searchFlag" style="margin-top: 5px">
+          <Row type="flex" justify="start" :gutter="5" class="code-row-bg">
+            <i-Col>
+              <i-Input style="width: 180px">
+                <span slot="prepend">出发地三字码</span>
+              </i-Input>
+            </i-Col>
+            <i-Col>
+              <i-Input style="width: 180px">
+                <span slot="prepend">到达地三字码</span>
+              </i-Input>
+            </i-Col>
+            <i-Col>
+              <Date-picker type="date"
+                           placement="bottom-end"
+                           placeholder="起飞日期"
+                           @on-change="payTimeFun">
+              </Date-picker>
+            </i-Col>
+          </Row>
+          <Row type="flex" justify="end" :gutter="5" class="code-row-bg">
+            <i-Col>
+              <i-Button>确定</i-Button>
+            </i-Col>
+          </Row>
+        </Card>
+      </Card>
+      </Card>
+    </i-Col>
+    <i-Col>
+      <i-Table ref="ticketTable" border highlight-row stripe height="600" size="small" :loading="loading"
+               :columns="accomplishColumns" :data="accomplishData">
+      </i-Table>
+      <div style="margin-bottom:2px">
+        <div style="float: right;">
+          <Page show-total
+                :total="pageTotal"
+                :current="pageNum"
+                show-elevator
+                :page-size=20
+                placement="top"
+                @on-change="handlePage">
+          </Page>
+        </div>
+      </div>
+    </i-Col>
+  </Row>
+</template>
+</body>
+<script src="../vue/axios.min.js"></script>
+<script src="../vue/vuex.js"></script>
+<script>
+const comAccomplish = {
+  template: '#test',
+  data () {
+    return {
+      accomplishColumns: [
+        {
+          align: 'center',
+          width: 50,
+          fixed: 'left',
+          render: (h, params) => {
+            return h('span', params.index + (this.pageNum - 1) * this.pageSize + 1)
+          }
+        },
+        {
+          title: '更新时间',
+          key: 'lasttime',
+          align: 'center'
+        },
+        {
+          title: '出发',
+          key: 'dptAirport',
+          align: 'center'
+        },
+        {
+          title: '到达',
+          key: 'arrAirPort',
+          align: 'center'
+        },
+        {
+          title: '日期',
+          key: 'date',
+          align: 'center'
+        },
+        {
+          title: '航司',
+          key: 'carrier',
+          align: 'center'
+        },
+        {
+          title: '航班号',
+          key: 'code',
+          align: 'center'
+        },
+        {
+          title: '起飞',
+          key: 'dptTime',
+          align: 'center'
+        },
+        {
+          title: '到达',
+          key: 'arrTime',
+          align: 'center'
+        },
+        {
+          title: '机型',
+          key: 'planeType',
+          align: 'center'
+        },
+        {
+          title: '余位',
+          key: 'seatsForSale',
+          align: 'center'
+        },
+        {
+          title: '经济余位',
+          key: 'seatsForJinji',
+          align: 'center'
+        },
+        {
+          title: 'Y舱价',
+          key: 'cabinYPrice',
+          align: 'center'
+        },
+        {
+          title: '舱位',
+          key: 'saleCabinCode',
+          align: 'center'
+        },
+        {
+          title: '经济舱位',
+          key: 'jinjiCabinCode',
+          align: 'center'
+        },
+        {
+          title: '年龄限制',
+          key: 'ageLimit',
+          align: 'center'
+        },
+        {
+          title: '直享',
+          key: 'printPrice',
+          align: 'center'
+        },
+        {
+          title: '经济舱价',
+          key: 'jinjiPrice',
+          align: 'center'
+        },
+        {
+          title: '编号',
+          key: 'pos',
+          align: 'center'
+        },
+        {
+          title: 'app直享价',
+          key: 'appCabinPrice',
+          align: 'center'
+        },
+        {
+          title: '星期',
+          key: 'weekNumber',
+          align: 'center'
+        },
+        {
+          title: '出发航站楼',
+          key: 'dptStation',
+          align: 'center'
+        },
+        {
+          title: '到达航站楼',
+          key: 'arrStation',
+          align: 'center'
+        },
+        {
+          title: 'app经济舱价',
+          key: 'appjinjiPrice',
+          align: 'center'
+        },
+        {
+          title: '来源',
+          key: 'isapp',
+          align: 'center'
+        },
+        {
+          title: '操作',
+          align: 'center',
+          width: 80,
+          fixed: 'right',
+          render: (h, params) => {
+            if (params.row.carrier === '9C') {
+              return h('div', [
+                h('Button', {
+                  props: {
+                    type: 'error',
+                    size: 'small'
+                    // icon: 'md-battery-charging',
+                  },
+                  on: {
+                    click: () => {
+                      this.showOrderZZ(params.row.id)
+                    }
+                  }
+                }, '查看')
+              ])
+            }
+          }
+        }
+      ],
+      accomplishData: [],
+
+      loading: false,
+      pageTotal: 0,
+      pageNum: 1,
+      pageSize: 20,
+
+      searchFlag: false,
+      //搜索条件开启，用与翻页时候判断是否要带搜索条件
+      carrier: null,
+      chooseObj: {
+        //平台
+        ticketTable: undefined,
+        //订单号
+        orderNo: undefined,
+        // 下单时间
+        //  ordTime:undefined,
+        // 起飞日期
+        //  flyTime:undefined,
+        //航司
+        carrier: null,
+        //    小编
+        pnrCode: null,
+        //    航班信息
+        flightNumber: null,
+        //    仓位
+        cabin: null,
+        //    乘机人
+        passname: null,
+        //    票号
+        ticketNo: null
+      },
+      //拷贝出来的搜索条件对象，用于ajax请求
+      chooseObjClone: null
+
+    }
+  },
+  mounted () {
+    this.initTable();
+  },
+  methods: {
+    initTable () {
+      let _this = this
+      if (_this.loading) return
+      _this.loading = true
+      axios({
+        url: '../bingo/real_time_data.php?action=get_data',
+        method: 'post',
+        data: {
+          'dpt': 'SHA',
+          'arr': 'CAN',
+          'date': '2019-04-28'
+        }
+      }).then(response => {
+        alert(response.data)
+        // _this.accomplishData = response.data.row
+        // _this.pageTotal = response.data.count
+        // _this.ticketTable = response.data.searchOption.ticketTable
+        // _this.carrier = response.data.searchOption.carrier
+        _this.loading = false
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+
+    //起飞时间
+    flyTimeFun (data) {
+      let depTimeStart = data[0]
+      let depTimeEnd = data[1]
+      this.chooseObj.depTimeStart = depTimeStart
+      this.chooseObj.depTimeEnd = depTimeEnd
+    },
+    //下单时间
+    payTimeFun (data) {
+      let orderTimeStart = data[0]
+      let orderTimeEnd = data[1]
+      this.chooseObj.orderTimeStart = orderTimeStart
+      this.chooseObj.orderTimeEnd = orderTimeEnd
+    },
+    closeSearch () {
+      this.searchFlag = !this.searchFlag
+    },
+    //分页切换
+    handlePage (value) {
+      this.pageNum = value
+      if (this.searchChoose) {
+        this.initTable(value, this.chooseObjClone)
+      } else {
+        this.initTable(value, null)
+        this.chooseObjClone = null
+      }
+    },
+    //条数切换
+    handlePageSize (value) {
+      this.pageSize = value
+      this.initTable()
+    }
+  }
+}
+const store = new Vuex.Store({
+  state: {
+    name: 'accomplish',
+    isoLogModal: false,
+    isoLogData: null
+  },
+  mutations: {}
+})
+new Vue({
+  el: '#orderApp',
+  store,
+  components: {
+    comAccomplish
+  },
+  data: {},
+  computed: {},
+  methods: {}
+})
+</script>
+</html>

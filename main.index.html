@@ -1,0 +1,5539 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>首页</title>
+  {literal}
+  <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+  <!-- import iView -->
+  <!--  <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">-->
+  <script src="../vue/vue.js"></script>
+
+  <style>
+    table.gridtable {
+      width: 100%;
+      font-size: 11px;
+      color: #333333;
+      border-width: 1px;
+      border-color: #e8eaec;
+      border-collapse: collapse;
+    }
+
+    table.gridtable th {
+      border-width: 1px;
+      padding: 8px;
+      border-style: solid;
+      border-color: #e8eaec;
+      background-color: #f8f8f9;
+      text-align: center
+    }
+
+    table.gridtable td {
+      border-width: 1px;
+      padding: 8px;
+      border-style: solid;
+      border-color: #e8eaec;
+      background-color: #ffffff;
+      text-align: center
+    }
+
+    .clear {
+      clear: both
+    }
+
+    .RadioStyle input {
+      display: none
+    }
+
+    .RadioStyle label {
+      border: 1px solid #00a4ff;
+      padding: 2px 10px 2px 5px;
+      line-height: 28px;
+      min-width: 80px;
+      text-align: center;
+      float: left;
+      margin: 2px;
+      border-radius: 4px
+    }
+
+    .RadioStyle input:checked+label {
+      background: url(../resource/image/ico_checkon.svg) no-repeat right bottom;
+      background-size: 21px 21px;
+      color: #00a4ff
+    }
+
+    /* .RadioStyle input:checked:first-child+label {
+      background: none;
+      color: #fff;
+    } */
+
+    .RadioStyleFont {
+      font: 12px/150% microsoft yahei, tahoma;
+    }
+
+
+    .ibox-title {
+      -moz-border-bottom-colors: none;
+      -moz-border-left-colors: none;
+      -moz-border-right-colors: none;
+      -moz-border-top-colors: none;
+      /*background-color: #ffffff;*/
+      border-color: #e7eaec;
+      -webkit-border-image: none;
+      /*-o-border-image: none;*/
+      /*border-image: none;*/
+      /*border-style: solid solid none;*/
+      border-top-width: 4px;
+      /*color: inherit;*/
+      /*margin-bottom: 0;*/
+      /*padding: 14px 15px 7px;*/
+      /*min-height: 48px;*/
+    }
+
+    .ivu-card-head {
+      border-top: 3px solid #5cadff;
+      border-bottom: 1px solid #5cadff;
+      padding: 11px 16px;
+      line-height: 1;
+    }
+
+    .ivu-table-cell{
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+    /*.ivu-tabs-nav .ivu-tabs-tab-disabled{*/
+    /*  color:#000*/
+    /*}*/
+  </style>
+  {/literal}
+  {literal}
+
+</head>
+
+<body style="width: 98%;margin-left: 15px">
+
+  <div id="app">
+    <Divider size="small" orientation="left">{/literal}管理员:{$userinfo.name}&nbsp; 上次登录时间:{$userinfo.logintime}{literal}
+    </Divider>
+    <Tabs :animated="false" name="tab" v-model="name" @on-click="tabChange" size="small" type="line">
+      <Tab-Pane label="出票" name="chuName" tab="tab">
+        <div v-if="name==='chuName'">
+          <my-ranking></my-ranking>
+          <Divider size="small">出 票 数 量 统 计</Divider>
+          <my-history></my-history>
+          <Divider size="small">出 票 数 量 趋 势</Divider>
+          <!--<Tabs :animated="false">-->
+          <Card>
+            <p slot="title">趋势</p>
+            <a href="#" slot="extra">
+              <Icon type="ios-loop-strong"></Icon>
+              Change
+            </a>
+            <Spin fix size="large" v-if="LoadingFlag"></Spin>
+            <Spin fix size="large" v-if="LoadingFlag2"></Spin>
+            <Spin fix size="large" v-if="LoadingFlag3"></Spin>
+            <Tabs name="tab1-1" size="small" type="line">
+              <Tab-Pane tab="tab1-1" label="天出票情况">
+                <my-day></my-day>
+              </Tab-Pane>
+              <Tab-Pane tab="tab1-1" label="月出票情况">
+                <my-month></my-month>
+              </Tab-Pane>
+              <Tab-Pane tab="tab1-1" label="年出票情况">
+                <my-year></my-year>
+              </Tab-Pane>
+            </Tabs>
+          </Card>
+          <Card>
+            <p slot="title">趋势2</p>
+            <Tabs size="small" type="line">
+              <Tab-Pane label="天出票情况">
+                <new-Chart1></new-Chart1>
+              </Tab-Pane>
+              <Tab-Pane label="月出票情况">
+                <new-Chart2></new-Chart2>
+              </Tab-Pane>
+              <Tab-Pane label="年出票情况">
+                <new-Chart3></new-Chart3>
+              </Tab-Pane>
+            </Tabs>
+
+          </Card>
+        </div>
+      </Tab-Pane>
+      <Tab-Pane label="退票" name="tuiName" tab="tab">
+        <div v-if="name==='tuiName'">
+          <Refund-Pai></Refund-Pai>
+        </div>
+      </Tab-Pane>
+      <!--    <Tab-Pane disabled label="{/literal}管理员:{$userinfo.name} 上次登录时间:{$userinfo.logintime}{literal}"></Tab-Pane>-->
+    </Tabs>
+    <br />
+  </div>
+  {/literal}
+  {literal}
+  <template id="rankingTable">
+    <Row>
+      <i-Col span="8" style="padding-right:5px">
+        <Card>
+          <p slot="title"></p>
+          <Row>
+            <i-Col>
+              <!-- <table class="gridtable">
+                <tr>
+                  <th>航司</th>
+                  <th>进单数量</th>
+                  <th>拒单数量</th>
+                </tr>
+                <tr>
+                  <td>d_9C</td>
+                  <td>{{d_9C}}</td>
+                  <td>{{d_9C_r}}</td>
+                </tr>
+                <tr>
+                  <td>d_AQ</td>
+                  <td>{{d_AQ}}</td>
+                  <td>{{d_AQ_r}}</td>
+                </tr>
+                <tr>
+                  <td>d_TV</td>
+                  <td>{{d_TV}}</td>
+                  <td>{{d_TV_r}}</td>
+                </tr>
+                <tr>
+                  <td>m_9C</td>
+                  <td>{{m_9C}}</td>
+                  <td>{{m_9C_r}}</td>
+                </tr>
+                <tr>
+                  <td>m_AQ</td>
+                  <td>{{m_AQ}}</td>
+                  <td>{{m_AQ_r}}</td>
+                </tr>
+                <tr>
+                  <td>m_TV</td>
+                  <td>{{m_TV}}</td>
+                  <td>{{m_TV_r}}</td>
+                </tr>
+                <tr>
+                  <td>合计</td>
+                  <td>{{countNum}}</td>
+                  <td>{{rcountNum}}</td>
+                </tr>
+              </table> -->
+              <i-Table ref="todayId" height="230" :loading="loading" border size="small" :columns="hsColumns"
+                :data="hsData"></i-Table>
+            </i-Col>
+          </Row>
+        </Card>
+      </i-Col>
+      <i-Col span="16" style="padding-left:5px">
+        <Card>
+          <p slot="title">人员出票排名</p>
+          <Row :gutter="5">
+            <i-Col span="8">
+              <i-Table ref="todayId" height="230" :loading="loading" border size="small" :columns="todayColumns"
+                :data="todayData"></i-Table>
+            </i-Col>
+            <i-Col span="8">
+              <i-Table ref="yesterdayId" height="230" :loading="loading" border size="small" :columns="yesterdayColumns"
+                :data="yesterdayData"></i-Table>
+            </i-Col>
+            <i-Col span="8">
+              <i-Table ref="thisMonthId" height="230" :loading="loading" border size="small" :columns="thisMonthColumns"
+                :data="thisMonthData">
+              </i-Table>
+            </i-Col>
+          </Row>
+        </Card>
+      </i-Col>
+    </Row>
+  </template>
+  <template id="historyTable">
+    <Row>
+      <i-Col span="12" style="padding-right:5px">
+        <Card>
+          <p slot="title">历史票量</p>
+          <Row :gutter="5">
+            <i-Col span="8">
+              <i-Table :loading="loading" border size="small" :columns="lastMonthColumns" :data="lastMonthData">
+              </i-Table>
+            </i-Col>
+            <i-Col span="8">
+              <i-Table :loading="loading" border size="small" :columns="thisMonthColumns" :data="thisMonthData">
+              </i-Table>
+            </i-Col>
+            <i-Col span="8">
+              <i-Table :loading="loading" border size="small" :columns="yesterdayColumns" :data="yesterdayData">
+              </i-Table>
+            </i-Col>
+          </Row>
+        </Card>
+      </i-Col>
+      <i-Col span="12" style="padding-left:5px">
+        <Card>
+          <p slot="title">当天票量</p>
+          <Row :gutter="5">
+            <i-Col span="8">
+              <i-Table :loading="loading" border size="small" :columns="todayColumns" :data="todayData"></i-Table>
+            </i-Col>
+            <i-Col span="8">
+              <i-Table :loading="loading" border size="small" :columns="hourColumns" :data="hourData"></i-Table>
+            </i-Col>
+            <i-Col span="8">
+              <i-Table :loading="loading" border size="small" :columns="minuteColumns" :data="minuteData"></i-Table>
+            </i-Col>
+          </Row>
+        </Card>
+      </i-Col>
+    </Row>
+  </template>
+  <template id="dayDataId">
+    <Row>
+      <i-Col span="24">
+        <Date-Picker :options="dayOptions" placement="right-start" v-model="dayTime" @on-ok="queryDChart" size="default"
+          type="date" confirm placeholder="请选择日期" style="width: 150px;margin-left: 80px;"></Date-Picker>
+        <div ref="dayId" :style="{width: '99%', height: '500px'}"></div>
+      </i-Col>
+    </Row>
+  </template>
+  <template id="monthDataId">
+    <Row>
+      <i-Col span="24">
+        <Date-Picker :options="monthOptions" placement="right-start" v-model="monthTime" @on-ok="queryMChart"
+          size="default" type="month" confirm placeholder="请选择月份" style="width: 150px;margin-left: 80px;">
+        </Date-Picker>
+
+        <div ref="monthId" :style="{width: '99%', height: '500px'}"></div>
+      </i-Col>
+    </Row>
+
+  </template>
+  <template id="yearDataId">
+    <Row>
+      <i-Col span="24">
+        <Date-Picker :options="yearOptions" placement="right-start" v-model="yearTime" size="default" type="year"
+          @on-ok="queryYChart" confirm placeholder="请选择年份" style="width: 150px;margin-left: 80px;"></Date-Picker>
+        <div ref="yearId" :style="{width: '99%', height: '500px'}"></div>
+      </i-Col>
+    </Row>
+  </template>
+  <template id="RefundPai">
+    <div>
+      <Row>
+        <i-Col span="24" style="padding-left:5px">
+          <Card>
+            <p slot="title">人员退票排名</p>
+            <Row :gutter="5">
+              <i-Col span="8">
+                <i-Table ref="todayId" height="230" :loading="loading" border size="small"
+                  :columns="todayRefundPaiColumns" :data="todayRefundPaiData"></i-Table>
+              </i-Col>
+              <i-Col span="8">
+                <i-Table ref="yesterdayId" height="230" :loading="loading" border size="small"
+                  :columns="yesterdayRefundPaiColumns" :data="yesterdayRefundPaiData"></i-Table>
+              </i-Col>
+              <i-Col span="8">
+                <i-Table ref="thisMonthId" height="230" :loading="loading" border size="small"
+                  :columns="monthRefundPaiColumns" :data="monthRefundPaiData">
+                </i-Table>
+              </i-Col>
+            </Row>
+          </Card>
+        </i-Col>
+      </Row>
+      <Row>
+        <i-Col span="24" style="padding-left:5px">
+          <Card>
+            <p slot="title">平台退票单量</p>
+            <Row :gutter="5">
+              <i-Col span="8">
+                <i-Table ref="todayId" height="230" :loading="loading" border size="small"
+                  :columns="todayRefundPaiColumns2" :data="todayRefundPaiData2"></i-Table>
+              </i-Col>
+              <i-Col span="8">
+                <i-Table ref="yesterdayId" height="230" :loading="loading" border size="small"
+                  :columns="yesterdayRefundPaiColumns2" :data="yesterdayRefundPaiData2"></i-Table>
+              </i-Col>
+              <i-Col span="8">
+                <i-Table ref="thisMonthId" height="230" :loading="loading" border size="small"
+                  :columns="monthRefundPaiColumns2" :data="monthRefundPaiData2">
+                </i-Table>
+              </i-Col>
+            </Row>
+          </Card>
+        </i-Col>
+      </Row>
+      <Row>
+        <i-Col span="24" style="padding-left:5px">
+          <Card>
+            <p slot="title">航司退票单量</p>
+            <Row :gutter="5">
+              <i-Col span="8">
+                <i-Table ref="todayId" height="230" :loading="loading" border size="small"
+                  :columns="todayRefundPaiColumns3" :data="todayRefundPaiData3"></i-Table>
+              </i-Col>
+              <i-Col span="8">
+                <i-Table ref="yesterdayId" height="230" :loading="loading" border size="small"
+                  :columns="yesterdayRefundPaiColumns3" :data="yesterdayRefundPaiData3"></i-Table>
+              </i-Col>
+              <i-Col span="8">
+                <i-Table ref="thisMonthId" height="230" :loading="loading" border size="small"
+                  :columns="monthRefundPaiColumns3" :data="monthRefundPaiData3">
+                </i-Table>
+              </i-Col>
+            </Row>
+          </Card>
+        </i-Col>
+      </Row>
+    </div>
+  </template>
+  <template id="newChart1">
+    <Row>
+      <i-Col span="24">
+
+        <i-Col span="4">
+          <Date-Picker :options="dayOptions" placement="right-start" v-model="dayTime" @on-ok="initNew" size="default"
+            type="date" confirm placeholder="请选择日期" style="width: 150px;margin-top: 3px;"></Date-Picker>
+        </i-Col>
+        <i-Col span="6">
+          <div class="RadioStyle">
+            <input type="radio" name="Storage" id="model1" checked value="paytime" v-model="time_type"@change="initNew">
+            <label for="model1">支付时间</label>
+            <input type="radio" name="Storage" id="model2" value="flytime" v-model="time_type" @change="initNew">
+            <label for="model2">起飞时间</label>
+            <input type="radio" name="Storage" id="model3"  value="ordertime" v-model="time_type" @change="initNew">
+            <label for="model3">下单时间</label>
+          </div>
+        </i-Col>
+
+
+        <div class="clear"></div>
+        <div class="RadioStyle RadioStyleFont">
+          <input type="checkbox" id="航司">
+          <label for="航司" style="background:#00a4ff;color:#fff;">航司</label>
+
+          <input type="checkbox" class="checkboxchart" name="checkboxhs" id="hs全部" value="全部">
+          <label for="hs全部">全部</label>
+          <input type="checkbox" class="checkboxchart" name="checkboxhs" id="hs其他" value="其他">
+          <label for="hs其他">其他</label>
+          <input type="checkbox" class="checkboxchart" name="checkboxhs" id="9C" value="9C">
+          <label for="9C">9C</label>
+          <input type="checkbox" class="checkboxchart" name="checkboxhs" id="AQ" value="AQ">
+          <label for="AQ">AQ</label>
+          <input type="checkbox" class="checkboxchart" name="checkboxhs" id="PN" value="PN">
+          <label for="PN">PN</label>
+          <input type="checkbox" class="checkboxchart" name="checkboxhs" id="GS" value="GS">
+          <label for="GS">GS</label>
+          <input type="checkbox" class="checkboxchart" name="checkboxhs" id="GY" value="GY">
+          <label for="GY">GY</label>
+          <input type="checkbox" class="checkboxchart" name="checkboxhs" id="QW" value="QW">
+          <label for="QW">QW</label>
+          <input type="checkbox" class="checkboxchart" name="checkboxhs" id="TV" value="TV">
+          <label for="TV">TV</label>
+          <input type="checkbox" class="checkboxchart" name="checkboxhs" id="JR" value="JR">
+          <label for="JR">JR</label>
+        </div>
+
+        <div class="clear"></div>
+        <div class="RadioStyle RadioStyleFont">
+          <input type="checkbox" id="平台">
+          <label for="平台" style="background:#00a4ff;color:#fff;">平台</label>
+
+          <input type="checkbox" class="checkboxchart" name="checkboxpt" id="pt全部" value="全部">
+          <label for="pt全部">全部</label>
+          <input type="checkbox" class="checkboxchart" name="checkboxpt" id="pt其他" value="其他">
+          <label for="pt其他">其他</label>
+          <input type="checkbox" class="checkboxchart" name="checkboxpt" id="去哪儿" value="去哪儿">
+          <label for="去哪儿">去哪儿</label>
+
+          <input type="checkbox" class="checkboxchart" name="checkboxpt" id="去哪儿TTR" value="去哪儿TTR">
+          <label for="去哪儿TTR">去哪儿TTR</label>
+          <input type="checkbox" class="checkboxchart" name="checkboxpt" id="去哪儿XSS" value="去哪儿XSS">
+          <label for="去哪儿XSS">去哪儿XSS</label>
+          <input type="checkbox" class="checkboxchart" name="checkboxpt" id="去哪儿XSG" value="去哪儿XSG">
+          <label for="去哪儿XSG">去哪儿XSG</label>
+          <input type="checkbox" class="checkboxchart" name="checkboxpt" id="去哪儿PAI" value="去哪儿PAI">
+          <label for="去哪儿PAI">去哪儿PAI</label>
+
+          <input type="checkbox" class="checkboxchart" name="checkboxpt" id="淘宝" value="淘宝">
+          <label for="淘宝">淘宝</label>
+          <input type="checkbox" class="checkboxchart" name="checkboxpt" id="携程" value="携程">
+          <label for="携程">携程</label>
+          <input type="checkbox" class="checkboxchart" name="checkboxpt" id="同程" value="同程">
+          <label for="同程">同程</label>
+          <input type="checkbox" class="checkboxchart" name="checkboxpt" id="酷讯" value="酷讯">
+          <label for="酷讯">酷讯</label>
+          <input type="checkbox" class="checkboxchart" name="checkboxpt" id="平安淘宝" value="平安淘宝">
+          <label for="平安淘宝">平安淘宝</label>
+          <input type="checkbox" class="checkboxchart" name="checkboxpt" id="淘宝B平台" value="淘宝B平台">
+          <label for="淘宝B平台">淘宝B平台</label>
+        </div>
+        <div class="clear"></div>
+        <div id="newId1" :style="{width: '99%', height: '500px'}"></div>
+      </i-Col>
+    </Row>
+  </template>
+  <template id="newChart2">
+    <Row>
+      <i-Col span="24">
+        <i-Col span="4">
+          <Date-Picker :options="monthOptions" placement="right-start" v-model="monthTime" @on-ok="initNew"
+            size="default" type="month" confirm placeholder="请选择月份" style="width: 150px;margin-bottom: 10px;">
+          </Date-Picker>
+        </i-Col>
+        <i-Col span="6">
+          <div class="RadioStyle">
+            <input type="radio" name="Storage2" id="models11" checked value="paytime" v-model="time_type2"
+              @change="initNew">
+            <label for="models11">支付时间</label>
+            <input type="radio" name="Storage2" id="models22" value="flytime" v-model="time_type2" @change="initNew">
+            <label for="models22">起飞时间</label>
+            <input type="radio" name="Storage2" id="model33" value="ordertime" v-model="time_type2" @change="initNew">
+            <label for="model33">下单时间</label>
+          </div>
+        </i-Col>
+        <div class="clear"></div>
+        <div class="RadioStyle RadioStyleFont">
+
+          <input type="checkbox" id="航司">
+          <label for="航司" style="background:#00a4ff;color:#fff;">航司</label>
+
+          <input type="checkbox" class="checkboxchart2" name="checkboxhs2" id="hs全部2" value="全部">
+          <label for="hs全部2">全部</label>
+          <input type="checkbox" class="checkboxchart2" name="checkboxhs2" id="hs其他2" value="其他">
+          <label for="hs其他2">其他</label>
+          <input type="checkbox" class="checkboxchart2" name="checkboxhs2" id="9C2" value="9C">
+          <label for="9C2">9C</label>
+          <input type="checkbox" class="checkboxchart2" name="checkboxhs2" id="AQ2" value="AQ">
+          <label for="AQ2">AQ</label>
+          <input type="checkbox" class="checkboxchart2" name="checkboxhs2" id="PN2" value="PN">
+          <label for="PN2">PN</label>
+          <input type="checkbox" class="checkboxchart2" name="checkboxhs2" id="GS2" value="GS">
+          <label for="GS2">GS</label>
+          <input type="checkbox" class="checkboxchart2" name="checkboxhs2" id="GY2" value="GY">
+          <label for="GY2">GY</label>
+          <input type="checkbox" class="checkboxchart2" name="checkboxhs2" id="QW2" value="QW">
+          <label for="QW2">QW</label>
+          <input type="checkbox" class="checkboxchart2" name="checkboxhs2" id="TV2" value="TV">
+          <label for="TV2">TV</label>
+          <input type="checkbox" class="checkboxchart2" name="checkboxhs2" id="JR2" value="JR">
+          <label for="JR2">JR</label>
+        </div>
+
+        <div class="clear"></div>
+        <div class="RadioStyle RadioStyleFont">
+          <input type="checkbox" id="平台">
+          <label for="平台" style="background:#00a4ff;color:#fff;">平台</label>
+
+          <input type="checkbox" class="checkboxchart2" name="checkboxpt2" id="pt全部2" value="全部">
+          <label for="pt全部2">全部</label>
+          <input type="checkbox" class="checkboxchart2" name="checkboxpt2" id="pt其他2" value="其他">
+          <label for="pt其他2">其他</label>
+          <input type="checkbox" class="checkboxchart2" name="checkboxpt2" id="去哪儿2" value="去哪儿">
+          <label for="去哪儿2">去哪儿</label>
+
+          <input type="checkbox" class="checkboxchart2" name="checkboxpt2" id="去哪儿TTR2" value="去哪儿TTR">
+          <label for="去哪儿TTR2">去哪儿TTR</label>
+          <input type="checkbox" class="checkboxchart2" name="checkboxpt2" id="去哪儿XSS2" value="去哪儿XSS">
+          <label for="去哪儿XSS2">去哪儿XSS</label>
+          <input type="checkbox" class="checkboxchart2" name="checkboxpt2" id="去哪儿XSG2" value="去哪儿XSG">
+          <label for="去哪儿XSG2">去哪儿XSG</label>
+          <input type="checkbox" class="checkboxchart2" name="checkboxpt2" id="去哪儿PAI2" value="去哪儿PAI">
+          <label for="去哪儿PAI2">去哪儿PAI</label>
+
+          <input type="checkbox" class="checkboxchart2" name="checkboxpt2" id="淘宝2" value="淘宝">
+          <label for="淘宝2">淘宝</label>
+          <input type="checkbox" class="checkboxchart2" name="checkboxpt2" id="携程2" value="携程">
+          <label for="携程2">携程</label>
+          <input type="checkbox" class="checkboxchart2" name="checkboxpt2" id="同程2" value="同程">
+          <label for="同程2">同程</label>
+          <input type="checkbox" class="checkboxchart2" name="checkboxpt2" id="酷讯2" value="酷讯">
+          <label for="酷讯2">酷讯</label>
+          <input type="checkbox" class="checkboxchart2" name="checkboxpt2" id="平安淘宝2" value="平安淘宝">
+          <label for="平安淘宝2">平安淘宝</label>
+          <input type="checkbox" class="checkboxchart2" name="checkboxpt2" id="淘宝B平台2" value="淘宝B平台">
+          <label for="淘宝B平台2">淘宝B平台</label>
+        </div>
+        <div class="clear"></div>
+        <div id="newId2" :style="{width: '99%', height: '500px'}"></div>
+      </i-Col>
+    </Row>
+  </template>
+  <template id="newChart3">
+    <Row>
+      <i-Col span="24">
+        <i-Col span="4">
+          <Date-Picker :options="yearOptions" placement="right-start" v-model="yearTime" size="default" type="year"
+            @on-ok="initNew" confirm placeholder="请选择年份" style="width: 150px;margin-bottom: 10px;"></Date-Picker>
+        </i-Col>
+        <i-Col span="6">
+          <div class="RadioStyle">
+            <input type="radio" name="Storage3" id="models111" checked value="paytime" v-model="time_type3"
+              @change="initNew">
+            <label for="models111">支付时间</label>
+            <input type="radio" name="Storage3" id="models222" value="flytime" v-model="time_type3" @change="initNew">
+            <label for="models222">起飞时间</label>
+            <input type="radio" name="Storage3" id="model333" value="ordertime" v-model="time_type3" @change="initNew">
+            <label for="model333">下单时间</label>
+          </div>
+        </i-Col>
+        <div class="clear"></div>
+        <div class="RadioStyle RadioStyleFont">
+
+          <input type="checkbox" id="航司">
+          <label for="航司" style="background:#00a4ff;color:#fff;">航司</label>
+
+          <input type="checkbox" class="checkboxchart3" name="checkboxhs3" id="hs全部3" value="全部">
+          <label for="hs全部3">全部</label>
+          <input type="checkbox" class="checkboxchart3" name="checkboxhs3" id="hs其他3" value="其他">
+          <label for="hs其他3">其他</label>
+          <input type="checkbox" class="checkboxchart3" name="checkboxhs3" id="9C3" value="9C">
+          <label for="9C3">9C</label>
+          <input type="checkbox" class="checkboxchart3" name="checkboxhs3" id="AQ3" value="AQ">
+          <label for="AQ3">AQ</label>
+          <input type="checkbox" class="checkboxchart3" name="checkboxhs3" id="PN3" value="PN">
+          <label for="PN3">PN</label>
+          <input type="checkbox" class="checkboxchart3" name="checkboxhs3" id="GS3" value="GS">
+          <label for="GS3">GS</label>
+          <input type="checkbox" class="checkboxchart3" name="checkboxhs3" id="GY3" value="GY">
+          <label for="GY3">GY</label>
+          <input type="checkbox" class="checkboxchart3" name="checkboxhs3" id="QW3" value="QW">
+          <label for="QW3">QW</label>
+          <input type="checkbox" class="checkboxchart3" name="checkboxhs3" id="TV3" value="TV">
+          <label for="TV3">TV</label>
+          <input type="checkbox" class="checkboxchart3" name="checkboxhs3" id="JR3" value="JR">
+          <label for="JR3">JR</label>
+        </div>
+
+        <div class="clear"></div>
+        <div class="RadioStyle RadioStyleFont">
+          <input type="checkbox" id="平台">
+          <label for="平台" style="background:#00a4ff;color:#fff;">平台</label>
+
+          <input type="checkbox" class="checkboxchart3" name="checkboxpt3" id="pt全部3" value="全部">
+          <label for="pt全部3">全部</label>
+          <input type="checkbox" class="checkboxchart3" name="checkboxpt3" id="pt其他3" value="其他">
+          <label for="pt其他3">其他</label>
+          <input type="checkbox" class="checkboxchart3" name="checkboxpt3" id="去哪儿3" value="去哪儿">
+          <label for="去哪儿3">去哪儿</label>
+
+          <input type="checkbox" class="checkboxchart3" name="checkboxpt3" id="去哪儿TTR3" value="去哪儿TTR">
+          <label for="去哪儿TTR3">去哪儿TTR</label>
+          <input type="checkbox" class="checkboxchart3" name="checkboxpt3" id="去哪儿XSS3" value="去哪儿XSS">
+          <label for="去哪儿XSS3">去哪儿XSS</label>
+          <input type="checkbox" class="checkboxchart3" name="checkboxpt3" id="去哪儿XSG3" value="去哪儿XSG">
+          <label for="去哪儿XSG3">去哪儿XSG</label>
+          <input type="checkbox" class="checkboxchart3" name="checkboxpt3" id="去哪儿PAI3" value="去哪儿PAI">
+          <label for="去哪儿PAI3">去哪儿PAI</label>
+
+          <input type="checkbox" class="checkboxchart3" name="checkboxpt3" id="淘宝3" value="淘宝">
+          <label for="淘宝3">淘宝</label>
+          <input type="checkbox" class="checkboxchart3" name="checkboxpt3" id="携程3" value="携程">
+          <label for="携程3">携程</label>
+          <input type="checkbox" class="checkboxchart3" name="checkboxpt3" id="同程3" value="同程">
+          <label for="同程3">同程</label>
+          <input type="checkbox" class="checkboxchart3" name="checkboxpt3" id="酷讯3" value="酷讯">
+          <label for="酷讯3">酷讯</label>
+          <input type="checkbox" class="checkboxchart3" name="checkboxpt3" id="平安淘宝3" value="平安淘宝">
+          <label for="平安淘宝3">平安淘宝</label>
+          <input type="checkbox" class="checkboxchart3" name="checkboxpt3" id="淘宝B平台3" value="淘宝B平台">
+          <label for="淘宝B平台3">淘宝B平台</label>
+        </div>
+        <div class="clear"></div>
+        <div id="newId3" :style="{width: '99%', height: '500px'}"></div>
+      </i-Col>
+    </Row>
+  </template>
+</body>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+<script src="../vue/vue-router.js"></script>
+<script src="../vue/vuex.js"></script>
+<script src="../vue/axios.min.js"></script>
+<!--<script src="../resource/iview-2.0/dist/iview.js"></script>-->
+<script src="../resource/iview-2.0/dist/iview.min.js"></script>
+<script src="../resource/main/index/js.cookie.js"></script>
+<script src="../resource/main/index/http.js"></script>
+<script src="../resource/main/echarts.min.js"></script>
+<!--<script src="js/china.js"></script>-->
+
+<script>
+  const url = 'http://39.108.158.216:9001/bingo/upup/v1'
+  // const url = 'http://192.168.1.117:9002/bingo/upup/v1'
+  /**
+   *  定义全局变量
+   **/
+  Vue.prototype.$get = get
+  Vue.prototype.$post = post
+  Vue.component('my-ranking', {
+    template: '#rankingTable',
+    data() {
+      return {
+        hsColumns: [{
+            title: '航司',
+            key: 'airline',
+            align: 'center'
+          },
+          {
+            title: '今日进单数',
+            key: 'd_data',
+            align: 'center'
+          },
+          {
+            title: '今日拒单数',
+            key: 'dr_data',
+            align: 'center'
+          },
+          {
+            title: '本月进单数',
+            key: 'm_data',
+            align: 'center'
+          },
+          {
+            title: '本月退单数',
+            key: 'mr_data',
+            align: 'center'
+          }
+        ],
+        hsData: [],
+        todayColumns: [{
+          title: '今日排名',
+          align: 'center',
+          renderHeader: (h, params) => {
+            return h('span', [
+              h('strong', params.column.title)
+            ])
+          },
+          children: [{
+              title: '名次',
+              key: 'id',
+              align: 'center',
+              // sortable: true,
+              width: 65,
+              render: (h, params) => {
+                return h('span', params.index + 1)
+              }
+            },
+            {
+              title: '姓名',
+              key: 'name',
+              align: 'center',
+            },
+            {
+              title: '数量',
+              key: 'count',
+              align: 'center',
+              sortable: true, //开启排序
+            }
+          ]
+        }],
+        yesterdayColumns: [{
+          title: '昨日排名',
+          align: 'center',
+          renderHeader: (h, params) => {
+            return h('span', [
+              h('strong', params.column.title)
+            ])
+          },
+          children: [{
+              title: '名次',
+              key: 'id',
+              align: 'center',
+              // sortable: true,
+              width: 65,
+              render: (h, params) => {
+                return h('span', params.index + 1)
+              }
+            },
+            {
+              title: '姓名',
+              key: 'name',
+              align: 'center',
+            },
+            {
+              title: '数量',
+              key: 'count',
+              align: 'center',
+              sortable: true, //开启排序
+            }
+          ]
+        }],
+        thisMonthColumns: [{
+          title: '本月排名',
+          align: 'center',
+          renderHeader: (h, params) => {
+            return h('span', [
+              h('strong', params.column.title)
+            ])
+          },
+          children: [{
+              title: '名次',
+              key: 'id',
+              align: 'center',
+              // sortable: true,
+              width: 65,
+              render: (h, params) => {
+                return h('span', params.index + 1)
+              }
+            },
+            {
+              title: '姓名',
+              key: 'name',
+              align: 'center',
+            },
+            {
+              title: '数量',
+              key: 'count',
+              align: 'center',
+              sortable: true, //开启排序
+            }
+          ]
+        }],
+        loading: false,
+        thisMonthData: [],
+        todayData: [],
+        yesterdayData: [],
+        d_9C: '',
+        d_AQ: '',
+        d_TV: '',
+        d_9C_r: '',
+        d_AQ_r: '',
+        d_TV_r: '',
+        m_9C: '',
+        m_AQ: '',
+        m_TV: '',
+        m_9C_r: '',
+        m_AQ_r: '',
+        m_TV_r: '',
+        countNum: '',
+        rcountNum: ''
+      }
+    },
+    mounted() {
+      // this.$store.dispatch('getBaseApi');
+      // this.todayData = this.$store.todayDataShare;
+      this.initTable()
+      this.initTable2()
+
+    },
+    methods: {
+      initTable() {
+        if (this.loading) return
+        this.loading = true
+        this.postTodayData = JSON.stringify({
+          'permission': 'true',
+          'appCode': 'frontDesk',
+          'type': 'query',
+          'param': {
+            'module': 'manageTicketOrderNumber'
+          }
+        })
+        this.$post('manageTicketOrderNumber', this.postTodayData).then((response) => {
+
+          this.todayData = response.data.today
+          this.yesterdayData = response.data.yesterday
+          this.thisMonthData = response.data.thisMonth
+          this.loading = false
+        })
+      },
+      initTable2() {
+
+        // if (this.loading) return
+        // this.loading = true
+
+        axios({
+          method: 'get',
+          url: '../SMS/dataMsg.php?action=refund_data',
+          // url: 'http://localhost:1202/SMS/dataMsg.php?action=refund_data',
+        }).then(response => {
+          // this.d_9C = response.data.d_9C
+          // this.d_AQ = response.data.d_AQ
+          // this.d_TV = response.data.d_TV
+          // this.d_9C_r = response.data.d_9C_refuse
+          // this.d_AQ_r = response.data.d_AQ_refuse
+          // this.d_TV_r = response.data.d_TV_refuse
+          // this.m_9C = response.data.m_9C
+          // this.m_AQ = response.data.m_AQ
+          // this.m_TV = response.data.m_TV
+          // this.m_9C_r = response.data.m_9C_refuse
+          // this.m_AQ_r = response.data.m_AQ_refuse
+          // this.m_TV_r = response.data.m_TV_refuse
+          // this.countNum = parseInt(response.data.d_9C) + parseInt(response.data.d_AQ) + parseInt(response.data
+          //   .d_TV) + parseInt(response.data.m_9C) + parseInt(response.data.m_AQ) + parseInt(response.data
+          //   .m_TV)
+          // this.rcountNum = parseInt(response.data.d_9C_refuse) + parseInt(response.data.d_AQ_refuse) + parseInt(
+          //   response.data.d_TV_refuse) + parseInt(response.data.m_9C_refuse) + parseInt(response.data
+          //   .m_AQ_refuse) + parseInt(response.data.m_TV_refuse)
+          this.hsData=response.data
+        })
+      }
+
+    }
+  })
+  Vue.component('my-history', {
+    template: '#historyTable',
+    data() {
+      return {
+        lastMonthColumns: [{
+          title: '上月出票量',
+          align: 'center',
+          children: [{
+              title: 'OTA',
+              key: 'name',
+              align: 'center',
+            },
+            {
+              title: '数量',
+              key: 'count',
+              align: 'center',
+            }
+          ]
+        }],
+        thisMonthColumns: [{
+          title: '本月出票量',
+          align: 'center',
+          children: [{
+              title: 'OTA',
+              key: 'name',
+              align: 'center',
+            },
+            {
+              title: '数量',
+              key: 'count',
+              align: 'center',
+            }
+          ]
+        }],
+        yesterdayColumns: [{
+          title: '昨日出票量',
+          align: 'center',
+          children: [{
+              title: 'OTA',
+              key: 'name',
+              align: 'center',
+            },
+            {
+              title: '数量',
+              key: 'count',
+              align: 'center',
+            }
+          ]
+        }],
+        todayColumns: [{
+          title: '今日总计',
+          align: 'center',
+          children: [{
+              title: 'OTA',
+              key: 'name',
+              align: 'center',
+            },
+            {
+              title: '数量',
+              key: 'count',
+              align: 'center',
+            }
+          ]
+        }],
+        hourColumns: [{
+          title: '近一小时',
+          align: 'center',
+          children: [{
+              title: 'OTA',
+              key: 'name',
+              align: 'center',
+            },
+            {
+              title: '数量',
+              key: 'count',
+              align: 'center',
+            }
+          ]
+        }],
+        minuteColumns: [{
+          title: '近15分钟',
+          align: 'center',
+          children: [{
+              title: 'OTA',
+              key: 'name',
+              align: 'center',
+            },
+            {
+              title: '数量',
+              key: 'count',
+              align: 'center',
+            }
+          ]
+        }],
+        loading: false,
+        lastMonthData: [],
+        thisMonthData: [],
+        yesterdayData: [],
+        todayData: [],
+        hourData: [],
+        minuteData: [],
+      }
+    },
+    mounted() {
+      // this.$store.dispatch('getBaseApi');
+      // this.todayData = this.$store.todayDataShare;
+      this.initTable()
+
+    },
+    methods: {
+      initTable() {
+        if (this.loading) return
+        this.loading = true
+        const postParameter = JSON.stringify({
+          'permission': 'true',
+          'appCode': 'frontDesk',
+          'type': 'query',
+          'param': {
+            'module': 'otaTicketOrderNumber'
+          }
+        })
+        this.$post('otaTicketOrderNumber', postParameter).then((response) => {
+          this.lastMonthData = response.data.lastMonth
+          this.thisMonthData = response.data.thisMonth
+          this.yesterdayData = response.data.yesterday
+          this.todayData = response.data.today
+          this.hourData = response.data.hour
+          this.minuteData = response.data.minute
+          this.loading = false
+        })
+      }
+    }
+  })
+  Vue.component('my-day', {
+    template: '#dayDataId',
+    data() {
+      return {
+        chart: null,
+        option: null,
+        legendData: ['总量', '淘宝', '去哪儿', '携程', '航司'],
+        xAxisData: ['0时', '1时', '2时', '3时', '4时', '5时', '6时', '7时', '8时', '9时', '10时', '11时', '12时', '13时', '14时',
+          '15时', '16时', '17时', '18时', '19时', '20时', '21时', '22时', '23时'
+        ],
+        seriesData: [],
+        grossVal: [],
+        otaTaoVal: [],
+        otaTtrVal: [],
+        otaXssVal: [],
+        hsVal: [],
+        dayTime: null,
+        yMax: 1500,
+        dayOptions: {
+          disabledDate(date) {
+            return date && Date.now() < date.valueOf()
+          }
+        },
+      }
+    },
+    mounted() {
+      this.initFun()
+      this.initFormatter()
+    },
+    beforeDestroy() {
+      if (!this.chart) {
+        return
+      }
+      this.chart.dispose()
+      this.chart = null
+    },
+    methods: {
+      queryDChart() {
+        this.$store.state.LoadingFlag = true
+        const postData = JSON.stringify({
+          'permission': 'true',
+          'appCode': 'frontDesk',
+          'type': 'query',
+          'param': {
+            'module': 'assignDayTicketOrderNumber'
+          },
+          'assignDateTime': new Date(this.dayTime).Format('yyyy-MM-dd')
+        })
+        this.$post('v1', postData).then((response) => {
+          this.chart.clear()
+          this.seriesData = []
+          this.grossVal = []
+          this.otaTaoVal = []
+          this.otaTtrVal = []
+          this.otaXssVal = []
+          this.hsVal = []
+
+          this.seriesData = response.data
+          this.initChart()
+          if (this.option && typeof this.option === 'object') {
+            this.chart.showLoading()
+            this.chart.setOption(this.option, true)
+            this.chart.hideLoading()
+          }
+          this.$store.state.LoadingFlag = false
+        }).catch((err) => {
+          console.log('错误:' + err.toString())
+        })
+      },
+      initFun() {
+        this.$store.state.LoadingFlag = true
+        const postData = JSON.stringify({
+          'permission': 'true',
+          'appCode': 'frontDesk',
+          'type': 'query',
+          'param': {
+            'module': 'todayTicketOrderNumber'
+          }
+        })
+        this.$post('v1', postData).then((response) => {
+          this.seriesData = response.data
+          this.initChart()
+          if (this.option && typeof this.option === 'object') {
+            this.chart.showLoading()
+            this.chart.setOption(this.option, true)
+            this.chart.hideLoading()
+          }
+          this.$store.state.LoadingFlag = false
+        }).catch((err) => {
+          console.log('错误:' + err.toString())
+        })
+      },
+      initChart() {
+        this.chart = echarts.init(this.$refs.dayId)
+        // for (let i = 0; i < this.seriesData.otaXss.length; i++) {
+        //     if (this.seriesData.otaXss[i].count === 0) {
+        //         this.seriesData.otaXss[i].count = null
+        //     }
+        //     this.otaXssVal.push(this.seriesData.otaXss[i].count);
+        // }
+
+        if (this.seriesData.gross == null) {
+          this.grossVal = []
+        } else {
+          for (let i = 0; i < this.seriesData.gross.length; i++) {
+            if (this.seriesData.gross[i].count === 0) {
+              this.seriesData.gross[i].count = null
+            }
+            this.grossVal.push(this.seriesData.gross[i].count)
+          }
+        }
+        if (this.seriesData.otaTao == null) {
+          this.otaTaoVal = []
+        } else {
+          for (let i = 0; i < this.seriesData.otaTao.length; i++) {
+            if (this.seriesData.otaTao[i].count === 0) {
+              this.seriesData.otaTao[i].count = null
+            }
+            this.otaTaoVal.push(this.seriesData.otaTao[i].count)
+          }
+        }
+        if (this.seriesData.otaTtr == null) {
+          this.otaTtrVal = []
+        } else {
+          for (let i = 0; i < this.seriesData.otaTtr.length; i++) {
+            if (this.seriesData.otaTtr[i].count === 0) {
+              this.seriesData.otaTtr[i].count = null
+            }
+            this.otaTtrVal.push(this.seriesData.otaTtr[i].count)
+          }
+        }
+        if (this.seriesData.hs == null) {
+          this.hsVal = []
+        } else {
+          for (let i = 0; i < this.seriesData.hs.length; i++) {
+            if (this.seriesData.hs[i].count === 0) {
+              this.seriesData.hs[i].count = null
+            }
+            this.hsVal.push(this.seriesData.hs[i].count)
+          }
+        }
+
+        this.option = {
+          tooltip: {
+            trigger: 'axis', //轴
+            axisPointer: {
+              type: 'cross',
+              crossStyle: {
+                color: '#999'
+              }
+            }
+          },
+          toolbox: {
+            show: true, //开关
+            feature: {
+              mark: {
+                show: true
+              },
+              // dataView: {show: true, readOnly: false},
+              magicType: {
+                show: true,
+                type: ['line', 'bar']
+              }, //切换折线
+              restore: {
+                show: true
+              },
+              saveAsImage: {
+                show: true
+              } //下载保存图片
+            }
+          },
+          calculable: true,
+          legend: {
+            data: ['总量', '淘宝', '去哪儿', '携程', '航司']
+          },
+          grid: {
+            left: '3%',
+            right: '3%',
+            bottom: '3%',
+            containLabel: true
+          },
+          xAxis: {
+            name: '时间',
+            type: 'category',
+            boundaryGap: false,
+            data: this.xAxisData
+          },
+          yAxis: {
+            name: '数量',
+            type: 'value',
+            minInterval: 1,
+            splitLine: {
+              show: true
+            }, //去除网格线
+            axisLabel: {
+              formatter: '{value}'
+            },
+            max: this.yMax
+          },
+          series: [{
+              name: this.legendData[0],
+              type: 'line',
+              data: this.grossVal,
+              markPoint: {
+                data: [{
+                    type: 'max',
+                    name: '最大值'
+                  },
+                  {
+                    type: 'min',
+                    name: '最小值'
+                  }
+                ]
+              },
+              markLine: {
+                lineStyle: {
+                  normal: {
+                    type: 'dashed',
+                    color: 'red'
+                  }
+                },
+                data: [
+                  [{
+                    type: 'min'
+                  }, {
+                    type: 'max'
+                  }, ]
+                ]
+              }
+            },
+            {
+              name: this.legendData[1],
+              type: 'line',
+              data: this.otaTaoVal,
+            },
+            {
+              name: this.legendData[2],
+              type: 'line',
+              data: this.otaTtrVal
+            },
+            {
+              name: this.legendData[3],
+              type: 'line',
+              data: this.otaXssVal
+            },
+            {
+              name: this.legendData[4],
+              type: 'line',
+              data: this.hsVal
+            },
+          ]
+        }
+        window.addEventListener('resize', this.chart.resize)
+      },
+      initFormatter() {
+        Date.prototype.Format = function (fmt) {
+          let o = {
+            'M+': this.getMonth() + 1, //月份
+            'd+': this.getDate(), //日
+            'h+': this.getHours(), //小时
+            'm+': this.getMinutes(), //分
+            's+': this.getSeconds(), //秒
+            'q+': Math.floor((this.getMonth() + 3) / 3), //季度
+            'S': this.getMilliseconds() //毫秒
+          }
+          if (/(y+)/.test(fmt))
+            fmt = fmt.replace(RegExp.$1, (this.getFullYear() + '').substr(4 - RegExp.$1.length))
+          for (var k in o)
+            if (new RegExp('(' + k + ')').test(fmt))
+              fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (('00' + o[k]).substr(('' + o[k])
+                .length)))
+          return fmt
+        }
+      },
+    }
+  })
+  Vue.component('my-month', {
+    template: '#monthDataId',
+    data() {
+      return {
+        chart: null,
+        option: null,
+        legendData: ['总量', '淘宝', '去哪儿', '携程', '航司'],
+        xAxisData: ['1日', '2日', '3日', '4日', '5日', '6日', '7日', '8日', '9日', '10日', '11日', '12日', '13日', '14日', '15日',
+          '16日', '17日', '18日', '19日', '20日', '21日', '22日', '23日', '24日', '25日', '26日', '27日', '28日', '29日', '30日',
+          '31日'
+        ],
+        seriesData: [],
+        grossVal: [],
+        otaTaoVal: [],
+        otaTtrVal: [],
+        otaXssVal: [],
+        hsVal: [],
+        monthTime: null,
+        yMax: 15000,
+        monthOptions: {
+          disabledDate(date) {
+            return date && Date.now() < date.valueOf()
+          }
+        },
+      }
+    },
+    mounted() {
+      this.initFun()
+      this.initFormatter()
+    },
+    beforeDestroy() {
+      if (!this.chart) {
+        return
+      }
+      this.chart.dispose()
+      this.chart = null
+    },
+    methods: {
+      queryMChart() {
+        this.$store.state.LoadingFlag2 = true
+        const postData = JSON.stringify({
+          'permission': 'true',
+          'appCode': 'frontDesk',
+          'type': 'query',
+          'param': {
+            'module': 'assignMonthTicketOrderNumber'
+          },
+          'assignDateTime': new Date(this.monthTime).Format('yyyy-MM-01')
+        })
+        this.$post('v1', postData).then((response) => {
+
+          this.chart.clear()
+          this.seriesData = []
+          this.grossVal = []
+          this.otaTaoVal = []
+          this.otaTtrVal = []
+          this.otaXssVal = []
+          this.hsVal = []
+
+          this.seriesData = response.data
+          this.initChart()
+
+          if (this.option && typeof this.option === 'object') {
+            this.chart.showLoading()
+            this.chart.setOption(this.option, true)
+            this.chart.hideLoading()
+          }
+          this.$store.state.LoadingFlag2 = false
+        })
+      },
+      initFun() {
+        this.$store.state.LoadingFlag2 = true
+        const postData = JSON.stringify({
+          'permission': 'true',
+          'appCode': 'frontDesk',
+          'type': 'query',
+          'param': {
+            'module': 'thisMonthTicketOrderNumber'
+          }
+        })
+        this.$post('v1', postData).then((response) => {
+          // this.$get("data5.json").then((response) => {
+          this.seriesData = response.data
+          this.initChart()
+          if (this.option && typeof this.option === 'object') {
+            this.chart.showLoading()
+            this.chart.setOption(this.option, true)
+            this.chart.hideLoading()
+          }
+          this.$store.state.LoadingFlag2 = false
+        })
+      },
+      initFormatter() {
+        Date.prototype.Format = function (fmt) {
+          let o = {
+            'M+': this.getMonth() + 1, //月份
+            'd+': this.getDate(), //日
+            'h+': this.getHours(), //小时
+            'm+': this.getMinutes(), //分
+            's+': this.getSeconds(), //秒
+            'q+': Math.floor((this.getMonth() + 3) / 3), //季度
+            'S': this.getMilliseconds() //毫秒
+          }
+          if (/(y+)/.test(fmt))
+            fmt = fmt.replace(RegExp.$1, (this.getFullYear() + '').substr(4 - RegExp.$1.length))
+          for (var k in o)
+            if (new RegExp('(' + k + ')').test(fmt))
+              fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (('00' + o[k]).substr(('' + o[k])
+                .length)))
+          return fmt
+        }
+      },
+      initChart() {
+        this.chart = echarts.init(this.$refs.monthId)
+        for (let i = 0; i < this.seriesData.gross.length; i++) {
+          if (this.seriesData.gross[i].count === 0) {
+            this.seriesData.gross[i].count = null
+          }
+          this.grossVal.push(this.seriesData.gross[i].count)
+        }
+        for (let i = 0; i < this.seriesData.otaTao.length; i++) {
+          if (this.seriesData.otaTao[i].count === 0) {
+            this.seriesData.otaTao[i].count = null
+          }
+          this.otaTaoVal.push(this.seriesData.otaTao[i].count)
+        }
+        for (let i = 0; i < this.seriesData.otaTtr.length; i++) {
+          if (this.seriesData.otaTtr[i].count === 0) {
+            this.seriesData.otaTtr[i].count = null
+          }
+          this.otaTtrVal.push(this.seriesData.otaTtr[i].count)
+        }
+        for (let i = 0; i < this.seriesData.otaXss.length; i++) {
+          if (this.seriesData.otaXss[i].count === 0) {
+            this.seriesData.otaXss[i].count = null
+          }
+          this.otaXssVal.push(this.seriesData.otaXss[i].count)
+        }
+        for (let i = 0; i < this.seriesData.hs.length; i++) {
+          if (this.seriesData.hs[i].count === 0) {
+            this.seriesData.hs[i].count = null
+          }
+          this.hsVal.push(this.seriesData.hs[i].count)
+        }
+
+        this.option = {
+          // title: {
+          //     text: '月出票量'
+          // },
+          tooltip: {
+            trigger: 'axis', //轴
+            axisPointer: {
+              type: 'cross',
+              crossStyle: {
+                color: '#999'
+              }
+            }
+          },
+          toolbox: {
+            show: true, //开关
+            feature: {
+              mark: {
+                show: true
+              },
+              // dataView: {show: true, readOnly: false},
+              magicType: {
+                show: true,
+                type: ['line', 'bar']
+              }, //切换折线
+              restore: {
+                show: true
+              },
+              saveAsImage: {
+                show: true
+              } //下载保存图片
+            }
+          },
+          calculable: true,
+          legend: {
+            data: ['总量', '淘宝', '去哪儿', '携程', '航司']
+          },
+          grid: {
+            left: '3%',
+            right: '3%',
+            bottom: '3%',
+            containLabel: true
+          },
+          xAxis: {
+            name: '时间',
+            type: 'category',
+            boundaryGap: false,
+            data: this.xAxisData
+          },
+          yAxis: {
+            name: '数量',
+            type: 'value',
+            minInterval: 1,
+            splitLine: {
+              show: true
+            }, //去除网格线
+            axisLabel: {
+              formatter: '{value}'
+            },
+            max: this.yMax
+          },
+          series: [{
+              name: this.legendData[0],
+              type: 'line',
+              data: this.grossVal,
+              markPoint: {
+                data: [{
+                    type: 'max',
+                    name: '最大值'
+                  },
+                  {
+                    type: 'min',
+                    name: '最小值'
+                  }
+                ]
+              }
+            },
+            {
+              name: this.legendData[1],
+              type: 'line',
+              data: this.otaTaoVal
+            },
+            {
+              name: this.legendData[2],
+              type: 'line',
+              data: this.otaTtrVal
+            },
+            {
+              name: this.legendData[3],
+              type: 'line',
+              data: this.otaXssVal
+            },
+            {
+              name: this.legendData[4],
+              type: 'line',
+              data: this.hsVal
+            },
+          ]
+        }
+        window.addEventListener('resize', this.chart.resize)
+      }
+    }
+  })
+  Vue.component('my-year', {
+    template: '#yearDataId',
+    data() {
+      return {
+        chart: null,
+        option: null,
+        legendData: ['总量', '淘宝', '去哪儿', '携程', '航司'],
+        xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+        seriesData: [],
+        grossVal: [],
+        otaTaoVal: [],
+        otaTtrVal: [],
+        otaXssVal: [],
+        hsVal: [],
+        yearTime: null,
+        yMax: 300000,
+        yearOptions: {
+          disabledDate(date) {
+            return date && Date.now() < date.valueOf()
+          }
+        },
+      }
+    },
+    mounted() {
+      this.initFun()
+      this.initFormatter()
+    },
+    beforeDestroy() {
+      if (!this.chart) {
+        return
+      }
+      this.chart.dispose()
+      this.chart = null
+    },
+    methods: {
+      queryYChart() {
+        this.$store.state.LoadingFlag3 = true
+        const postData = JSON.stringify({
+          'permission': 'true',
+          'appCode': 'frontDesk',
+          'type': 'query',
+          'param': {
+            'module': 'assignYearTicketOrderNumber'
+          },
+          'assignDateTime': new Date(this.yearTime).Format('yyyy-01-01')
+        })
+        this.$post('v1', postData).then((response) => {
+
+          this.chart.clear()
+          this.seriesData = []
+          this.grossVal = []
+          this.otaTaoVal = []
+          this.otaTtrVal = []
+          this.otaXssVal = []
+          this.hsVal = []
+
+          this.seriesData = response.data
+          this.initChart()
+
+          if (this.option && typeof this.option === 'object') {
+            this.chart.showLoading()
+            this.chart.setOption(this.option, true)
+            this.chart.hideLoading()
+          }
+          this.$store.state.LoadingFlag3 = false
+        })
+      },
+      initFun() {
+        this.$store.state.LoadingFlag3 = true
+        const postData = JSON.stringify({
+          'permission': 'true',
+          'appCode': 'frontDesk',
+          'type': 'query',
+          'param': {
+            'module': 'thisYearTicketOrderNumber'
+          }
+        })
+        this.$post('v1', postData).then((response) => {
+          this.seriesData = response.data
+          this.initChart()
+          if (this.option && typeof this.option === 'object') {
+            this.chart.setOption(this.option, true)
+          }
+          this.$store.state.LoadingFlag3 = false
+        })
+      },
+      initFormatter() {
+        Date.prototype.Format = function (fmt) {
+          let o = {
+            'M+': this.getMonth() + 1, //月份
+            'd+': this.getDate(), //日
+            'h+': this.getHours(), //小时
+            'm+': this.getMinutes(), //分
+            's+': this.getSeconds(), //秒
+            'q+': Math.floor((this.getMonth() + 3) / 3), //季度
+            'S': this.getMilliseconds() //毫秒
+          }
+          if (/(y+)/.test(fmt))
+            fmt = fmt.replace(RegExp.$1, (this.getFullYear() + '').substr(4 - RegExp.$1.length))
+          for (var k in o)
+            if (new RegExp('(' + k + ')').test(fmt))
+              fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (('00' + o[k]).substr(('' + o[k])
+                .length)))
+          return fmt
+        }
+      },
+      initChart() {
+        this.chart = echarts.init(this.$refs.yearId)
+        for (let i = 0; i < this.seriesData.gross.length; i++) {
+          if (this.seriesData.gross[i].count === 0) {
+            this.seriesData.gross[i].count = null
+          }
+          this.grossVal.push(this.seriesData.gross[i].count)
+        }
+        for (let i = 0; i < this.seriesData.otaTao.length; i++) {
+          if (this.seriesData.otaTao[i].count === 0) {
+            this.seriesData.otaTao[i].count = null
+          }
+          this.otaTaoVal.push(this.seriesData.otaTao[i].count)
+        }
+        for (let i = 0; i < this.seriesData.otaTtr.length; i++) {
+          if (this.seriesData.otaTtr[i].count === 0) {
+            this.seriesData.otaTtr[i].count = null
+          }
+          this.otaTtrVal.push(this.seriesData.otaTtr[i].count)
+        }
+        for (let i = 0; i < this.seriesData.otaXss.length; i++) {
+          if (this.seriesData.otaXss[i].count === 0) {
+            this.seriesData.otaXss[i].count = null
+          }
+          this.otaXssVal.push(this.seriesData.otaXss[i].count)
+        }
+        for (let i = 0; i < this.seriesData.hs.length; i++) {
+          if (this.seriesData.hs[i].count === 0) {
+            this.seriesData.hs[i].count = null
+          }
+          this.hsVal.push(this.seriesData.hs[i].count)
+        }
+
+        this.option = {
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'cross',
+              crossStyle: {
+                color: '#999'
+              }
+            }
+          },
+          toolbox: {
+            show: true,
+            feature: {
+              mark: {
+                show: true
+              },
+              // dataView: {show: true, readOnly: false},
+              magicType: {
+                show: true,
+                type: ['line', 'bar']
+              }, //切换折线
+              restore: {
+                show: true
+              },
+              saveAsImage: {
+                show: true
+              } //下载保存图片
+            }
+          },
+          calculable: true,
+          legend: {
+            data: this.legendData
+          },
+          grid: {
+            left: '3%',
+            right: '3%',
+            bottom: '3%',
+            containLabel: true
+          },
+          xAxis: {
+            name: '时间',
+            type: 'category',
+            data: this.xAxisData
+          },
+          yAxis: {
+            name: '数量',
+            type: 'value',
+            // position: 'right',
+            splitLine: {
+              show: true
+            }, //去除网格线
+            axisLabel: {
+              formatter: '{value}',
+              // inside: true,
+              // color: 'red',
+            },
+            max: this.yMax
+          },
+          series: [{
+              name: this.legendData[0],
+              type: 'bar',
+              data: this.grossVal,
+              markPoint: {
+                data: [{
+                    type: 'max',
+                    name: '最大值'
+                  },
+                  {
+                    type: 'min',
+                    name: '最小值'
+                  }
+                ]
+              },
+              markLine: {
+                lineStyle: {
+                  normal: {
+                    type: 'dashed',
+                    color: 'red'
+                  }
+                },
+                data: [
+                  [{
+                    type: 'min'
+                  }, {
+                    type: 'max'
+                  }]
+                ]
+              }
+            },
+            {
+              name: this.legendData[1],
+              type: 'bar',
+              data: this.otaTaoVal,
+              markPoint: {
+                data: [{
+                    type: 'max',
+                    name: '最大值'
+                  },
+                  {
+                    type: 'min',
+                    name: '最小值'
+                  }
+                ]
+              },
+            },
+            {
+              name: this.legendData[2],
+              type: 'bar',
+              data: this.otaTtrVal,
+              markPoint: {
+                data: [{
+                    type: 'max',
+                    name: '最大值'
+                  },
+                  {
+                    type: 'min',
+                    name: '最小值'
+                  }
+                ]
+              },
+            },
+            {
+              name: this.legendData[3],
+              type: 'bar',
+              data: this.otaXssVal,
+              markPoint: {
+                data: [{
+                    type: 'max',
+                    name: '最大值'
+                  },
+                  {
+                    type: 'min',
+                    name: '最小值'
+                  }
+                ]
+              },
+            },
+            {
+              name: this.legendData[4],
+              type: 'bar',
+              data: this.hsVal,
+              markPoint: {
+                data: [{
+                    type: 'max',
+                    name: '最大值'
+                  },
+                  {
+                    type: 'min',
+                    name: '最小值'
+                  }
+                ]
+              },
+            },
+          ]
+        }
+        window.addEventListener('resize', this.chart.resize)
+      }
+    }
+  })
+  Vue.component('RefundPai', {
+    template: '#RefundPai',
+    data() {
+      return {
+        loading: false,
+        todayRefundPaiColumns: [{
+          title: '今日排名',
+          align: 'center',
+          renderHeader: (h, params) => {
+            return h('span', [
+              h('strong', params.column.title)
+            ])
+          },
+          children: [{
+              title: '名次',
+              key: 'id',
+              align: 'center',
+              // sortable: true,
+              width: 40,
+              render: (h, params) => {
+                return h('span', params.index + 1)
+              }
+            },
+            {
+              title: '姓名',
+              key: 'processor',
+              align: 'center',
+            },
+            {
+              title: '数量',
+              key: 'num',
+              align: 'center'
+            },
+            {
+              title: '半自',
+              key: 'voluntary_9c',
+              align: 'center'
+            },
+            {
+              title: '半非',
+              key: 'involuntary_9c',
+              align: 'center'
+            },
+            {
+              title: '手自',
+              key: 'voluntary_not_9c',
+              align: 'center'
+            },
+            {
+              title: '手非',
+              key: 'involuntary_not_9c',
+              align: 'center'
+            }
+          ]
+        }],
+        yesterdayRefundPaiColumns: [{
+          title: '昨日排名',
+          align: 'center',
+          renderHeader: (h, params) => {
+            return h('span', [
+              h('strong', params.column.title)
+            ])
+          },
+          children: [{
+              title: '名次',
+              key: 'id',
+              align: 'center',
+              // sortable: true,
+              width: 40,
+              render: (h, params) => {
+                return h('span', params.index + 1)
+              }
+            },
+            {
+              title: '姓名',
+              key: 'processor',
+              align: 'center',
+            },
+            {
+              title: '数量',
+              key: 'num',
+              align: 'center'
+            },
+            {
+              title: '半自',
+              key: 'voluntary_9c',
+              align: 'center'
+            },
+            {
+              title: '半非',
+              key: 'involuntary_9c',
+              align: 'center'
+            },
+            {
+              title: '手自',
+              key: 'voluntary_not_9c',
+              align: 'center'
+            },
+            {
+              title: '手非',
+              key: 'involuntary_not_9c',
+              align: 'center'
+            }
+          ]
+        }],
+        monthRefundPaiColumns: [{
+          title: '本月排名',
+          align: 'center',
+          renderHeader: (h, params) => {
+            return h('span', [
+              h('strong', params.column.title)
+            ])
+          },
+          children: [{
+              title: '名次',
+              key: 'id',
+              align: 'center',
+              // sortable: true,
+              width: 40,
+              render: (h, params) => {
+                return h('span', params.index + 1)
+              }
+            },
+            {
+              title: '姓名',
+              key: 'processor',
+              align: 'center',
+            },
+            {
+              title: '数量',
+              key: 'num',
+              align: 'center'
+            },
+            {
+              title: '半自',
+              key: 'voluntary_9c',
+              align: 'center'
+            },
+            {
+              title: '半非',
+              key: 'involuntary_9c',
+              align: 'center'
+            },
+            {
+              title: '手自',
+              key: 'voluntary_not_9c',
+              align: 'center'
+            },
+            {
+              title: '手非',
+              key: 'involuntary_not_9c',
+              align: 'center'
+            }
+          ]
+        }],
+
+        todayRefundPaiData: [],
+        yesterdayRefundPaiData: [],
+        monthRefundPaiData: [],
+
+        todayRefundPaiColumns2: [{
+          title: '上月退票量',
+          align: 'center',
+          renderHeader: (h, params) => {
+            return h('span', [
+              h('strong', params.column.title)
+            ])
+          },
+          children: [{
+              title: '平台',
+              key: 'ticketTable',
+              align: 'center',
+            },
+            {
+              title: '数量',
+              key: 'num',
+              align: 'center',
+              sortable: true, //开启排序
+            },
+            {
+              title: '自愿',
+              key: 'voluntary',
+              align: 'center'
+            },
+            {
+              title: '非自愿',
+              key: 'involuntary',
+              align: 'center'
+            }
+          ]
+        }],
+        yesterdayRefundPaiColumns2: [{
+          title: '本月退票量',
+          align: 'center',
+          renderHeader: (h, params) => {
+            return h('span', [
+              h('strong', params.column.title)
+            ])
+          },
+          children: [{
+              title: '平台',
+              key: 'ticketTable',
+              align: 'center',
+            },
+            {
+              title: '数量',
+              key: 'num',
+              align: 'center',
+              sortable: true, //开启排序
+            },
+            {
+              title: '自愿',
+              key: 'voluntary',
+              align: 'center'
+            },
+            {
+              title: '非自愿',
+              key: 'involuntary',
+              align: 'center'
+            }
+          ]
+        }],
+        monthRefundPaiColumns2: [{
+          title: '今日退票量',
+          align: 'center',
+          renderHeader: (h, params) => {
+            return h('span', [
+              h('strong', params.column.title)
+            ])
+          },
+          children: [{
+              title: '平台',
+              key: 'ticketTable',
+              align: 'center',
+            },
+            {
+              title: '数量',
+              key: 'num',
+              align: 'center',
+              sortable: true, //开启排序
+            },
+            {
+              title: '自愿',
+              key: 'voluntary',
+              align: 'center'
+            },
+            {
+              title: '非自愿',
+              key: 'involuntary',
+              align: 'center'
+            }
+          ]
+        }],
+
+        todayRefundPaiData2: [],
+        yesterdayRefundPaiData2: [],
+        monthRefundPaiData2: [],
+
+        todayRefundPaiColumns3: [{
+          title: '上月退票量',
+          align: 'center',
+          renderHeader: (h, params) => {
+            return h('span', [
+              h('strong', params.column.title)
+            ])
+          },
+          children: [{
+              title: '航司',
+              key: 'airline',
+              align: 'center',
+            },
+            {
+              title: '数量',
+              key: 'num',
+              align: 'center',
+              sortable: true, //开启排序
+            },
+            {
+              title: '自愿',
+              key: 'voluntary',
+              align: 'center'
+            },
+            {
+              title: '非自愿',
+              key: 'involuntary',
+              align: 'center'
+            }
+          ]
+        }],
+        yesterdayRefundPaiColumns3: [{
+          title: '本月退票量',
+          align: 'center',
+          renderHeader: (h, params) => {
+            return h('span', [
+              h('strong', params.column.title)
+            ])
+          },
+          children: [{
+              title: '航司',
+              key: 'airline',
+              align: 'center',
+            },
+            {
+              title: '数量',
+              key: 'num',
+              align: 'center',
+              sortable: true, //开启排序
+            },
+            {
+              title: '自愿',
+              key: 'voluntary',
+              align: 'center'
+            },
+            {
+              title: '非自愿',
+              key: 'involuntary',
+              align: 'center'
+            }
+          ]
+        }],
+        monthRefundPaiColumns3: [{
+          title: '今日退票量',
+          align: 'center',
+          renderHeader: (h, params) => {
+            return h('span', [
+              h('strong', params.column.title)
+            ])
+          },
+          children: [{
+              title: '航司',
+              key: 'airline',
+              align: 'center',
+            },
+            {
+              title: '数量',
+              key: 'num',
+              align: 'center',
+              sortable: true, //开启排序
+            },
+            {
+              title: '自愿',
+              key: 'voluntary',
+              align: 'center'
+            },
+            {
+              title: '非自愿',
+              key: 'involuntary',
+              align: 'center'
+            }
+          ]
+        }],
+
+        todayRefundPaiData3: [],
+        yesterdayRefundPaiData3: [],
+        monthRefundPaiData3: []
+      }
+    },
+    mounted() {
+      this.initTable()
+
+    },
+    methods: {
+      initTable() {
+        if (this.loading) return
+        this.loading = true
+        axios({
+          url: '../bingo/ticketRefundRanking.php?action=rank',
+          method: 'post'
+        }).then(response => {
+          this.todayRefundPaiData = response.data.personnel.today
+          this.yesterdayRefundPaiData = response.data.personnel.yesterday
+          this.monthRefundPaiData = response.data.personnel.thisMonth
+
+          this.todayRefundPaiData2 = response.data.platform.lastMonth
+          this.yesterdayRefundPaiData2 = response.data.platform.thisMonth
+          this.monthRefundPaiData2 = response.data.platform.today
+
+          this.todayRefundPaiData3 = response.data.airline.lastMonth
+          this.yesterdayRefundPaiData3 = response.data.airline.thisMonth
+          this.monthRefundPaiData3 = response.data.airline.today
+          this.loading = false
+        }).catch(err => {
+          console.log(err)
+        })
+      }
+    }
+  })
+
+  Vue.component('newChart1', {
+    template: '#newChart1',
+    data() {
+      return {
+        myChart: null,
+        option: null,
+        time_type: 'paytime',
+        dayTime: new Date(),
+        dayOptions: {
+          disabledDate(date) {
+            return date && Date.now() < date.valueOf()
+          }
+        },
+      }
+    },
+    beforeDestroy() {
+      if (!this.myChart) {
+        return
+      }
+      this.myChart.dispose()
+      this.myChart = null
+    },
+    mounted() {
+      this.initNew();
+    },
+    methods: {
+      initNew() {
+
+        this.myChart = echarts.init(document.getElementById("newId1"));
+
+        this.myChart.showLoading();
+        axios({
+          url: url,
+          method: 'post',
+          data: JSON.stringify({
+            'permission': 'true',
+            'appCode': 'frontDesk',
+            'type': 'queryAll',
+            'param': {
+              'module': 'assignDayTicketOrderNumber'
+            },
+            'assignDateTime': new Date(this.dayTime).Format('yyyy-MM-dd'),
+            'time_type': this.time_type
+          })
+        }).then(response => {
+
+          let result = response.data
+
+          this.option = {
+            tooltip: {
+              trigger: 'axis', //轴
+              axisPointer: {
+                type: 'cross',
+                crossStyle: {
+                  color: '#999'
+                }
+              },
+              // position: (point, e, dom, rect, size) => {
+
+              // }
+              // formatter : function(params){
+
+              // }
+            },
+            legend: {
+              data: [
+                '全部_全部', '全部_其他', '全部_去哪儿', '全部_去哪儿TTR', '全部_去哪儿XSS', '全部_去哪儿XSG', '全部_去哪儿PAI', '全部_淘宝',
+                '全部_携程', '全部_同程', '全部_酷讯',
+                '全部_平安淘宝', '全部_淘宝B平台',
+                '其他_全部', '其他_其他', '其他_去哪儿', '其他_去哪儿TTR', '其他_去哪儿XSS', '其他_去哪儿XSG', '其他_去哪儿PAI', '其他_淘宝',
+                '其他_携程', '其他_同程', '其他_酷讯',
+                '其他_平安淘宝', '其他_淘宝B平台',
+                '9C_全部', '9C_其他', '9C_去哪儿', '9C_去哪儿TTR', '9C_去哪儿XSS', '9C_去哪儿XSG', '9C_去哪儿PAI', '9C_淘宝',
+                '9C_携程', '9C_同程', '9C_酷讯', '9C_平安淘宝', '9C_淘宝B平台',
+                'AQ_全部', 'AQ_其他', 'AQ_去哪儿', 'AQ_去哪儿TTR', 'AQ_去哪儿XSS', 'AQ_去哪儿XSG', 'AQ_去哪儿PAI', 'AQ_淘宝',
+                'AQ_携程', 'AQ_同程', 'AQ_酷讯', 'AQ_平安淘宝', 'AQ_淘宝B平台',
+                'PN_全部', 'PN_其他', 'PN_去哪儿', 'PN_去哪儿TTR', 'PN_去哪儿XSS', 'PN_去哪儿XSG', 'PN_去哪儿PAI', 'PN_淘宝',
+                'PN_携程', 'PN_同程', 'PN_酷讯', 'PN_平安淘宝', 'PN_淘宝B平台',
+                'GS_全部', 'GS_其他', 'GS_去哪儿', 'GS_去哪儿TTR', 'GS_去哪儿XSS', 'GS_去哪儿XSG', 'GS_去哪儿PAI', 'GS_淘宝',
+                'GS_携程', 'GS_同程', 'GS_酷讯', 'GS_平安淘宝', 'GS_淘宝B平台',
+                'GY_全部', 'GY_其他', 'GY_去哪儿', 'GY_去哪儿TTR', 'GY_去哪儿XSS', 'GY_去哪儿XSG', 'GY_去哪儿PAI', 'GY_淘宝',
+                'GY_携程', 'GY_同程', 'GY_酷讯', 'GY_平安淘宝', 'GY_淘宝B平台',
+                'QW_全部', 'QW_其他', 'QW_去哪儿', 'QW_去哪儿TTR', 'QW_去哪儿XSS', 'QW_去哪儿XSG', 'QW_去哪儿PAI', 'QW_淘宝',
+                'QW_携程', 'QW_同程', 'QW_酷讯', 'QW_平安淘宝', 'QW_淘宝B平台',
+                'TV_全部', 'TV_其他', 'TV_去哪儿', 'TV_去哪儿TTR', 'TV_去哪儿XSS', 'TV_去哪儿XSG', 'TV_去哪儿PAI', 'TV_淘宝',
+                'TV_携程', 'TV_同程', 'TV_酷讯', 'TV_平安淘宝', 'TV_淘宝B平台',
+                'JR_全部', 'JR_其他', 'JR_去哪儿', 'JR_去哪儿TTR', 'JR_去哪儿XSS', 'JR_去哪儿XSG', 'JR_去哪儿PAI', 'JR_淘宝',
+                'JR_携程', 'JR_同程', 'JR_酷讯', 'JR_平安淘宝', 'JR_淘宝B平台'
+              ],
+              show: false,
+              orient: 'vertical',
+              right: 'right',
+              // padding: 10,
+              selected: {
+                '全部_全部': false,
+                '全部_其他': false,
+                '全部_去哪儿': false,
+                '全部_去哪儿TTR': false,
+                '全部_去哪儿XSS': false,
+                '全部_去哪儿XSG': false,
+                '全部_去哪儿PAI': false,
+                '全部_淘宝': false,
+                '全部_携程': false,
+                '全部_同程': false,
+                '全部_酷讯': false,
+                '全部_平安淘宝': false,
+                '全部_淘宝B平台': false,
+
+                '其他_全部': false,
+                '其他_其他': false,
+                '其他_去哪儿': false,
+                '其他_去哪儿TTR': false,
+                '其他_去哪儿XSS': false,
+                '其他_去哪儿XSG': false,
+                '其他_去哪儿PAI': false,
+                '其他_淘宝': false,
+                '其他_携程': false,
+                '其他_同程': false,
+                '其他_酷讯': false,
+                '其他_平安淘宝': false,
+                '其他_淘宝B平台': false,
+
+                '9C_全部': false,
+                '9C_其他': false,
+                '9C_去哪儿': false,
+                '9C_去哪儿TTR': false,
+                '9C_去哪儿XSS': false,
+                '9C_去哪儿XSG': false,
+                '9C_去哪儿PAI': false,
+                '9C_淘宝': false,
+                '9C_携程': false,
+                '9C_同程': false,
+                '9C_酷讯': false,
+                '9C_平安淘宝': false,
+                '9C_淘宝B平台': false,
+
+                'AQ_全部': false,
+                'AQ_其他': false,
+                'AQ_去哪儿': false,
+                'AQ_去哪儿TTR': false,
+                'AQ_去哪儿XSS': false,
+                'AQ_去哪儿XSG': false,
+                'AQ_去哪儿PAI': false,
+                'AQ_淘宝': false,
+                'AQ_携程': false,
+                'AQ_同程': false,
+                'AQ_酷讯': false,
+                'AQ_平安淘宝': false,
+                'AQ_淘宝B平台': false,
+
+                'PN_全部': false,
+                'PN_其他': false,
+                'PN_去哪儿': false,
+                'PN_去哪儿TTR': false,
+                'PN_去哪儿XSS': false,
+                'PN_去哪儿XSG': false,
+                'PN_去哪儿PAI': false,
+                'PN_淘宝': false,
+                'PN_携程': false,
+                'PN_同程': false,
+                'PN_酷讯': false,
+                'PN_平安淘宝': false,
+                'PN_淘宝B平台': false,
+
+                'GS_全部': false,
+                'GS_其他': false,
+                'GS_去哪儿': false,
+                'GS_去哪儿TTR': false,
+                'GS_去哪儿XSS': false,
+                'GS_去哪儿XSG': false,
+                'GS_去哪儿PAI': false,
+                'GS_淘宝': false,
+                'GS_携程': false,
+                'GS_同程': false,
+                'GS_酷讯': false,
+                'GS_平安淘宝': false,
+                'GS_淘宝B平台': false,
+
+                'GY_全部': false,
+                'GY_其他': false,
+                'GY_去哪儿': false,
+                'GY_去哪儿TTR': false,
+                'GY_去哪儿XSS': false,
+                'GY_去哪儿XSG': false,
+                'GY_去哪儿PAI': false,
+                'GY_淘宝': false,
+                'GY_携程': false,
+                'GY_同程': false,
+                'GY_酷讯': false,
+                'GY_平安淘宝': false,
+                'GY_淘宝B平台': false,
+
+                'QW_全部': false,
+                'QW_其他': false,
+                'QW_去哪儿': false,
+                'QW_去哪儿TTR': false,
+                'QW_去哪儿XSS': false,
+                'QW_去哪儿XSG': false,
+                'QW_去哪儿PAI': false,
+                'QW_淘宝': false,
+                'QW_携程': false,
+                'QW_同程': false,
+                'QW_酷讯': false,
+                'QW_平安淘宝': false,
+                'QW_淘宝B平台': false,
+
+                'TV_全部': false,
+                'TV_其他': false,
+                'TV_去哪儿': false,
+                'TV_去哪儿TTR': false,
+                'TV_去哪儿XSS': false,
+                'TV_去哪儿XSG': false,
+                'TV_去哪儿PAI': false,
+                'TV_淘宝': false,
+                'TV_携程': false,
+                'TV_同程': false,
+                'TV_酷讯': false,
+                'TV_平安淘宝': false,
+                'TV_淘宝B平台': false,
+
+                'JR_全部': false,
+                'JR_其他': false,
+                'JR_去哪儿': false,
+                'JR_去哪儿TTR': false,
+                'JR_去哪儿XSS': false,
+                'JR_去哪儿XSG': false,
+                'JR_去哪儿PAI': false,
+                'JR_淘宝': false,
+                'JR_携程': false,
+                'JR_同程': false,
+                'JR_酷讯': false,
+                'JR_平安淘宝': false,
+                'JR_淘宝B平台': false
+              }
+            },
+            grid: {
+              left: '1%',
+              right: '1%',
+              bottom: '3%',
+              containLabel: true
+            },
+            toolbox: {
+              show: true, //开关
+              feature: {
+                mark: {
+                  show: true
+                },
+                saveAsImage: {
+                  show: true
+                } //下载保存图片
+              },
+              // right: '25%'
+            },
+            xAxis: {
+              type: 'category',
+              boundaryGap: false,
+              data: ['0时', '1时', '2时', '3时', '4时', '5时', '6时', '7时', '8时', '9时', '10时', '11时', '12时', '13时',
+                '14时',
+                '15时', '16时', '17时', '18时', '19时', '20时', '21时', '22时', '23时'
+              ]
+            },
+            yAxis: {
+              type: 'value',
+              splitLine: {
+                show: true
+              }, //去除网格线
+              axisLabel: {
+                formatter: '{value}'
+              },
+              max: 1500
+            },
+            series: [{
+                name: '全部_全部',
+                type: 'line',
+                data: result['全部_全部']
+              },
+              {
+                name: '全部_其他',
+                type: 'line',
+                data: result['全部_其他']
+              },
+              {
+                name: '全部_去哪儿',
+                type: 'line',
+                data: result['全部_去哪儿']
+              },
+              {
+                name: '全部_去哪儿TTR',
+                type: 'line',
+                data: result['全部_去哪儿TTR']
+              },
+              {
+                name: '全部_去哪儿XSS',
+                type: 'line',
+                data: result['全部_去哪儿XSS']
+              },
+              {
+                name: '全部_去哪儿XSG',
+                type: 'line',
+                data: result['全部_去哪儿XSG']
+              },
+              {
+                name: '全部_去哪儿PAI',
+                type: 'line',
+                data: result['全部_去哪儿PAI']
+              },
+              {
+                name: '全部_淘宝',
+                type: 'line',
+                data: result['全部_淘宝']
+
+              },
+              {
+                name: '全部_携程',
+                type: 'line',
+                data: result['全部_携程']
+
+              },
+              {
+                name: '全部_同程',
+                type: 'line',
+                data: result['全部_同程']
+              },
+              {
+                name: '全部_酷讯',
+                type: 'line',
+                data: result['全部_酷讯']
+              },
+              {
+                name: '全部_平安淘宝',
+                type: 'line',
+                data: result['全部_平安淘宝']
+              },
+              {
+                name: '全部_淘宝B平台',
+                type: 'line',
+                data: result['全部_淘宝B平台']
+              },
+
+
+
+              {
+                name: '其他_全部',
+                type: 'line',
+                data: result['其他_全部']
+              },
+              {
+                name: '其他_其他',
+                type: 'line',
+                data: result['其他_其他']
+              },
+              {
+                name: '其他_去哪儿',
+                type: 'line',
+                data: result['其他_去哪儿']
+              },
+              {
+                name: '其他_去哪儿TTR',
+                type: 'line',
+                data: result['其他_去哪儿TTR']
+              },
+              {
+                name: '其他_去哪儿XSS',
+                type: 'line',
+                data: result['其他_去哪儿XSS']
+              },
+              {
+                name: '其他_去哪儿XSG',
+                type: 'line',
+                data: result['其他_去哪儿XSG']
+              },
+              {
+                name: '其他_去哪儿PAI',
+                type: 'line',
+                data: result['其他_去哪儿PAI']
+              },
+              {
+                name: '其他_淘宝',
+                type: 'line',
+                data: result['其他_淘宝']
+
+              },
+              {
+                name: '其他_携程',
+                type: 'line',
+                data: result['其他_携程']
+
+              },
+              {
+                name: '其他_同程',
+                type: 'line',
+                data: result['其他_同程']
+              },
+              {
+                name: '其他_酷讯',
+                type: 'line',
+                data: result['其他_酷讯']
+              },
+              {
+                name: '其他_平安淘宝',
+                type: 'line',
+                data: result['其他_平安淘宝']
+              },
+              {
+                name: '其他_淘宝B平台',
+                type: 'line',
+                data: result['其他_淘宝B平台']
+              },
+
+
+              {
+                name: '9C_全部',
+                type: 'line',
+                data: result['9C_全部']
+              },
+              {
+                name: '9C_其他',
+                type: 'line',
+                data: result['9C_其他']
+              },
+              {
+                name: '9C_去哪儿',
+                type: 'line',
+                data: result['9C_去哪儿'],
+              },
+              {
+                name: '9C_去哪儿TTR',
+                type: 'line',
+                data: result['9C_去哪儿TTR']
+              },
+              {
+                name: '9C_去哪儿XSS',
+                type: 'line',
+                data: result['9C_去哪儿XSS']
+              },
+              {
+                name: '9C_去哪儿XSG',
+                type: 'line',
+                data: result['9C_去哪儿XSG']
+              },
+              {
+                name: '9C_去哪儿PAI',
+                type: 'line',
+                data: result['9C_去哪儿PAI']
+              },
+              {
+                name: '9C_淘宝',
+                type: 'line',
+                data: result['9C_淘宝'],
+
+              },
+              {
+                name: '9C_携程',
+                type: 'line',
+                data: result['9C_携程'],
+
+              },
+              {
+                name: '9C_同程',
+                type: 'line',
+                data: result['9C_同程'],
+              },
+              {
+                name: '9C_酷讯',
+                type: 'line',
+                data: result['9C_酷讯'],
+              },
+              {
+                name: '9C_平安淘宝',
+                type: 'line',
+                data: result['9C_平安淘宝'],
+              },
+              {
+                name: '9C_淘宝B平台',
+                type: 'line',
+                data: result['9C_淘宝B平台']
+              },
+
+
+              {
+                name: 'AQ_全部',
+                type: 'line',
+                data: result['AQ_全部']
+              },
+              {
+                name: 'AQ_其他',
+                type: 'line',
+                data: result['AQ_全部']
+              },
+              {
+                name: 'AQ_去哪儿',
+                type: 'line',
+                data: result['AQ_去哪儿']
+
+              },
+              {
+                name: 'AQ_去哪儿TTR',
+                type: 'line',
+                data: result['AQ_去哪儿TTR']
+              },
+              {
+                name: 'AQ_去哪儿XSS',
+                type: 'line',
+                data: result['AQ_去哪儿XSS']
+              },
+              {
+                name: 'AQ_去哪儿XSG',
+                type: 'line',
+                data: result['AQ_去哪儿XSG']
+              },
+              {
+                name: 'AQ_去哪儿PAI',
+                type: 'line',
+                data: result['AQ_去哪儿PAI']
+              },
+              {
+                name: 'AQ_淘宝',
+                type: 'line',
+                data: result['AQ_淘宝']
+
+              },
+              {
+                name: 'AQ_携程',
+                type: 'line',
+                data: result['AQ_携程']
+
+              },
+              {
+                name: 'AQ_同程',
+                type: 'line',
+                data: result['AQ_同程'],
+
+              },
+              {
+                name: 'AQ_酷讯',
+                type: 'line',
+                data: result['AQ_酷讯']
+              },
+              {
+                name: 'AQ_平安淘宝',
+                type: 'line',
+                data: result['AQ_平安淘宝'],
+
+              },
+              {
+                name: 'AQ_淘宝B平台',
+                type: 'line',
+                data: result['AQ_淘宝B平台']
+              },
+
+              {
+                name: 'PN_全部',
+                type: 'line',
+                data: result['PN_全部']
+              },
+              {
+                name: 'PN_其他',
+                type: 'line',
+                data: result['PN_其他']
+              },
+              {
+                name: 'PN_去哪儿',
+                type: 'line',
+
+                data: result['PN_去哪儿']
+              },
+              {
+                name: 'PN_去哪儿TTR',
+                type: 'line',
+                data: result['PN_去哪儿TTR']
+              },
+              {
+                name: 'PN_去哪儿XSS',
+                type: 'line',
+                data: result['PN_去哪儿XSS']
+              },
+              {
+                name: 'PN_去哪儿XSG',
+                type: 'line',
+                data: result['PN_去哪儿XSG']
+              },
+              {
+                name: 'PN_去哪儿PAI',
+                type: 'line',
+                data: result['PN_去哪儿PAI']
+              },
+              {
+                name: 'PN_淘宝',
+                type: 'line',
+                data: result['PN_淘宝']
+
+              },
+              {
+                name: 'PN_携程',
+                type: 'line',
+                data: result['PN_携程']
+
+              },
+              {
+                name: 'PN_同程',
+                type: 'line',
+                data: result['PN_同程'],
+
+              },
+              {
+                name: 'PN_酷讯',
+                type: 'line',
+
+                data: result['PN_酷讯']
+              },
+              {
+                name: 'PN_平安淘宝',
+                type: 'line',
+                data: result['PN_平安淘宝']
+
+              },
+              {
+                name: 'PN_淘宝B平台',
+                type: 'line',
+                data: result['PN_淘宝B平台']
+              },
+
+              {
+                name: 'GS_全部',
+                type: 'line',
+                data: result['GS_全部']
+              },
+              {
+                name: 'GS_其他',
+                type: 'line',
+                data: result['GS_其他']
+              },
+              {
+                name: 'GS_去哪儿',
+                type: 'line',
+
+                data: result['GS_去哪儿']
+              },
+              {
+                name: 'GS_去哪儿TTR',
+                type: 'line',
+                data: result['GS_去哪儿TTR']
+              },
+              {
+                name: 'GS_去哪儿XSS',
+                type: 'line',
+                data: result['GS_去哪儿XSS']
+              },
+              {
+                name: 'GS_去哪儿XSG',
+                type: 'line',
+                data: result['GS_去哪儿XSG']
+              },
+              {
+                name: 'GS_去哪儿PAI',
+                type: 'line',
+                data: result['GS_去哪儿PAI']
+              },
+              {
+                name: 'GS_淘宝',
+                type: 'line',
+                data: result['GS_淘宝']
+
+              },
+              {
+                name: 'GS_携程',
+                type: 'line',
+                data: result['GS_携程']
+
+              },
+              {
+                name: 'GS_同程',
+                type: 'line',
+                data: result['GS_同程']
+
+              },
+              {
+                name: 'GS_酷讯',
+                type: 'line',
+
+                data: result['GS_酷讯']
+              },
+              {
+                name: 'GS_平安淘宝',
+                type: 'line',
+                data: result['GS_平安淘宝']
+
+              },
+              {
+                name: 'GS_淘宝B平台',
+                type: 'line',
+                data: result['GS_淘宝B平台']
+              },
+
+              {
+                name: 'GY_全部',
+                type: 'line',
+                data: result['GY_全部']
+              },
+              {
+                name: 'GY_其他',
+                type: 'line',
+                data: result['GY_其他']
+              },
+              {
+                name: 'GY_去哪儿',
+                type: 'line',
+
+                data: result['GY_去哪儿']
+              },
+              {
+                name: 'GY_去哪儿TTR',
+                type: 'line',
+                data: result['GY_去哪儿TTR']
+              },
+              {
+                name: 'GY_去哪儿XSS',
+                type: 'line',
+                data: result['GY_去哪儿XSS']
+              },
+              {
+                name: 'GY_去哪儿XSG',
+                type: 'line',
+                data: result['GY_去哪儿XSG']
+              },
+              {
+                name: 'GY_去哪儿PAI',
+                type: 'line',
+                data: result['GY_去哪儿PAI']
+              },
+              {
+                name: 'GY_淘宝',
+                type: 'line',
+                data: result['GY_淘宝']
+
+              },
+              {
+                name: 'GY_携程',
+                type: 'line',
+                data: result['GY_携程']
+
+              },
+              {
+                name: 'GY_同程',
+                type: 'line',
+                data: result['GY_同程']
+
+              },
+              {
+                name: 'GY_酷讯',
+                type: 'line',
+
+                data: result['GY_酷讯']
+              },
+              {
+                name: 'GY_平安淘宝',
+                type: 'line',
+                data: result['GY_平安淘宝']
+
+              },
+              {
+                name: 'GY_淘宝B平台',
+                type: 'line',
+                data: result['GY_淘宝B平台']
+              },
+
+              {
+                name: 'QW_全部',
+                type: 'line',
+                data: result['QW_全部']
+              },
+              {
+                name: 'QW_其他',
+                type: 'line',
+                data: result['QW_其他']
+              },
+              {
+                name: 'QW_去哪儿',
+                type: 'line',
+
+                data: result['QW_去哪儿']
+              },
+              {
+                name: 'QW_去哪儿TTR',
+                type: 'line',
+                data: result['QW_去哪儿TTR']
+              },
+              {
+                name: 'QW_去哪儿XSS',
+                type: 'line',
+                data: result['QW_去哪儿XSS']
+              },
+              {
+                name: 'QW_去哪儿XSG',
+                type: 'line',
+                data: result['QW_去哪儿XSG']
+              },
+              {
+                name: 'QW_去哪儿PAI',
+                type: 'line',
+                data: result['QW_去哪儿PAI']
+              },
+              {
+                name: 'QW_淘宝',
+                type: 'line',
+                data: result['QW_淘宝']
+
+              },
+              {
+                name: 'QW_携程',
+                type: 'line',
+
+                data: result['QW_携程']
+              },
+              {
+                name: 'QW_同程',
+                type: 'line',
+
+                data: result['QW_同程']
+              },
+              {
+                name: 'QW_酷讯',
+                type: 'line',
+
+                data: result['QW_酷讯']
+              },
+              {
+                name: 'QW_平安淘宝',
+                type: 'line',
+
+                data: result['QW_平安淘宝']
+              },
+              {
+                name: 'QW_淘宝B平台',
+                type: 'line',
+
+                data: result['QW_淘宝B平台']
+              },
+
+
+              {
+                name: 'TV_全部',
+                type: 'line',
+                data: result['TV_全部']
+              },
+              {
+                name: 'TV_其他',
+                type: 'line',
+                data: result['TV_其他'],
+              },
+              {
+                name: 'TV_去哪儿',
+                type: 'line',
+
+                data: result['TV_去哪儿']
+              },
+              {
+                name: 'TV_去哪儿TTR',
+                type: 'line',
+                data: result['TV_去哪儿TTR']
+              },
+              {
+                name: 'TV_去哪儿XSS',
+                type: 'line',
+                data: result['TV_去哪儿XSS']
+              },
+              {
+                name: 'TV_去哪儿XSG',
+                type: 'line',
+                data: result['TV_去哪儿XSG']
+              },
+              {
+                name: 'TV_去哪儿PAI',
+                type: 'line',
+                data: result['TV_去哪儿PAI']
+              },
+              {
+                name: 'TV_淘宝',
+                type: 'line',
+                data: result['TV_淘宝'],
+
+              },
+              {
+                name: 'TV_携程',
+                type: 'line',
+
+                data: result['TV_携程']
+              },
+              {
+                name: 'TV_同程',
+                type: 'line',
+
+                data: result['TV_同程']
+              },
+              {
+                name: 'TV_酷讯',
+                type: 'line',
+
+                data: result['TV_酷讯']
+              },
+              {
+                name: 'TV_平安淘宝',
+                type: 'line',
+
+                data: result['TV_平安淘宝']
+              },
+              {
+                name: 'TV_淘宝B平台',
+                type: 'line',
+
+                data: result['TV_淘宝B平台']
+              },
+
+              {
+                name: 'JR_全部',
+                type: 'line',
+                data: result['JR_全部'],
+              },
+              {
+                name: 'JR_其他',
+                type: 'line',
+                data: result['JR_其他'],
+              },
+              {
+                name: 'JR_去哪儿',
+                type: 'line',
+
+                data: result['JR_去哪儿']
+              },
+              {
+                name: 'JR_去哪儿TTR',
+                type: 'line',
+                data: result['JR_去哪儿TTR']
+              },
+              {
+                name: 'JR_去哪儿XSS',
+                type: 'line',
+                data: result['JR_去哪儿XSS']
+              },
+              {
+                name: 'JR_去哪儿XSG',
+                type: 'line',
+                data: result['JR_去哪儿XSG']
+              },
+              {
+                name: 'JR_去哪儿PAI',
+                type: 'line',
+                data: result['JR_去哪儿PAI']
+              },
+              {
+                name: 'JR_淘宝',
+                type: 'line',
+                data: result['JR_淘宝'],
+
+              },
+              {
+                name: 'JR_携程',
+                type: 'line',
+
+                data: result['JR_携程']
+              },
+              {
+                name: 'JR_同程',
+                type: 'line',
+
+                data: result['JR_同程']
+              },
+              {
+                name: 'JR_酷讯',
+                type: 'line',
+
+                data: result['JR_酷讯'],
+              },
+              {
+                name: 'JR_平安淘宝',
+                type: 'line',
+
+                data: result['JR_平安淘宝']
+              },
+              {
+                name: 'JR_淘宝B平台',
+                type: 'line',
+
+                data: result['JR_淘宝B平台'],
+              },
+            ]
+          };
+          if (this.option && typeof this.option === "object") {
+            this.myChart.setOption(this.option, true);
+          }
+          this.myChart.hideLoading(); //隐藏加载动画
+          this.checkboxAll();
+
+        }).catch(err => {
+          console.log(err)
+        })
+        window.addEventListener('resize', this.myChart.resize)
+      },
+
+      checkboxAll() {
+        let selectArr = this.myChart.getOption().legend[0].data;
+        this.ss(selectArr)
+        $(".checkboxchart").click(() => {
+          this.ss(selectArr)
+        })
+      },
+      ss(selectArr) {
+        let arr = [];
+        $("input[name='checkboxhs']:checked").each(function () {
+          let key = $(this).val();
+          // if (key == "其他" || key == "总量") {
+          //   arr.push({
+          //     "hs": key
+          //   })
+          // } else {
+          $("input[name='checkboxpt']:checked").each(function () {
+            arr.push({
+              "hs": key,
+              "pt": $(this).val()
+            });
+          })
+          // }
+        });
+        let obj = {};
+
+        for (let i = 0; i < selectArr.length; i++) {
+          obj[selectArr[i]] = false;
+        }
+        for (let i = 0; i < arr.length; i++) {
+
+          // if (arr[i].hs == "总量" || arr[i].hs == "其他") {
+
+          //   obj[arr[i].hs] = true;
+          // } else 
+          if (selectArr.indexOf(arr[i].hs + "_" + arr[i].pt) > -1) {
+
+            obj[arr[i].hs + "_" + arr[i].pt] = true;
+          }
+
+
+        }
+        this.option.legend.selected = obj;
+        console.log(arr);
+        // this.myChart.clear()
+        this.myChart.setOption(this.option, true);
+
+
+
+      },
+
+      opcheckboxed(objtype) {
+        let allcheck = document.getElementById(objtype);
+        let choice = document.getElementsByName(objtype);
+        for (let i = 0; i < choice.length; i++) {
+          choice[i].checked = allcheck.checked;
+        }
+        // if (objtype == "checkboxhs") {
+        //   for (let i = 2; i < choice.length; i++) {
+        //     choice[i].checked = allcheck.checked;
+        //   }
+        // } else {
+        //   for (let i = 0; i < choice.length; i++) {
+        //     choice[i].checked = allcheck.checked;
+        //   }
+        // }
+        let selectArr = this.myChart.getOption().legend[0].data;
+        this.ss(selectArr)
+      },
+      setAll(che) {
+        if (!$("input[name='" + che + "']").checked) {
+          $("#" + che + "").prop("checked", false); // 子复选框某个不选择，全选也被取消
+        }
+        let choicelength = $("input[type='checkbox'][name='" + che + "']").length;
+        let choiceselect = $("input[type='checkbox'][name='" + che + "']:checked").length;
+
+        if (choicelength == choiceselect) {
+          $("#" + che + "").prop("checked",
+            true
+          );
+        }
+
+      }
+    }
+  });
+  Vue.component('newChart2', {
+    template: '#newChart2',
+    data() {
+      return {
+        myChart: null,
+        option: null,
+        time_type2: 'paytime',
+        monthTime: new Date(),
+        monthOptions: {
+          disabledDate(date) {
+            return date && Date.now() < date.valueOf()
+          }
+        },
+      }
+    },
+    beforeDestroy() {
+      if (!this.myChart) {
+        return
+      }
+      this.myChart.dispose()
+      this.myChart = null
+    },
+    mounted() {
+      this.initNew();
+    },
+    methods: {
+      initNew() {
+        this.myChart = echarts.init(document.getElementById("newId2"));
+
+        this.myChart.showLoading();
+        axios({
+          url: url,
+          method: 'post',
+          data: JSON.stringify({
+            'permission': 'true',
+            'appCode': 'frontDesk',
+            'type': 'queryAll',
+            'param': {
+              'module': 'assignMonthTicketOrderNumber'
+            },
+            'assignDateTime': new Date(this.monthTime).Format('yyyy-MM-01'),
+            'time_type': this.time_type2
+          })
+        }).then(response => {
+
+          let result = response.data
+
+          this.option = {
+            tooltip: {
+              trigger: 'axis', //轴
+              axisPointer: {
+                type: 'cross',
+                crossStyle: {
+                  color: '#999'
+                }
+              },
+              // position: (point, e, dom, rect, size) => {
+
+              // }
+              // formatter : function(params){
+
+              // }
+            },
+            legend: {
+              data: [
+                '全部_全部', '全部_其他', '全部_去哪儿', '全部_去哪儿TTR', '全部_去哪儿XSS', '全部_去哪儿XSG', '全部_去哪儿PAI', '全部_淘宝',
+                '全部_携程', '全部_同程', '全部_酷讯',
+                '全部_平安淘宝', '全部_淘宝B平台',
+                '其他_全部', '其他_其他', '其他_去哪儿', '其他_去哪儿TTR', '其他_去哪儿XSS', '其他_去哪儿XSG', '其他_去哪儿PAI', '其他_淘宝',
+                '其他_携程', '其他_同程', '其他_酷讯',
+                '其他_平安淘宝', '其他_淘宝B平台',
+                '9C_全部', '9C_其他', '9C_去哪儿', '9C_去哪儿TTR', '9C_去哪儿XSS', '9C_去哪儿XSG', '9C_去哪儿PAI', '9C_淘宝',
+                '9C_携程', '9C_同程', '9C_酷讯', '9C_平安淘宝', '9C_淘宝B平台',
+                'AQ_全部', 'AQ_其他', 'AQ_去哪儿', 'AQ_去哪儿TTR', 'AQ_去哪儿XSS', 'AQ_去哪儿XSG', 'AQ_去哪儿PAI', 'AQ_淘宝',
+                'AQ_携程', 'AQ_同程', 'AQ_酷讯', 'AQ_平安淘宝', 'AQ_淘宝B平台',
+                'PN_全部', 'PN_其他', 'PN_去哪儿', 'PN_去哪儿TTR', 'PN_去哪儿XSS', 'PN_去哪儿XSG', 'PN_去哪儿PAI', 'PN_淘宝',
+                'PN_携程', 'PN_同程', 'PN_酷讯', 'PN_平安淘宝', 'PN_淘宝B平台',
+                'GS_全部', 'GS_其他', 'GS_去哪儿', 'GS_去哪儿TTR', 'GS_去哪儿XSS', 'GS_去哪儿XSG', 'GS_去哪儿PAI', 'GS_淘宝',
+                'GS_携程', 'GS_同程', 'GS_酷讯', 'GS_平安淘宝', 'GS_淘宝B平台',
+                'GY_全部', 'GY_其他', 'GY_去哪儿', 'GY_去哪儿TTR', 'GY_去哪儿XSS', 'GY_去哪儿XSG', 'GY_去哪儿PAI', 'GY_淘宝',
+                'GY_携程', 'GY_同程', 'GY_酷讯', 'GY_平安淘宝', 'GY_淘宝B平台',
+                'QW_全部', 'QW_其他', 'QW_去哪儿', 'QW_去哪儿TTR', 'QW_去哪儿XSS', 'QW_去哪儿XSG', 'QW_去哪儿PAI', 'QW_淘宝',
+                'QW_携程', 'QW_同程', 'QW_酷讯', 'QW_平安淘宝', 'QW_淘宝B平台',
+                'TV_全部', 'TV_其他', 'TV_去哪儿', 'TV_去哪儿TTR', 'TV_去哪儿XSS', 'TV_去哪儿XSG', 'TV_去哪儿PAI', 'TV_淘宝',
+                'TV_携程', 'TV_同程', 'TV_酷讯', 'TV_平安淘宝', 'TV_淘宝B平台',
+                'JR_全部', 'JR_其他', 'JR_去哪儿', 'JR_去哪儿TTR', 'JR_去哪儿XSS', 'JR_去哪儿XSG', 'JR_去哪儿PAI', 'JR_淘宝',
+                'JR_携程', 'JR_同程', 'JR_酷讯', 'JR_平安淘宝', 'JR_淘宝B平台'
+              ],
+              show: false,
+              orient: 'vertical',
+              right: 'right',
+              // padding: 10,
+              selected: {
+                '全部_全部': false,
+                '全部_其他': false,
+                '全部_去哪儿': false,
+                '全部_去哪儿TTR': false,
+                '全部_去哪儿XSS': false,
+                '全部_去哪儿XSG': false,
+                '全部_去哪儿PAI': false,
+                '全部_淘宝': false,
+                '全部_携程': false,
+                '全部_同程': false,
+                '全部_酷讯': false,
+                '全部_平安淘宝': false,
+                '全部_淘宝B平台': false,
+
+                '其他_全部': false,
+                '其他_其他': false,
+                '其他_去哪儿': false,
+                '其他_去哪儿TTR': false,
+                '其他_去哪儿XSS': false,
+                '其他_去哪儿XSG': false,
+                '其他_去哪儿PAI': false,
+                '其他_淘宝': false,
+                '其他_携程': false,
+                '其他_同程': false,
+                '其他_酷讯': false,
+                '其他_平安淘宝': false,
+                '其他_淘宝B平台': false,
+
+                '9C_全部': false,
+                '9C_其他': false,
+                '9C_去哪儿': false,
+                '9C_去哪儿TTR': false,
+                '9C_去哪儿XSS': false,
+                '9C_去哪儿XSG': false,
+                '9C_去哪儿PAI': false,
+                '9C_淘宝': false,
+                '9C_携程': false,
+                '9C_同程': false,
+                '9C_酷讯': false,
+                '9C_平安淘宝': false,
+                '9C_淘宝B平台': false,
+
+                'AQ_全部': false,
+                'AQ_其他': false,
+                'AQ_去哪儿': false,
+                'AQ_去哪儿TTR': false,
+                'AQ_去哪儿XSS': false,
+                'AQ_去哪儿XSG': false,
+                'AQ_去哪儿PAI': false,
+                'AQ_淘宝': false,
+                'AQ_携程': false,
+                'AQ_同程': false,
+                'AQ_酷讯': false,
+                'AQ_平安淘宝': false,
+                'AQ_淘宝B平台': false,
+
+                'PN_全部': false,
+                'PN_其他': false,
+                'PN_去哪儿': false,
+                'PN_去哪儿TTR': false,
+                'PN_去哪儿XSS': false,
+                'PN_去哪儿XSG': false,
+                'PN_去哪儿PAI': false,
+                'PN_淘宝': false,
+                'PN_携程': false,
+                'PN_同程': false,
+                'PN_酷讯': false,
+                'PN_平安淘宝': false,
+                'PN_淘宝B平台': false,
+
+                'GS_全部': false,
+                'GS_其他': false,
+                'GS_去哪儿': false,
+                'GS_去哪儿TTR': false,
+                'GS_去哪儿XSS': false,
+                'GS_去哪儿XSG': false,
+                'GS_去哪儿PAI': false,
+                'GS_淘宝': false,
+                'GS_携程': false,
+                'GS_同程': false,
+                'GS_酷讯': false,
+                'GS_平安淘宝': false,
+                'GS_淘宝B平台': false,
+
+                'GY_全部': false,
+                'GY_其他': false,
+                'GY_去哪儿': false,
+                'GY_去哪儿TTR': false,
+                'GY_去哪儿XSS': false,
+                'GY_去哪儿XSG': false,
+                'GY_去哪儿PAI': false,
+                'GY_淘宝': false,
+                'GY_携程': false,
+                'GY_同程': false,
+                'GY_酷讯': false,
+                'GY_平安淘宝': false,
+                'GY_淘宝B平台': false,
+
+                'QW_全部': false,
+                'QW_其他': false,
+                'QW_去哪儿': false,
+                'QW_去哪儿TTR': false,
+                'QW_去哪儿XSS': false,
+                'QW_去哪儿XSG': false,
+                'QW_去哪儿PAI': false,
+                'QW_淘宝': false,
+                'QW_携程': false,
+                'QW_同程': false,
+                'QW_酷讯': false,
+                'QW_平安淘宝': false,
+                'QW_淘宝B平台': false,
+
+                'TV_全部': false,
+                'TV_其他': false,
+                'TV_去哪儿': false,
+                'TV_去哪儿TTR': false,
+                'TV_去哪儿XSS': false,
+                'TV_去哪儿XSG': false,
+                'TV_去哪儿PAI': false,
+                'TV_淘宝': false,
+                'TV_携程': false,
+                'TV_同程': false,
+                'TV_酷讯': false,
+                'TV_平安淘宝': false,
+                'TV_淘宝B平台': false,
+
+                'JR_全部': false,
+                'JR_其他': false,
+                'JR_去哪儿': false,
+                'JR_去哪儿TTR': false,
+                'JR_去哪儿XSS': false,
+                'JR_去哪儿XSG': false,
+                'JR_去哪儿PAI': false,
+                'JR_淘宝': false,
+                'JR_携程': false,
+                'JR_同程': false,
+                'JR_酷讯': false,
+                'JR_平安淘宝': false,
+                'JR_淘宝B平台': false
+              }
+            },
+            grid: {
+              left: '1%',
+              right: '1%',
+              bottom: '3%',
+              containLabel: true
+            },
+            toolbox: {
+              show: true, //开关
+              feature: {
+                mark: {
+                  show: true
+                },
+                saveAsImage: {
+                  show: true
+                } //下载保存图片
+              },
+              // right: '25%'
+            },
+            xAxis: {
+              type: 'category',
+              boundaryGap: false,
+              data: ['1日', '2日', '3日', '4日', '5日', '6日', '7日', '8日', '9日', '10日', '11日',
+                '12日', '13日', '14日', '15日',
+                '16日', '17日', '18日', '19日', '20日', '21日', '22日', '23日', '24日', '25日',
+                '26日', '27日', '28日', '29日', '30日',
+                '31日'
+              ]
+            },
+            yAxis: {
+              type: 'value',
+              splitLine: {
+                show: true
+              }, //去除网格线
+              axisLabel: {
+                formatter: '{value}'
+              },
+              max: 15000
+            },
+            series: [{
+                name: '全部_全部',
+                type: 'line',
+                data: result['全部_全部']
+              },
+              {
+                name: '全部_其他',
+                type: 'line',
+                data: result['全部_其他']
+              },
+              {
+                name: '全部_去哪儿',
+                type: 'line',
+                data: result['全部_去哪儿']
+              },
+              {
+                name: '全部_去哪儿TTR',
+                type: 'line',
+                data: result['全部_去哪儿TTR']
+              },
+              {
+                name: '全部_去哪儿XSS',
+                type: 'line',
+                data: result['全部_去哪儿XSS']
+              },
+              {
+                name: '全部_去哪儿XSG',
+                type: 'line',
+                data: result['全部_去哪儿XSG']
+              },
+              {
+                name: '全部_去哪儿PAI',
+                type: 'line',
+                data: result['全部_去哪儿PAI']
+              },
+              {
+                name: '全部_淘宝',
+                type: 'line',
+                data: result['全部_淘宝']
+
+              },
+              {
+                name: '全部_携程',
+                type: 'line',
+                data: result['全部_携程']
+
+              },
+              {
+                name: '全部_同程',
+                type: 'line',
+                data: result['全部_同程']
+              },
+              {
+                name: '全部_酷讯',
+                type: 'line',
+                data: result['全部_酷讯']
+              },
+              {
+                name: '全部_平安淘宝',
+                type: 'line',
+                data: result['全部_平安淘宝']
+              },
+              {
+                name: '全部_淘宝B平台',
+                type: 'line',
+                data: result['全部_淘宝B平台']
+              },
+
+
+
+              {
+                name: '其他_全部',
+                type: 'line',
+                data: result['其他_全部']
+              },
+              {
+                name: '其他_其他',
+                type: 'line',
+                data: result['其他_其他']
+              },
+              {
+                name: '其他_去哪儿',
+                type: 'line',
+                data: result['其他_去哪儿']
+              },
+              {
+                name: '其他_去哪儿TTR',
+                type: 'line',
+                data: result['其他_去哪儿TTR']
+              },
+              {
+                name: '其他_去哪儿XSS',
+                type: 'line',
+                data: result['其他_去哪儿XSS']
+              },
+              {
+                name: '其他_去哪儿XSG',
+                type: 'line',
+                data: result['其他_去哪儿XSG']
+              },
+              {
+                name: '其他_去哪儿PAI',
+                type: 'line',
+                data: result['其他_去哪儿PAI']
+              },
+              {
+                name: '其他_淘宝',
+                type: 'line',
+                data: result['其他_淘宝']
+
+              },
+              {
+                name: '其他_携程',
+                type: 'line',
+                data: result['其他_携程']
+
+              },
+              {
+                name: '其他_同程',
+                type: 'line',
+                data: result['其他_同程']
+              },
+              {
+                name: '其他_酷讯',
+                type: 'line',
+                data: result['其他_酷讯']
+              },
+              {
+                name: '其他_平安淘宝',
+                type: 'line',
+                data: result['其他_平安淘宝']
+              },
+              {
+                name: '其他_淘宝B平台',
+                type: 'line',
+                data: result['其他_淘宝B平台']
+              },
+
+
+              {
+                name: '9C_全部',
+                type: 'line',
+                data: result['9C_全部']
+              },
+              {
+                name: '9C_其他',
+                type: 'line',
+                data: result['9C_其他']
+              },
+              {
+                name: '9C_去哪儿',
+                type: 'line',
+                data: result['9C_去哪儿'],
+              },
+              {
+                name: '9C_去哪儿TTR',
+                type: 'line',
+                data: result['9C_去哪儿TTR']
+              },
+              {
+                name: '9C_去哪儿XSS',
+                type: 'line',
+                data: result['9C_去哪儿XSS']
+              },
+              {
+                name: '9C_去哪儿XSG',
+                type: 'line',
+                data: result['9C_去哪儿XSG']
+              },
+              {
+                name: '9C_去哪儿PAI',
+                type: 'line',
+                data: result['9C_去哪儿PAI']
+              },
+              {
+                name: '9C_淘宝',
+                type: 'line',
+                data: result['9C_淘宝'],
+
+              },
+              {
+                name: '9C_携程',
+                type: 'line',
+                data: result['9C_携程'],
+
+              },
+              {
+                name: '9C_同程',
+                type: 'line',
+                data: result['9C_同程'],
+              },
+              {
+                name: '9C_酷讯',
+                type: 'line',
+                data: result['9C_酷讯'],
+              },
+              {
+                name: '9C_平安淘宝',
+                type: 'line',
+                data: result['9C_平安淘宝'],
+              },
+              {
+                name: '9C_淘宝B平台',
+                type: 'line',
+                data: result['9C_淘宝B平台']
+              },
+
+
+              {
+                name: 'AQ_全部',
+                type: 'line',
+                data: result['AQ_全部']
+              },
+              {
+                name: 'AQ_其他',
+                type: 'line',
+                data: result['AQ_全部']
+              },
+              {
+                name: 'AQ_去哪儿',
+                type: 'line',
+                data: result['AQ_去哪儿']
+
+              },
+              {
+                name: 'AQ_去哪儿TTR',
+                type: 'line',
+                data: result['AQ_去哪儿TTR']
+              },
+              {
+                name: 'AQ_去哪儿XSS',
+                type: 'line',
+                data: result['AQ_去哪儿XSS']
+              },
+              {
+                name: 'AQ_去哪儿XSG',
+                type: 'line',
+                data: result['AQ_去哪儿XSG']
+              },
+              {
+                name: 'AQ_去哪儿PAI',
+                type: 'line',
+                data: result['AQ_去哪儿PAI']
+              },
+              {
+                name: 'AQ_淘宝',
+                type: 'line',
+                data: result['AQ_淘宝']
+
+              },
+              {
+                name: 'AQ_携程',
+                type: 'line',
+                data: result['AQ_携程']
+
+              },
+              {
+                name: 'AQ_同程',
+                type: 'line',
+                data: result['AQ_同程'],
+
+              },
+              {
+                name: 'AQ_酷讯',
+                type: 'line',
+                data: result['AQ_酷讯']
+              },
+              {
+                name: 'AQ_平安淘宝',
+                type: 'line',
+                data: result['AQ_平安淘宝'],
+
+              },
+              {
+                name: 'AQ_淘宝B平台',
+                type: 'line',
+                data: result['AQ_淘宝B平台']
+              },
+
+              {
+                name: 'PN_全部',
+                type: 'line',
+                data: result['PN_全部']
+              },
+              {
+                name: 'PN_其他',
+                type: 'line',
+                data: result['PN_其他']
+              },
+              {
+                name: 'PN_去哪儿',
+                type: 'line',
+
+                data: result['PN_去哪儿']
+              },
+              {
+                name: 'PN_去哪儿TTR',
+                type: 'line',
+                data: result['PN_去哪儿TTR']
+              },
+              {
+                name: 'PN_去哪儿XSS',
+                type: 'line',
+                data: result['PN_去哪儿XSS']
+              },
+              {
+                name: 'PN_去哪儿XSG',
+                type: 'line',
+                data: result['PN_去哪儿XSG']
+              },
+              {
+                name: 'PN_去哪儿PAI',
+                type: 'line',
+                data: result['PN_去哪儿PAI']
+              },
+              {
+                name: 'PN_淘宝',
+                type: 'line',
+                data: result['PN_淘宝']
+
+              },
+              {
+                name: 'PN_携程',
+                type: 'line',
+                data: result['PN_携程']
+
+              },
+              {
+                name: 'PN_同程',
+                type: 'line',
+                data: result['PN_同程'],
+
+              },
+              {
+                name: 'PN_酷讯',
+                type: 'line',
+
+                data: result['PN_酷讯']
+              },
+              {
+                name: 'PN_平安淘宝',
+                type: 'line',
+                data: result['PN_平安淘宝']
+
+              },
+              {
+                name: 'PN_淘宝B平台',
+                type: 'line',
+                data: result['PN_淘宝B平台']
+              },
+
+              {
+                name: 'GS_全部',
+                type: 'line',
+                data: result['GS_全部']
+              },
+              {
+                name: 'GS_其他',
+                type: 'line',
+                data: result['GS_其他']
+              },
+              {
+                name: 'GS_去哪儿',
+                type: 'line',
+
+                data: result['GS_去哪儿']
+              },
+              {
+                name: 'GS_去哪儿TTR',
+                type: 'line',
+                data: result['GS_去哪儿TTR']
+              },
+              {
+                name: 'GS_去哪儿XSS',
+                type: 'line',
+                data: result['GS_去哪儿XSS']
+              },
+              {
+                name: 'GS_去哪儿XSG',
+                type: 'line',
+                data: result['GS_去哪儿XSG']
+              },
+              {
+                name: 'GS_去哪儿PAI',
+                type: 'line',
+                data: result['GS_去哪儿PAI']
+              },
+              {
+                name: 'GS_淘宝',
+                type: 'line',
+                data: result['GS_淘宝']
+
+              },
+              {
+                name: 'GS_携程',
+                type: 'line',
+                data: result['GS_携程']
+
+              },
+              {
+                name: 'GS_同程',
+                type: 'line',
+                data: result['GS_同程']
+
+              },
+              {
+                name: 'GS_酷讯',
+                type: 'line',
+
+                data: result['GS_酷讯']
+              },
+              {
+                name: 'GS_平安淘宝',
+                type: 'line',
+                data: result['GS_平安淘宝']
+
+              },
+              {
+                name: 'GS_淘宝B平台',
+                type: 'line',
+                data: result['GS_淘宝B平台']
+              },
+
+              {
+                name: 'GY_全部',
+                type: 'line',
+                data: result['GY_全部']
+              },
+              {
+                name: 'GY_其他',
+                type: 'line',
+                data: result['GY_其他']
+              },
+              {
+                name: 'GY_去哪儿',
+                type: 'line',
+
+                data: result['GY_去哪儿']
+              },
+              {
+                name: 'GY_去哪儿TTR',
+                type: 'line',
+                data: result['GY_去哪儿TTR']
+              },
+              {
+                name: 'GY_去哪儿XSS',
+                type: 'line',
+                data: result['GY_去哪儿XSS']
+              },
+              {
+                name: 'GY_去哪儿XSG',
+                type: 'line',
+                data: result['GY_去哪儿XSG']
+              },
+              {
+                name: 'GY_去哪儿PAI',
+                type: 'line',
+                data: result['GY_去哪儿PAI']
+              },
+              {
+                name: 'GY_淘宝',
+                type: 'line',
+                data: result['GY_淘宝']
+
+              },
+              {
+                name: 'GY_携程',
+                type: 'line',
+                data: result['GY_携程']
+
+              },
+              {
+                name: 'GY_同程',
+                type: 'line',
+                data: result['GY_同程']
+
+              },
+              {
+                name: 'GY_酷讯',
+                type: 'line',
+
+                data: result['GY_酷讯']
+              },
+              {
+                name: 'GY_平安淘宝',
+                type: 'line',
+                data: result['GY_平安淘宝']
+
+              },
+              {
+                name: 'GY_淘宝B平台',
+                type: 'line',
+                data: result['GY_淘宝B平台']
+              },
+
+              {
+                name: 'QW_全部',
+                type: 'line',
+                data: result['QW_全部']
+              },
+              {
+                name: 'QW_其他',
+                type: 'line',
+                data: result['QW_其他']
+              },
+              {
+                name: 'QW_去哪儿',
+                type: 'line',
+
+                data: result['QW_去哪儿']
+              },
+              {
+                name: 'QW_去哪儿TTR',
+                type: 'line',
+                data: result['QW_去哪儿TTR']
+              },
+              {
+                name: 'QW_去哪儿XSS',
+                type: 'line',
+                data: result['QW_去哪儿XSS']
+              },
+              {
+                name: 'QW_去哪儿XSG',
+                type: 'line',
+                data: result['QW_去哪儿XSG']
+              },
+              {
+                name: 'QW_去哪儿PAI',
+                type: 'line',
+                data: result['QW_去哪儿PAI']
+              },
+              {
+                name: 'QW_淘宝',
+                type: 'line',
+                data: result['QW_淘宝']
+
+              },
+              {
+                name: 'QW_携程',
+                type: 'line',
+
+                data: result['QW_携程']
+              },
+              {
+                name: 'QW_同程',
+                type: 'line',
+
+                data: result['QW_同程']
+              },
+              {
+                name: 'QW_酷讯',
+                type: 'line',
+
+                data: result['QW_酷讯']
+              },
+              {
+                name: 'QW_平安淘宝',
+                type: 'line',
+
+                data: result['QW_平安淘宝']
+              },
+              {
+                name: 'QW_淘宝B平台',
+                type: 'line',
+
+                data: result['QW_淘宝B平台']
+              },
+
+
+              {
+                name: 'TV_全部',
+                type: 'line',
+                data: result['TV_全部']
+              },
+              {
+                name: 'TV_其他',
+                type: 'line',
+                data: result['TV_其他'],
+              },
+              {
+                name: 'TV_去哪儿',
+                type: 'line',
+
+                data: result['TV_去哪儿']
+              },
+              {
+                name: 'TV_去哪儿TTR',
+                type: 'line',
+                data: result['TV_去哪儿TTR']
+              },
+              {
+                name: 'TV_去哪儿XSS',
+                type: 'line',
+                data: result['TV_去哪儿XSS']
+              },
+              {
+                name: 'TV_去哪儿XSG',
+                type: 'line',
+                data: result['TV_去哪儿XSG']
+              },
+              {
+                name: 'TV_去哪儿PAI',
+                type: 'line',
+                data: result['TV_去哪儿PAI']
+              },
+              {
+                name: 'TV_淘宝',
+                type: 'line',
+                data: result['TV_淘宝'],
+
+              },
+              {
+                name: 'TV_携程',
+                type: 'line',
+
+                data: result['TV_携程']
+              },
+              {
+                name: 'TV_同程',
+                type: 'line',
+
+                data: result['TV_同程']
+              },
+              {
+                name: 'TV_酷讯',
+                type: 'line',
+
+                data: result['TV_酷讯']
+              },
+              {
+                name: 'TV_平安淘宝',
+                type: 'line',
+
+                data: result['TV_平安淘宝']
+              },
+              {
+                name: 'TV_淘宝B平台',
+                type: 'line',
+
+                data: result['TV_淘宝B平台']
+              },
+
+              {
+                name: 'JR_全部',
+                type: 'line',
+                data: result['JR_全部'],
+              },
+              {
+                name: 'JR_其他',
+                type: 'line',
+                data: result['JR_其他'],
+              },
+              {
+                name: 'JR_去哪儿',
+                type: 'line',
+
+                data: result['JR_去哪儿']
+              },
+              {
+                name: 'JR_去哪儿TTR',
+                type: 'line',
+                data: result['JR_去哪儿TTR']
+              },
+              {
+                name: 'JR_去哪儿XSS',
+                type: 'line',
+                data: result['JR_去哪儿XSS']
+              },
+              {
+                name: 'JR_去哪儿XSG',
+                type: 'line',
+                data: result['JR_去哪儿XSG']
+              },
+              {
+                name: 'JR_去哪儿PAI',
+                type: 'line',
+                data: result['JR_去哪儿PAI']
+              },
+              {
+                name: 'JR_淘宝',
+                type: 'line',
+                data: result['JR_淘宝'],
+
+              },
+              {
+                name: 'JR_携程',
+                type: 'line',
+
+                data: result['JR_携程']
+              },
+              {
+                name: 'JR_同程',
+                type: 'line',
+
+                data: result['JR_同程']
+              },
+              {
+                name: 'JR_酷讯',
+                type: 'line',
+
+                data: result['JR_酷讯'],
+              },
+              {
+                name: 'JR_平安淘宝',
+                type: 'line',
+
+                data: result['JR_平安淘宝']
+              },
+              {
+                name: 'JR_淘宝B平台',
+                type: 'line',
+
+                data: result['JR_淘宝B平台'],
+              },
+            ]
+          };
+          if (this.option && typeof this.option === "object") {
+            this.myChart.setOption(this.option, true);
+          }
+          this.myChart.hideLoading(); //隐藏加载动画
+          this.checkboxAll();
+
+        }).catch(err => {
+          console.log(err)
+        })
+        window.addEventListener('resize', this.myChart.resize)
+      },
+
+      checkboxAll() {
+        let selectArr = this.myChart.getOption().legend[0].data;
+        this.ss(selectArr)
+        $(".checkboxchart2").click(() => {
+          this.ss(selectArr)
+        })
+      },
+      ss(selectArr) {
+        let arr = [];
+        $("input[name='checkboxhs2']:checked").each(function () {
+          let key = $(this).val();
+          // if (key == "其他" || key == "总量") {
+          //   arr.push({
+          //     "hs": key
+          //   })
+          // } else {
+          $("input[name='checkboxpt2']:checked").each(function () {
+            arr.push({
+              "hs": key,
+              "pt": $(this).val()
+            });
+          })
+          // }
+        });
+        let obj = {};
+
+        for (let i = 0; i < selectArr.length; i++) {
+          obj[selectArr[i]] = false;
+        }
+        for (let i = 0; i < arr.length; i++) {
+
+          // if (arr[i].hs == "总量" || arr[i].hs == "其他") {
+
+          //   obj[arr[i].hs] = true;
+          // } else 
+          if (selectArr.indexOf(arr[i].hs + "_" + arr[i].pt) > -1) {
+
+            obj[arr[i].hs + "_" + arr[i].pt] = true;
+          }
+
+
+        }
+        this.option.legend.selected = obj;
+        console.log(arr);
+        // this.myChart.clear()
+        this.myChart.setOption(this.option, true);
+
+
+
+      },
+
+      opcheckboxed(objtype) {
+        let allcheck = document.getElementById(objtype);
+        let choice = document.getElementsByName(objtype);
+        for (let i = 0; i < choice.length; i++) {
+          choice[i].checked = allcheck.checked;
+        }
+        // if (objtype == "checkboxhs") {
+        //   for (let i = 2; i < choice.length; i++) {
+        //     choice[i].checked = allcheck.checked;
+        //   }
+        // } else {
+        //   for (let i = 0; i < choice.length; i++) {
+        //     choice[i].checked = allcheck.checked;
+        //   }
+        // }
+        let selectArr = this.myChart.getOption().legend[0].data;
+        this.ss(selectArr)
+      },
+      setAll(che) {
+        if (!$("input[name='" + che + "']").checked) {
+          $("#" + che + "").prop("checked", false); // 子复选框某个不选择，全选也被取消
+        }
+        let choicelength = $("input[type='checkbox'][name='" + che + "']").length;
+        let choiceselect = $("input[type='checkbox'][name='" + che + "']:checked").length;
+
+        if (choicelength == choiceselect) {
+          $("#" + che + "").prop("checked",
+            true
+          );
+        }
+
+      }
+    }
+  })
+  Vue.component('newChart3', {
+    template: '#newChart3',
+    data() {
+      return {
+        myChart: null,
+        option: null,
+        time_type3: 'paytime',
+        yearTime: new Date(),
+        yearOptions: {
+          disabledDate(date) {
+            return date && Date.now() < date.valueOf()
+          }
+        },
+      }
+    },
+    beforeDestroy() {
+      if (!this.myChart) {
+        return
+      }
+      this.myChart.dispose()
+      this.myChart = null
+    },
+    mounted() {
+      this.initNew();
+    },
+    methods: {
+      initNew() {
+        this.myChart = echarts.init(document.getElementById("newId3"));
+
+        this.myChart.showLoading();
+        axios({
+          url: url,
+          method: 'post',
+          data: JSON.stringify({
+            'permission': 'true',
+            'appCode': 'frontDesk',
+            'type': 'queryAll',
+            'param': {
+              'module': 'assignYearTicketOrderNumber'
+            },
+            'assignDateTime': new Date(this.yearTime).Format('yyyy-01-01'),
+            'time_type': this.time_type3
+          })
+        }).then(response => {
+
+          let result = response.data
+
+          this.option = {
+            tooltip: {
+              trigger: 'axis', //轴
+              axisPointer: {
+                type: 'cross',
+                crossStyle: {
+                  color: '#999'
+                }
+              },
+              // position: (point, e, dom, rect, size) => {
+
+              // }
+              // formatter : function(params){
+
+              // }
+            },
+            legend: {
+              data: [
+                '全部_全部', '全部_其他', '全部_去哪儿', '全部_去哪儿TTR', '全部_去哪儿XSS', '全部_去哪儿XSG', '全部_去哪儿PAI', '全部_淘宝',
+                '全部_携程', '全部_同程', '全部_酷讯',
+                '全部_平安淘宝', '全部_淘宝B平台',
+                '其他_全部', '其他_其他', '其他_去哪儿', '其他_去哪儿TTR', '其他_去哪儿XSS', '其他_去哪儿XSG', '其他_去哪儿PAI', '其他_淘宝',
+                '其他_携程', '其他_同程', '其他_酷讯',
+                '其他_平安淘宝', '其他_淘宝B平台',
+                '9C_全部', '9C_其他', '9C_去哪儿', '9C_去哪儿TTR', '9C_去哪儿XSS', '9C_去哪儿XSG', '9C_去哪儿PAI', '9C_淘宝',
+                '9C_携程', '9C_同程', '9C_酷讯', '9C_平安淘宝', '9C_淘宝B平台',
+                'AQ_全部', 'AQ_其他', 'AQ_去哪儿', 'AQ_去哪儿TTR', 'AQ_去哪儿XSS', 'AQ_去哪儿XSG', 'AQ_去哪儿PAI', 'AQ_淘宝',
+                'AQ_携程', 'AQ_同程', 'AQ_酷讯', 'AQ_平安淘宝', 'AQ_淘宝B平台',
+                'PN_全部', 'PN_其他', 'PN_去哪儿', 'PN_去哪儿TTR', 'PN_去哪儿XSS', 'PN_去哪儿XSG', 'PN_去哪儿PAI', 'PN_淘宝',
+                'PN_携程', 'PN_同程', 'PN_酷讯', 'PN_平安淘宝', 'PN_淘宝B平台',
+                'GS_全部', 'GS_其他', 'GS_去哪儿', 'GS_去哪儿TTR', 'GS_去哪儿XSS', 'GS_去哪儿XSG', 'GS_去哪儿PAI', 'GS_淘宝',
+                'GS_携程', 'GS_同程', 'GS_酷讯', 'GS_平安淘宝', 'GS_淘宝B平台',
+                'GY_全部', 'GY_其他', 'GY_去哪儿', 'GY_去哪儿TTR', 'GY_去哪儿XSS', 'GY_去哪儿XSG', 'GY_去哪儿PAI', 'GY_淘宝',
+                'GY_携程', 'GY_同程', 'GY_酷讯', 'GY_平安淘宝', 'GY_淘宝B平台',
+                'QW_全部', 'QW_其他', 'QW_去哪儿', 'QW_去哪儿TTR', 'QW_去哪儿XSS', 'QW_去哪儿XSG', 'QW_去哪儿PAI', 'QW_淘宝',
+                'QW_携程', 'QW_同程', 'QW_酷讯', 'QW_平安淘宝', 'QW_淘宝B平台',
+                'TV_全部', 'TV_其他', 'TV_去哪儿', 'TV_去哪儿TTR', 'TV_去哪儿XSS', 'TV_去哪儿XSG', 'TV_去哪儿PAI', 'TV_淘宝',
+                'TV_携程', 'TV_同程', 'TV_酷讯', 'TV_平安淘宝', 'TV_淘宝B平台',
+                'JR_全部', 'JR_其他', 'JR_去哪儿', 'JR_去哪儿TTR', 'JR_去哪儿XSS', 'JR_去哪儿XSG', 'JR_去哪儿PAI', 'JR_淘宝',
+                'JR_携程', 'JR_同程', 'JR_酷讯', 'JR_平安淘宝', 'JR_淘宝B平台'
+              ],
+              show: false,
+              orient: 'vertical',
+              right: 'right',
+              // padding: 10,
+              selected: {
+                '全部_全部': false,
+                '全部_其他': false,
+                '全部_去哪儿': false,
+                '全部_去哪儿TTR': false,
+                '全部_去哪儿XSS': false,
+                '全部_去哪儿XSG': false,
+                '全部_去哪儿PAI': false,
+                '全部_淘宝': false,
+                '全部_携程': false,
+                '全部_同程': false,
+                '全部_酷讯': false,
+                '全部_平安淘宝': false,
+                '全部_淘宝B平台': false,
+
+                '其他_全部': false,
+                '其他_其他': false,
+                '其他_去哪儿': false,
+                '其他_去哪儿TTR': false,
+                '其他_去哪儿XSS': false,
+                '其他_去哪儿XSG': false,
+                '其他_去哪儿PAI': false,
+                '其他_淘宝': false,
+                '其他_携程': false,
+                '其他_同程': false,
+                '其他_酷讯': false,
+                '其他_平安淘宝': false,
+                '其他_淘宝B平台': false,
+
+                '9C_全部': false,
+                '9C_其他': false,
+                '9C_去哪儿': false,
+                '9C_去哪儿TTR': false,
+                '9C_去哪儿XSS': false,
+                '9C_去哪儿XSG': false,
+                '9C_去哪儿PAI': false,
+                '9C_淘宝': false,
+                '9C_携程': false,
+                '9C_同程': false,
+                '9C_酷讯': false,
+                '9C_平安淘宝': false,
+                '9C_淘宝B平台': false,
+
+                'AQ_全部': false,
+                'AQ_其他': false,
+                'AQ_去哪儿': false,
+                'AQ_去哪儿TTR': false,
+                'AQ_去哪儿XSS': false,
+                'AQ_去哪儿XSG': false,
+                'AQ_去哪儿PAI': false,
+                'AQ_淘宝': false,
+                'AQ_携程': false,
+                'AQ_同程': false,
+                'AQ_酷讯': false,
+                'AQ_平安淘宝': false,
+                'AQ_淘宝B平台': false,
+
+                'PN_全部': false,
+                'PN_其他': false,
+                'PN_去哪儿': false,
+                'PN_去哪儿TTR': false,
+                'PN_去哪儿XSS': false,
+                'PN_去哪儿XSG': false,
+                'PN_去哪儿PAI': false,
+                'PN_淘宝': false,
+                'PN_携程': false,
+                'PN_同程': false,
+                'PN_酷讯': false,
+                'PN_平安淘宝': false,
+                'PN_淘宝B平台': false,
+
+                'GS_全部': false,
+                'GS_其他': false,
+                'GS_去哪儿': false,
+                'GS_去哪儿TTR': false,
+                'GS_去哪儿XSS': false,
+                'GS_去哪儿XSG': false,
+                'GS_去哪儿PAI': false,
+                'GS_淘宝': false,
+                'GS_携程': false,
+                'GS_同程': false,
+                'GS_酷讯': false,
+                'GS_平安淘宝': false,
+                'GS_淘宝B平台': false,
+
+                'GY_全部': false,
+                'GY_其他': false,
+                'GY_去哪儿': false,
+                'GY_去哪儿TTR': false,
+                'GY_去哪儿XSS': false,
+                'GY_去哪儿XSG': false,
+                'GY_去哪儿PAI': false,
+                'GY_淘宝': false,
+                'GY_携程': false,
+                'GY_同程': false,
+                'GY_酷讯': false,
+                'GY_平安淘宝': false,
+                'GY_淘宝B平台': false,
+
+                'QW_全部': false,
+                'QW_其他': false,
+                'QW_去哪儿': false,
+                'QW_去哪儿TTR': false,
+                'QW_去哪儿XSS': false,
+                'QW_去哪儿XSG': false,
+                'QW_去哪儿PAI': false,
+                'QW_淘宝': false,
+                'QW_携程': false,
+                'QW_同程': false,
+                'QW_酷讯': false,
+                'QW_平安淘宝': false,
+                'QW_淘宝B平台': false,
+
+                'TV_全部': false,
+                'TV_其他': false,
+                'TV_去哪儿': false,
+                'TV_去哪儿TTR': false,
+                'TV_去哪儿XSS': false,
+                'TV_去哪儿XSG': false,
+                'TV_去哪儿PAI': false,
+                'TV_淘宝': false,
+                'TV_携程': false,
+                'TV_同程': false,
+                'TV_酷讯': false,
+                'TV_平安淘宝': false,
+                'TV_淘宝B平台': false,
+
+                'JR_全部': false,
+                'JR_其他': false,
+                'JR_去哪儿': false,
+                'JR_去哪儿TTR': false,
+                'JR_去哪儿XSS': false,
+                'JR_去哪儿XSG': false,
+                'JR_去哪儿PAI': false,
+                'JR_淘宝': false,
+                'JR_携程': false,
+                'JR_同程': false,
+                'JR_酷讯': false,
+                'JR_平安淘宝': false,
+                'JR_淘宝B平台': false
+              }
+            },
+            grid: {
+              left: '1%',
+              right: '1%',
+              bottom: '3%',
+              containLabel: true
+            },
+            toolbox: {
+              show: true, //开关
+              feature: {
+                mark: {
+                  show: true
+                },
+                saveAsImage: {
+                  show: true
+                } //下载保存图片
+              },
+              // right: '25%'
+            },
+            xAxis: {
+              type: 'category',
+              boundaryGap: false,
+              data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+            },
+            yAxis: {
+              type: 'value',
+              splitLine: {
+                show: true
+              }, //去除网格线
+              axisLabel: {
+                formatter: '{value}'
+              },
+              max: 300000
+            },
+            series: [{
+                name: '全部_全部',
+                type: 'line',
+                data: result['全部_全部']
+              },
+              {
+                name: '全部_其他',
+                type: 'line',
+                data: result['全部_其他']
+              },
+              {
+                name: '全部_去哪儿',
+                type: 'line',
+                data: result['全部_去哪儿']
+              },
+              {
+                name: '全部_去哪儿TTR',
+                type: 'line',
+                data: result['全部_去哪儿TTR']
+              },
+              {
+                name: '全部_去哪儿XSS',
+                type: 'line',
+                data: result['全部_去哪儿XSS']
+              },
+              {
+                name: '全部_去哪儿XSG',
+                type: 'line',
+                data: result['全部_去哪儿XSG']
+              },
+              {
+                name: '全部_去哪儿PAI',
+                type: 'line',
+                data: result['全部_去哪儿PAI']
+              },
+              {
+                name: '全部_淘宝',
+                type: 'line',
+                data: result['全部_淘宝']
+
+              },
+              {
+                name: '全部_携程',
+                type: 'line',
+                data: result['全部_携程']
+
+              },
+              {
+                name: '全部_同程',
+                type: 'line',
+                data: result['全部_同程']
+              },
+              {
+                name: '全部_酷讯',
+                type: 'line',
+                data: result['全部_酷讯']
+              },
+              {
+                name: '全部_平安淘宝',
+                type: 'line',
+                data: result['全部_平安淘宝']
+              },
+              {
+                name: '全部_淘宝B平台',
+                type: 'line',
+                data: result['全部_淘宝B平台']
+              },
+
+
+
+              {
+                name: '其他_全部',
+                type: 'line',
+                data: result['其他_全部']
+              },
+              {
+                name: '其他_其他',
+                type: 'line',
+                data: result['其他_其他']
+              },
+              {
+                name: '其他_去哪儿',
+                type: 'line',
+                data: result['其他_去哪儿']
+              },
+              {
+                name: '其他_去哪儿TTR',
+                type: 'line',
+                data: result['其他_去哪儿TTR']
+              },
+              {
+                name: '其他_去哪儿XSS',
+                type: 'line',
+                data: result['其他_去哪儿XSS']
+              },
+              {
+                name: '其他_去哪儿XSG',
+                type: 'line',
+                data: result['其他_去哪儿XSG']
+              },
+              {
+                name: '其他_去哪儿PAI',
+                type: 'line',
+                data: result['其他_去哪儿PAI']
+              },
+              {
+                name: '其他_淘宝',
+                type: 'line',
+                data: result['其他_淘宝']
+
+              },
+              {
+                name: '其他_携程',
+                type: 'line',
+                data: result['其他_携程']
+
+              },
+              {
+                name: '其他_同程',
+                type: 'line',
+                data: result['其他_同程']
+              },
+              {
+                name: '其他_酷讯',
+                type: 'line',
+                data: result['其他_酷讯']
+              },
+              {
+                name: '其他_平安淘宝',
+                type: 'line',
+                data: result['其他_平安淘宝']
+              },
+              {
+                name: '其他_淘宝B平台',
+                type: 'line',
+                data: result['其他_淘宝B平台']
+              },
+
+
+              {
+                name: '9C_全部',
+                type: 'line',
+                data: result['9C_全部']
+              },
+              {
+                name: '9C_其他',
+                type: 'line',
+                data: result['9C_其他']
+              },
+              {
+                name: '9C_去哪儿',
+                type: 'line',
+                data: result['9C_去哪儿'],
+              },
+              {
+                name: '9C_去哪儿TTR',
+                type: 'line',
+                data: result['9C_去哪儿TTR']
+              },
+              {
+                name: '9C_去哪儿XSS',
+                type: 'line',
+                data: result['9C_去哪儿XSS']
+              },
+              {
+                name: '9C_去哪儿XSG',
+                type: 'line',
+                data: result['9C_去哪儿XSG']
+              },
+              {
+                name: '9C_去哪儿PAI',
+                type: 'line',
+                data: result['9C_去哪儿PAI']
+              },
+              {
+                name: '9C_淘宝',
+                type: 'line',
+                data: result['9C_淘宝'],
+
+              },
+              {
+                name: '9C_携程',
+                type: 'line',
+                data: result['9C_携程'],
+
+              },
+              {
+                name: '9C_同程',
+                type: 'line',
+                data: result['9C_同程'],
+              },
+              {
+                name: '9C_酷讯',
+                type: 'line',
+                data: result['9C_酷讯'],
+              },
+              {
+                name: '9C_平安淘宝',
+                type: 'line',
+                data: result['9C_平安淘宝'],
+              },
+              {
+                name: '9C_淘宝B平台',
+                type: 'line',
+                data: result['9C_淘宝B平台']
+              },
+
+
+              {
+                name: 'AQ_全部',
+                type: 'line',
+                data: result['AQ_全部']
+              },
+              {
+                name: 'AQ_其他',
+                type: 'line',
+                data: result['AQ_全部']
+              },
+              {
+                name: 'AQ_去哪儿',
+                type: 'line',
+                data: result['AQ_去哪儿']
+
+              },
+              {
+                name: 'AQ_去哪儿TTR',
+                type: 'line',
+                data: result['AQ_去哪儿TTR']
+              },
+              {
+                name: 'AQ_去哪儿XSS',
+                type: 'line',
+                data: result['AQ_去哪儿XSS']
+              },
+              {
+                name: 'AQ_去哪儿XSG',
+                type: 'line',
+                data: result['AQ_去哪儿XSG']
+              },
+              {
+                name: 'AQ_去哪儿PAI',
+                type: 'line',
+                data: result['AQ_去哪儿PAI']
+              },
+              {
+                name: 'AQ_淘宝',
+                type: 'line',
+                data: result['AQ_淘宝']
+
+              },
+              {
+                name: 'AQ_携程',
+                type: 'line',
+                data: result['AQ_携程']
+
+              },
+              {
+                name: 'AQ_同程',
+                type: 'line',
+                data: result['AQ_同程'],
+
+              },
+              {
+                name: 'AQ_酷讯',
+                type: 'line',
+                data: result['AQ_酷讯']
+              },
+              {
+                name: 'AQ_平安淘宝',
+                type: 'line',
+                data: result['AQ_平安淘宝'],
+
+              },
+              {
+                name: 'AQ_淘宝B平台',
+                type: 'line',
+                data: result['AQ_淘宝B平台']
+              },
+
+              {
+                name: 'PN_全部',
+                type: 'line',
+                data: result['PN_全部']
+              },
+              {
+                name: 'PN_其他',
+                type: 'line',
+                data: result['PN_其他']
+              },
+              {
+                name: 'PN_去哪儿',
+                type: 'line',
+
+                data: result['PN_去哪儿']
+              },
+              {
+                name: 'PN_去哪儿TTR',
+                type: 'line',
+                data: result['PN_去哪儿TTR']
+              },
+              {
+                name: 'PN_去哪儿XSS',
+                type: 'line',
+                data: result['PN_去哪儿XSS']
+              },
+              {
+                name: 'PN_去哪儿XSG',
+                type: 'line',
+                data: result['PN_去哪儿XSG']
+              },
+              {
+                name: 'PN_去哪儿PAI',
+                type: 'line',
+                data: result['PN_去哪儿PAI']
+              },
+              {
+                name: 'PN_淘宝',
+                type: 'line',
+                data: result['PN_淘宝']
+
+              },
+              {
+                name: 'PN_携程',
+                type: 'line',
+                data: result['PN_携程']
+
+              },
+              {
+                name: 'PN_同程',
+                type: 'line',
+                data: result['PN_同程'],
+
+              },
+              {
+                name: 'PN_酷讯',
+                type: 'line',
+
+                data: result['PN_酷讯']
+              },
+              {
+                name: 'PN_平安淘宝',
+                type: 'line',
+                data: result['PN_平安淘宝']
+
+              },
+              {
+                name: 'PN_淘宝B平台',
+                type: 'line',
+                data: result['PN_淘宝B平台']
+              },
+
+              {
+                name: 'GS_全部',
+                type: 'line',
+                data: result['GS_全部']
+              },
+              {
+                name: 'GS_其他',
+                type: 'line',
+                data: result['GS_其他']
+              },
+              {
+                name: 'GS_去哪儿',
+                type: 'line',
+
+                data: result['GS_去哪儿']
+              },
+              {
+                name: 'GS_去哪儿TTR',
+                type: 'line',
+                data: result['GS_去哪儿TTR']
+              },
+              {
+                name: 'GS_去哪儿XSS',
+                type: 'line',
+                data: result['GS_去哪儿XSS']
+              },
+              {
+                name: 'GS_去哪儿XSG',
+                type: 'line',
+                data: result['GS_去哪儿XSG']
+              },
+              {
+                name: 'GS_去哪儿PAI',
+                type: 'line',
+                data: result['GS_去哪儿PAI']
+              },
+              {
+                name: 'GS_淘宝',
+                type: 'line',
+                data: result['GS_淘宝']
+
+              },
+              {
+                name: 'GS_携程',
+                type: 'line',
+                data: result['GS_携程']
+
+              },
+              {
+                name: 'GS_同程',
+                type: 'line',
+                data: result['GS_同程']
+
+              },
+              {
+                name: 'GS_酷讯',
+                type: 'line',
+
+                data: result['GS_酷讯']
+              },
+              {
+                name: 'GS_平安淘宝',
+                type: 'line',
+                data: result['GS_平安淘宝']
+
+              },
+              {
+                name: 'GS_淘宝B平台',
+                type: 'line',
+                data: result['GS_淘宝B平台']
+              },
+
+              {
+                name: 'GY_全部',
+                type: 'line',
+                data: result['GY_全部']
+              },
+              {
+                name: 'GY_其他',
+                type: 'line',
+                data: result['GY_其他']
+              },
+              {
+                name: 'GY_去哪儿',
+                type: 'line',
+
+                data: result['GY_去哪儿']
+              },
+              {
+                name: 'GY_去哪儿TTR',
+                type: 'line',
+                data: result['GY_去哪儿TTR']
+              },
+              {
+                name: 'GY_去哪儿XSS',
+                type: 'line',
+                data: result['GY_去哪儿XSS']
+              },
+              {
+                name: 'GY_去哪儿XSG',
+                type: 'line',
+                data: result['GY_去哪儿XSG']
+              },
+              {
+                name: 'GY_去哪儿PAI',
+                type: 'line',
+                data: result['GY_去哪儿PAI']
+              },
+              {
+                name: 'GY_淘宝',
+                type: 'line',
+                data: result['GY_淘宝']
+
+              },
+              {
+                name: 'GY_携程',
+                type: 'line',
+                data: result['GY_携程']
+
+              },
+              {
+                name: 'GY_同程',
+                type: 'line',
+                data: result['GY_同程']
+
+              },
+              {
+                name: 'GY_酷讯',
+                type: 'line',
+
+                data: result['GY_酷讯']
+              },
+              {
+                name: 'GY_平安淘宝',
+                type: 'line',
+                data: result['GY_平安淘宝']
+
+              },
+              {
+                name: 'GY_淘宝B平台',
+                type: 'line',
+                data: result['GY_淘宝B平台']
+              },
+
+              {
+                name: 'QW_全部',
+                type: 'line',
+                data: result['QW_全部']
+              },
+              {
+                name: 'QW_其他',
+                type: 'line',
+                data: result['QW_其他']
+              },
+              {
+                name: 'QW_去哪儿',
+                type: 'line',
+
+                data: result['QW_去哪儿']
+              },
+              {
+                name: 'QW_去哪儿TTR',
+                type: 'line',
+                data: result['QW_去哪儿TTR']
+              },
+              {
+                name: 'QW_去哪儿XSS',
+                type: 'line',
+                data: result['QW_去哪儿XSS']
+              },
+              {
+                name: 'QW_去哪儿XSG',
+                type: 'line',
+                data: result['QW_去哪儿XSG']
+              },
+              {
+                name: 'QW_去哪儿PAI',
+                type: 'line',
+                data: result['QW_去哪儿PAI']
+              },
+              {
+                name: 'QW_淘宝',
+                type: 'line',
+                data: result['QW_淘宝']
+
+              },
+              {
+                name: 'QW_携程',
+                type: 'line',
+
+                data: result['QW_携程']
+              },
+              {
+                name: 'QW_同程',
+                type: 'line',
+
+                data: result['QW_同程']
+              },
+              {
+                name: 'QW_酷讯',
+                type: 'line',
+
+                data: result['QW_酷讯']
+              },
+              {
+                name: 'QW_平安淘宝',
+                type: 'line',
+
+                data: result['QW_平安淘宝']
+              },
+              {
+                name: 'QW_淘宝B平台',
+                type: 'line',
+
+                data: result['QW_淘宝B平台']
+              },
+
+
+              {
+                name: 'TV_全部',
+                type: 'line',
+                data: result['TV_全部']
+              },
+              {
+                name: 'TV_其他',
+                type: 'line',
+                data: result['TV_其他'],
+              },
+              {
+                name: 'TV_去哪儿',
+                type: 'line',
+
+                data: result['TV_去哪儿']
+              },
+              {
+                name: 'TV_去哪儿TTR',
+                type: 'line',
+                data: result['TV_去哪儿TTR']
+              },
+              {
+                name: 'TV_去哪儿XSS',
+                type: 'line',
+                data: result['TV_去哪儿XSS']
+              },
+              {
+                name: 'TV_去哪儿XSG',
+                type: 'line',
+                data: result['TV_去哪儿XSG']
+              },
+              {
+                name: 'TV_去哪儿PAI',
+                type: 'line',
+                data: result['TV_去哪儿PAI']
+              },
+              {
+                name: 'TV_淘宝',
+                type: 'line',
+                data: result['TV_淘宝'],
+
+              },
+              {
+                name: 'TV_携程',
+                type: 'line',
+
+                data: result['TV_携程']
+              },
+              {
+                name: 'TV_同程',
+                type: 'line',
+
+                data: result['TV_同程']
+              },
+              {
+                name: 'TV_酷讯',
+                type: 'line',
+
+                data: result['TV_酷讯']
+              },
+              {
+                name: 'TV_平安淘宝',
+                type: 'line',
+
+                data: result['TV_平安淘宝']
+              },
+              {
+                name: 'TV_淘宝B平台',
+                type: 'line',
+
+                data: result['TV_淘宝B平台']
+              },
+
+              {
+                name: 'JR_全部',
+                type: 'line',
+                data: result['JR_全部'],
+              },
+              {
+                name: 'JR_其他',
+                type: 'line',
+                data: result['JR_其他'],
+              },
+              {
+                name: 'JR_去哪儿',
+                type: 'line',
+
+                data: result['JR_去哪儿']
+              },
+              {
+                name: 'JR_去哪儿TTR',
+                type: 'line',
+                data: result['JR_去哪儿TTR']
+              },
+              {
+                name: 'JR_去哪儿XSS',
+                type: 'line',
+                data: result['JR_去哪儿XSS']
+              },
+              {
+                name: 'JR_去哪儿XSG',
+                type: 'line',
+                data: result['JR_去哪儿XSG']
+              },
+              {
+                name: 'JR_去哪儿PAI',
+                type: 'line',
+                data: result['JR_去哪儿PAI']
+              },
+              {
+                name: 'JR_淘宝',
+                type: 'line',
+                data: result['JR_淘宝'],
+
+              },
+              {
+                name: 'JR_携程',
+                type: 'line',
+
+                data: result['JR_携程']
+              },
+              {
+                name: 'JR_同程',
+                type: 'line',
+
+                data: result['JR_同程']
+              },
+              {
+                name: 'JR_酷讯',
+                type: 'line',
+
+                data: result['JR_酷讯'],
+              },
+              {
+                name: 'JR_平安淘宝',
+                type: 'line',
+
+                data: result['JR_平安淘宝']
+              },
+              {
+                name: 'JR_淘宝B平台',
+                type: 'line',
+
+                data: result['JR_淘宝B平台'],
+              },
+            ]
+          };
+          if (this.option && typeof this.option === "object") {
+            this.myChart.setOption(this.option, true);
+          }
+          this.myChart.hideLoading(); //隐藏加载动画
+          this.checkboxAll();
+
+        }).catch(err => {
+          console.log(err)
+        })
+        window.addEventListener('resize', this.myChart.resize)
+      },
+      checkboxAll() {
+        let selectArr = this.myChart.getOption().legend[0].data;
+        this.ss(selectArr)
+        $(".checkboxchart3").click(() => {
+          this.ss(selectArr)
+        })
+      },
+      ss(selectArr) {
+        let arr = [];
+        $("input[name='checkboxhs3']:checked").each(function () {
+          let key = $(this).val();
+          // if (key == "其他" || key == "总量") {
+          //   arr.push({
+          //     "hs": key
+          //   })
+          // } else {
+          $("input[name='checkboxpt3']:checked").each(function () {
+            arr.push({
+              "hs": key,
+              "pt": $(this).val()
+            });
+          })
+          // }
+        });
+        let obj = {};
+
+        for (let i = 0; i < selectArr.length; i++) {
+          obj[selectArr[i]] = false;
+        }
+        for (let i = 0; i < arr.length; i++) {
+
+          // if (arr[i].hs == "总量" || arr[i].hs == "其他") {
+
+          //   obj[arr[i].hs] = true;
+          // } else 
+          if (selectArr.indexOf(arr[i].hs + "_" + arr[i].pt) > -1) {
+
+            obj[arr[i].hs + "_" + arr[i].pt] = true;
+          }
+
+
+        }
+        this.option.legend.selected = obj;
+        console.log(arr);
+        // this.myChart.clear()
+        this.myChart.setOption(this.option, true);
+
+
+
+      },
+
+      opcheckboxed(objtype) {
+        let allcheck = document.getElementById(objtype);
+        let choice = document.getElementsByName(objtype);
+        for (let i = 0; i < choice.length; i++) {
+          choice[i].checked = allcheck.checked;
+        }
+        // if (objtype == "checkboxhs") {
+        //   for (let i = 2; i < choice.length; i++) {
+        //     choice[i].checked = allcheck.checked;
+        //   }
+        // } else {
+        //   for (let i = 0; i < choice.length; i++) {
+        //     choice[i].checked = allcheck.checked;
+        //   }
+        // }
+        let selectArr = this.myChart.getOption().legend[0].data;
+        this.ss(selectArr)
+      },
+      setAll(che) {
+        if (!$("input[name='" + che + "']").checked) {
+          $("#" + che + "").prop("checked", false); // 子复选框某个不选择，全选也被取消
+        }
+        let choicelength = $("input[type='checkbox'][name='" + che + "']").length;
+        let choiceselect = $("input[type='checkbox'][name='" + che + "']:checked").length;
+
+        if (choicelength == choiceselect) {
+          $("#" + che + "").prop("checked",
+            true
+          );
+        }
+
+      }
+    }
+  })
+  /**
+   *   配置路由
+   **/
+  // const routes = [
+  //     {
+  //         path: '/today', component: Ranking
+  //     },
+  //     {
+  //         path: '/day', component: Day
+  //     },
+  //     {
+  //         path: '/month', component: Month
+  //     },
+  //     {
+  //         path: '/year', component: Year
+  //     },
+  //     //重定向.  404，
+  //     {
+  //         path: '*', redirect: '/day'
+  //     }
+  // ];
+
+  /**
+   *   路由实例
+   */
+  // const router = new VueRouter({
+  //     routes
+  // });
+
+  const store = new Vuex.Store({
+    state: {
+      name: 'chuName',
+      LoadingFlag: true,
+      LoadingFlag2: true,
+      LoadingFlag3: true
+    }
+  })
+  /**
+   *   Vue实例
+   */
+
+  new Vue({
+    el: '#app',
+    // router,
+    store,
+    data: {},
+    computed: {
+      LoadingFlag() {
+        return this.$store.state.LoadingFlag
+      },
+      LoadingFlag2() {
+        return this.$store.state.LoadingFlag2
+      },
+      LoadingFlag3() {
+        return this.$store.state.LoadingFlag3
+      },
+      name: {
+        get() {
+          return this.$store.state.name
+        },
+        set(data) {
+          this.$store.state.name = data
+        }
+      }
+    },
+    methods: {
+      tabChange(data) {
+
+      }
+    }
+  })
+</script>
+{/literal}
+
+</html>

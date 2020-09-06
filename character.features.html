@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<head lang="en">
+    <meta charset="UTF-8">
+
+    <title>角色授权</title>
+    <script src="../bingo/js/jquery.min.js"></script>
+	<link href="../bingo/css/bootstrap.min14ed.css?v=3.3.6" rel="stylesheet">
+	<link href="../bingo/css/style.min862f.css?v=4.1.0" rel="stylesheet">
+	<script src="../vue/vue.js"></script>
+	<script src="../vue/axios.min.js"></script>
+	<script src="../bingo/js/plugins/layer/layer.min.js"></script>
+	<style type="text/css">
+        .permission{
+            position: relative;
+            left: 200px;
+            top: 50px;
+        }
+        .bord{
+            margin-top: 2px;
+            border: 1px silver solid;
+            display: inline-block;
+            width: auto;
+            padding: 3px 10px 3px 10px;
+            border-radius: 6px;
+        }
+        .bord:hover{
+            cursor: pointer;
+            background-color: #CBE3FB;
+            box-shadow: 1px 1px 1px;
+        }
+        .permis_child{
+            position: relative;
+            left: 7%;
+        }
+        .permis_child02{
+            position: relative;
+            left: 8%;
+        }
+        button{
+            margin-top: 5px;
+        }
+	</style>
+</head>
+<body>
+<div class="permission">
+        <div  v-for="(va,ind) in permisarr" class="" :data-id="va.id" :id="va.id">
+            <div>
+                <div class="bord dom04" :data-id="va.id">
+                    <input type="checkbox" :checked="va.checked"  @click="inpcheck(va.id,'dom04')" :data-id="va.id">
+                    <span @click="showind(ind)">{{va.name}}</span>
+                </div>
+            </div>
+            <div v-show="a[ind]" class="permis_child" v-for="(val,inde) in va.child" :data-id="val.id" :id="val.id">
+                <div>
+                    <div class="bord dom03" :data-id="val.id">
+                        <input type="checkbox" :checked="val.checked"  @click="inpcheck(val.id,'dom03')" :data-id="val.id">
+                        <span>{{val.name}}</span>
+                    </div>
+                </div>
+                <div v-for="(valu,index) in val.child" class="" :data-id="valu.id" :id="valu.id">
+                    <div class="bord permis_child dom02" :data-id="valu.id">
+                        <input type="checkbox" :checked="valu.checked"  @click="inpcheck(valu.id,'dom02')" :data-id="valu.id">
+                        <span>{{valu.name}}</span>
+                    </div>
+                    <div class="permis_child02" v-for="(value,indexs) in valu.child" :data-id="value.id">
+                        <div >
+                            <div class="bord permis_child02 dom01" :data-id="value.id">
+                                <input type="checkbox" :checked="value.checked"  @click="inpcheck(value.id,'dom01')" :data-id="value.id">
+                                <span>{{value.name}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <button type="button" class="btn btn-success btn-sm" @click="savefun">保存</button>
+    <button type="button" class="btn btn-info btn-sm" @click="returnfun">退出</button>
+</div>
+<script type="text/javascript">
+    let refNum = window.location.href.indexOf('=')+1
+    let id = window.location.href.slice(refNum)
+    var permis = new Vue({
+        el:'.permission',
+        data:{
+            permisarr:'',  //所有数据的数组
+            a:[],    //是否展示子孙节点的开关数组
+            chec:[], //checked为true的聚集数组
+            checB:[],
+            cheflag:'', //判断input勾选情况
+        },
+        methods:{
+            showind:function (ind) {
+                Vue.set(this.a,ind,!this.a[ind])
+            },
+            inpcheck:function (domid,dom) {
+                if(event.target.checked){
+                    this.cheflag = true;
+                }else{
+                    this.cheflag = false;
+                }
+                if(dom == 'dom01'){
+                    var dom01 = event.target.parentNode.dataset.id; //自己
+                    var dom02 = event.target.parentNode.parentNode.parentNode.parentNode.dataset.id; //自己直系父辈 dom02
+                    var dom03 = event.target.parentNode.parentNode.parentNode.parentNode.parentNode.dataset.id;//找dom03
+                    var dom04 = event.target.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.dataset.id //最高父辈dom04;
+                    this.qiantao2(dom04,dom03,dom02,dom01)
+                }else if(dom == 'dom02'){
+                    var dom02 = event.target.parentNode.parentNode.dataset.id; //自己直系父辈
+                    var dom03 = event.target.parentNode.parentNode.parentNode.dataset.id;
+                    var dom04 = event.target.parentNode.parentNode.parentNode.parentNode.dataset.id; //自己直系爷爷辈
+                    this.qiantao2(dom04,dom03,dom02)
+                }else if(dom == 'dom03'){
+                    var dom03 = event.target.parentNode.parentNode.parentNode.dataset.id; //自己直系父辈
+                    var dom04 = event.target.parentNode.parentNode.parentNode.parentNode.dataset.id; //自己直系爷爷辈
+
+                    this.qiantao2(dom04,dom03)
+                }else if(dom == 'dom04'){
+                    var dom04 = event.target.parentNode.parentNode.parentNode.dataset.id; //自己直系父辈
+                    this.qiantao2(dom04)
+                }
+            },
+            qiantao2:function(domid04,domid03,domid02,domid01){
+                if(domid04&&!domid03){
+                    this.permisarr.forEach((va,ind)=>{
+                        if(domid04 == va.id){
+                            if(this.cheflag){
+                                Vue.set(this.permisarr[ind],'checked',true)
+                            }else{
+                                Vue.set(this.permisarr[ind],'checked',false)
+                            }
+
+                            if(!domid03&&!domid02&&!domid01){
+                                va.child.forEach((val,inde)=>{
+                                    if(this.cheflag){
+                                        Vue.set(this.permisarr[ind].child[inde],'checked',true)
+                                    }else{
+                                        Vue.set(this.permisarr[ind].child[inde],'checked',false)
+                                    }
+                                    val.child.forEach((valu,index)=>{
+                                        if(this.cheflag){
+                                            Vue.set(this.permisarr[ind].child[inde].child[index],'checked',true)
+                                        }else{
+                                            Vue.set(this.permisarr[ind].child[inde].child[index],'checked',false)
+                                        }
+                                        valu.child.forEach((value,indexs)=>{
+                                            if(this.cheflag){
+                                                Vue.set(this.permisarr[ind].child[inde].child[index].child[indexs],'checked',true)
+                                            }else{
+                                                Vue.set(this.permisarr[ind].child[inde].child[index].child[indexs],'checked',false)
+                                            }
+                                        })
+                                    })
+                                })
+                            }
+                        }
+                    })
+                };
+                if(domid04&&domid03&&!domid02){
+                    this.permisarr.forEach((va,ind)=>{
+                        if(va.id == domid04){
+                            if(this.cheflag){
+                                Vue.set(this.permisarr[ind],'checked',true)
+                            }else{
+                                let dom04child = document.getElementById(domid04).getElementsByClassName('dom03');
+                                let setflag = true;
+                                let length = dom04child.length;
+                                for(var a=0;a<length;a++){
+                                    if(dom04child[a].getElementsByTagName('input')[0].checked){
+                                        setflag = false;
+                                    }
+                                }
+                                if(a == length&&setflag){
+                                    Vue.set(this.permisarr[ind],'checked',false)
+                                }
+                            }
+                        }
+                        va.child.forEach((val,inde)=>{
+                            if(val.id == domid03){
+                                if(this.cheflag){
+                                    Vue.set(this.permisarr[ind].child[inde],'checked',true)
+                                }else{
+                                    Vue.set(this.permisarr[ind].child[inde],'checked',false)
+                                }
+                                if(!domid02&&!domid01){
+                                    val.child.forEach((valu,index)=>{
+                                        if(this.cheflag){
+                                            Vue.set(this.permisarr[ind].child[inde].child[index],'checked',true)
+                                        }else{
+                                            Vue.set(this.permisarr[ind].child[inde].child[index],'checked',false)
+                                        }
+                                        valu.child.forEach((value,indexs)=>{
+                                            if(this.cheflag){
+                                                Vue.set(this.permisarr[ind].child[inde].child[index].child[indexs],'checked',true)
+                                            }else{
+                                                Vue.set(this.permisarr[ind].child[inde].child[index].child[indexs],'checked',false)
+                                            }
+                                        })
+                                    })
+                                }
+                            }
+                            // if(domid02){
+                            //     val.child.forEach((valu,index)=>{
+                            //         if(valu.id == domid02){
+                            //             if(this.cheflag){
+                            //                 Vue.set(this.permisarr[ind].child[inde].child[index],'checked',true)
+                            //             }else{
+                            //                 Vue.set(this.permisarr[ind].child[inde].child[index],'checked',false)
+                            //             }
+                            //             if(!domid01){
+                            //                 valu.child.forEach((value,indexs)=>{
+                            //                     if(this.cheflag){
+                            //                         Vue.set(this.permisarr[ind].child[inde].child[index].child[indexs],'checked',true)
+                            //                     }else{
+                            //                         Vue.set(this.permisarr[ind].child[inde].child[index].child[indexs],'checked',false)
+                            //                     }
+                            //                 })
+                            //             }
+                            //         }
+                            //         if(domid01){
+                            //             valu.child.forEach((value,indexs)=>{
+                            //                 if(value.id == domid01){
+                            //                     if(this.cheflag){
+                            //                         Vue.set(this.permisarr[ind].child[inde].child[index].child[indexs],'checked',true)
+                            //                     }else{
+                            //                         Vue.set(this.permisarr[ind].child[inde].child[index].child[indexs],'checked',false)
+                            //                     }
+                            //                 }
+                            //             })
+                            //         }
+                            //     })
+                            // }
+                        })
+                    })
+                };
+                if(domid04&&domid03&&domid02&&!domid01){
+                    this.permisarr.forEach((va,ind)=>{
+                        if(va.id == domid04){
+                            if(this.cheflag){
+                                Vue.set(this.permisarr[ind],'checked',true)
+                            }
+                            va.child.forEach((val,inde)=>{
+                                if(val.id == domid03){
+                                    if(this.cheflag){
+                                        Vue.set(this.permisarr[ind].child[inde],'checked',true)
+                                    }
+                                    val.child.forEach((valu,index)=>{
+                                        if(valu.id == domid02){
+                                            if(this.cheflag){
+                                                Vue.set(this.permisarr[ind].child[inde].child[index],'checked',true)
+                                            }else{
+                                                Vue.set(this.permisarr[ind].child[inde].child[index],'checked',false)
+                                            }
+                                            valu.child.forEach((value,indexs)=>{
+                                                if(this.cheflag){
+                                                    Vue.set(this.permisarr[ind].child[inde].child[index].child[indexs],'checked',true)
+                                                }else{
+                                                    Vue.set(this.permisarr[ind].child[inde].child[index].child[indexs],'checked',false)
+                                                }
+                                            })
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })
+                };
+                if(domid04&&domid03&&domid02&&domid01){
+                    this.permisarr.forEach((va,ind)=>{
+                        if(va.id == domid04){
+                            if(this.cheflag){
+                                Vue.set(this.permisarr[ind],'checked',true)
+                            }
+                            va.child.forEach((val,inde)=>{
+                                if(val.id == domid03){
+                                    if(this.cheflag){
+                                        Vue.set(this.permisarr[ind].child[inde],'checked',true)
+                                    }
+                                    val.child.forEach((valu,index)=>{
+                                        if(valu.id == domid02){
+                                            if(this.cheflag){
+                                                Vue.set(this.permisarr[ind].child[inde].child[index],'checked',true)
+                                            }
+                                            valu.child.forEach((value,indexs)=>{
+                                                if(value.id == domid01){
+                                                    if(this.cheflag){
+                                                        Vue.set(this.permisarr[ind].child[inde].child[index].child[indexs],'checked',true)
+                                                    }else{
+                                                        Vue.set(this.permisarr[ind].child[inde].child[index].child[indexs],'checked',false)
+                                                    }
+                                                }
+                                            })
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })
+                }
+            },
+            savefun:function () {
+                var inp = document.getElementsByTagName('input');
+                let inplen = inp.length;
+                for(let a=0;a<inplen;a++){
+                    if(inp[a].checked == true){
+                        this.checB.push(inp[a].dataset.id)
+                    }
+
+                }
+                //console.log(this.checB)
+                //console.log(this.chec)
+                axios({
+                    url:'../bingo/character.php?t=character&action=authorizes',
+                    method:'post',
+                    // headers:{'Content-Type':'application/x-www-form-urlencoded'},
+                    data:{
+                        fid:this.checB,
+                        id:id
+                    }
+                }).then((response)=>{
+					if(response.data.code == 'ok'){
+						layer.msg('操作成功');
+						window.location.href = '../bingo/character.php?t=character'
+					}else{
+						layer.msg('操作失败');
+					}
+					
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            },
+            returnfun:function () {
+                window.location.href = '../bingo/character.php?t=character'
+            }
+        },
+        created:function () {
+            axios({
+                url:'../bingo/character.php?t=character&action=getFeatures',
+                method:'post',
+                data:{
+                    id
+                },
+            }).then((response)=>{
+               // console.log(response)
+                this.permisarr = response.data;
+            }).catch((error)=>{
+                console.log(error)
+            })
+        },
+        mounted:function () {
+
+        }
+    })
+</script>
+</body>
+</html>
+
+
+

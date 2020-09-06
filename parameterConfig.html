@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="../resource/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .domzhuti{
+            column-count: 2;
+            column-gap: 0;
+        }
+        /*单独参数框*/
+        .group{
+            display: inline-block;
+            padding: 4px;
+            margin: 5px 0px 15px 50px;
+            box-shadow:0px 0px 1px 1px gray;
+            width: 600px;
+            border: 1px solid white;
+        }
+        .group:hover{
+            margin: 2px 0px 18px 50px;
+            /*border: 1px solid orange;*/
+            box-shadow:0px 0px 10px 3px gray;
+            transition: all 0.3s
+        }
+        .group:hover .tit{
+            /*border: 1px solid orange;*/
+            /*border-bottom: 1px orange solid;*/
+            /*box-shadow:0px 0px 1px 1px #CD6839;*/
+            color: orangered;
+        }
+        .but{
+            background-color: white;
+            border: 1px silver solid;
+        }
+        .but:hover{
+            background-color: orange;
+        }
+        /*框内分割线*/
+        .line{
+            border-bottom: 1px silver solid;
+        }
+        .SpanInput{
+            margin-top: 5px;
+            display: inline-block;
+        }
+        .SpanInput>div{
+            display: inline-block;
+            border: silver solid 1px;
+            padding: 6px;
+            border-radius: 4px;
+            background-color:#EEEEEE;
+        }
+        .groupChild{
+            margin: 5px;
+        }
+        /*span的样式*/
+        .spanStyle{
+            border: 1px silver solid;
+            padding: 6px;
+            border-radius: 3px;
+            background-color:#EEEEEE;
+        }
+        .groupChild>.radioDom>label{
+            margin-top: 10px;
+            margin-left: 10px;
+        }
+        @media screen and (max-width: 1250px){
+            .domzhuti{
+                column-count: 1;
+                column-gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<script src="../vue/vue.js"></script>
+<script src="../bingo/js/jquery.min.js"></script>
+<script src="../resource/javascripts/bootstrap.js"></script>
+
+<script src="../vue/vuex.js"></script>
+<script src="../vue/axios.min.js"></script>
+
+<div id="vuedom">
+    <div class="domzhuti">
+        <div class="group" v-for="(ele,index) of arr" :key="index">
+            <!--标题名-->
+            <div class="tit">{{ele.group}}</div>
+            <!--分割线-->
+            <div class="line"></div>
+            <!--详细操作表-->
+            <div v-for="(elem,key,inde) of ele.content" class="groupChild" :key="inde">
+                <div class="radioDom" v-if="elem.type==0">
+                    <div class="SpanInput">
+                        <div v-once>{{elem.namestr}}</div>
+                        <input v-if="elem.id=='43'" class="" type="number" v-model="elem.val">
+                        <input v-else class="" type="text" v-model.trim="elem.val">
+                    </div>
+                    <button class="but" style="float: right" @click="Numchange(elem.id,elem.val)">确定修改</button>
+                    <div>{{elem.remark}}</div>
+                </div>
+                <div class="radioDom" v-else-if="elem.type==1">
+                    <span class="spanStyle" v-once>{{elem.namestr}}</span>
+                    <label>
+                        <input :name="elem.namestr" type="radio" value="0" v-model="elem.val"/>
+                        <span>关闭</span>
+                    </label>
+                    <label>
+                        <input :name="elem.namestr" type="radio" value="1" v-model="elem.val"/>
+                        <span>开启</span>
+                    </label>
+                    <button class="but" style="float: right" @click="Numchange(elem.id,elem.val)">确定修改</button>
+                    <div>{{elem.remark}}</div>
+                </div>
+                <div class="radioDom" v-else="elem.type==2">
+                    <span class="spanStyle" v-once>{{elem.namestr}}</span>
+                    <div style="display: inline-block;" v-for="(eleme,key,index) in elem.choose" :key="index">
+                        <label>
+                            <input type="radio" :value="eleme" v-model="elem.val"/>
+                            <span>{{key}}</span>
+                        </label>
+                    </div>
+                    <button class="but" style="float: right" @click="Numchange(elem.id,elem.val)">确定修改</button>
+                    <div>{{elem.remark}}</div>
+                </div>
+            </div>
+        </div>
+        <!--组件组单独控制逻辑 (固定写法，没有循环生成)-->
+        <div class="group">
+            <!--标题名-->
+            <div class="tit">出票服务器IP切换</div>
+            <!--分割线-->
+            <div class="line"></div>
+            <div class="groupChild">
+                <span class="spanStyle">春秋APP出票IP切换</span>
+                <!--<input type="number" v-model="componentObj.changeApp">-->
+                <button class="but" style="float: right" @click="changeApp(changeApp)">确定修改</button>
+            </div>
+            <div class="groupChild">
+                <span class="spanStyle">春秋官网出票IP切换</span>
+                <!--<input type="number" v-model="componentObj.webNum">-->
+                <button class="but" style="float: right" @click="changeWeb(componentObj.webNum)">确定修改</button>
+
+            </div>
+            <div class="groupChild">
+                <span class="spanStyle">春秋国际APP出票IP切换</span>
+                <!--<input type="number" v-model="componentObj.intelApp">-->
+                <button class="but" style="float: right" @click="changeIntelApp(componentObj.intelApp)">确定修改</button>
+            </div>
+            <div class="groupChild">
+                <span class="spanStyle">释放过期IP</span>
+                <span>请在切换完IP十分钟后释放</span>
+                <button  class="but" style="float: right" @click="freedFun">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+
+<script type="text/javascript">
+    let vuedom = new Vue({
+        el:'#vuedom',
+        data:{
+            arr:null,
+        //    组件组数据
+            componentObj:{
+                //切换官网
+                webNum:5,
+                //切换国际App
+                intelApp:1,
+                //切换app
+                changeApp:5
+            }
+        },
+        methods:{
+            Numchange:function(id,val){
+                if (id == '43' && val == ''){
+                    alert("输入值不能为空！");
+                    return;
+                }
+                let sure = window.confirm('是否确定修改')
+                if(sure){
+                    axios({
+                        url:'../bingo/static_val.php?action=static_update',
+                        method:'post',
+                        data:{
+                            id,
+                            val
+                        }
+                    }).then(res=>{
+                        if(res.data.sus){
+                            alert('修改成功')
+                        }else{
+                            alert(res.data.data)
+                        }
+                    }).catch(err=>{
+                        console.log(err)
+                    })
+                }
+            },
+        //    释放ip
+            freedFun(){
+                axios({
+                    url:'http://120.79.75.44/admin/eci/releaseIpAll',
+                    method:'get',
+                }).then(
+                    res=>{alert(res.data);console.log(res)}
+                ).catch(err=>{
+                    console.log(err);
+                    // window.location.reload(true);
+                })
+            },
+            //切换官网
+            changeWeb(num){
+                axios({
+                    url:'http://120.79.75.44/admin/eci/createEciWeb',
+                    method:'get',
+                    params:{
+                        num:4
+                    }
+                }).then(res=>{alert(res.data)}).catch(err=>{
+                    console.log(err)
+                    // window.location.reload(true);
+                })
+            },
+            //切换国际app
+            changeIntelApp(){
+                axios({
+                    url:'http://120.79.75.44/admin/eci/createEciInter',
+                    method:'get',
+                    params:{num:1}
+                }).then(res=>{alert(res.data)}).catch(err=>{console.log(err);})
+            },
+            //切换app
+            changeApp(){
+                axios({
+                    url:'http://120.79.75.44/admin/eci/createEciApp',
+                    method:'get',
+                    params:{num:8}
+                }).then(res=>{alert(res.data)}).catch(err=>{console.log(err);})
+            }
+        },
+        created(){
+            axios({
+                url:'../bingo/static_val.php',
+                method:'get'
+            }).then(res=>{
+                this.arr = res.data.data
+            }).catch(err=>console.log(err))
+        }
+    })
+
+</script>
+</html>
+

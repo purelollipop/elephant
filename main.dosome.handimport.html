@@ -1,0 +1,95 @@
+{extends file='main.base.html'}
+
+{block name=headjs}
+<link type="text/css" rel="stylesheet" media="screen" href="/resource/css/base.iduq.info.css">
+<script type="text/javascript" src="/resource/javascripts/Validform_v5.3.2_min.js"></script>
+<script type="text/javascript" src="/resource/javascripts/base.iduq.info.js"></script>
+<script type="text/javascript" src="/resource/javascripts/date.selector.js"></script>
+<script>
+    {literal}
+    function gotopp() {
+        var v = $('input[name="code"]').val();
+        if (!v || v == "") {
+            bingo.alert('请填写运单');
+            return false;
+        }
+
+        v = $('input[name="time"]').val();
+        if (!v || v == "") {
+            bingo.alert('请填写发货时间');
+            return false;
+        }
+
+        v = $('input[name="weight"]').val();
+        if (!v || v == "") {
+            bingo.alert('请填写重量');
+            return false;
+        }
+
+        v = $('input[name="addr"]').val();
+        if (!v || v == "") {
+            bingo.alert('请填写地址');
+            return false;
+        }
+
+        return confirm('确认提交?');
+    }
+
+    {/literal}
+</script>
+{/block}
+
+{block name=body}
+<div style="width:50%; margin:20px auto;">
+	<form action="dosome.php" method="post" enctype="multipart/form-data">
+        <table class="aa02_table" width="100" border="0" align="center" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="r_h2" colspan="2">输入数据</td>
+            </tr>
+            <tbody>
+                <tr>
+                    <td width="15%" align="right">运单号：</td>
+                    <td width="30%">
+                        <input type="text" name="code" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">发货时间：</td>
+                    <td width="30%">
+                        <input type="text" name="time" class="dateselect" readonly="readonly" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">重量：</td>
+                    <td width="30%">
+                        <input type="text" name="weight" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">地址：</td>
+                    <td width="30%">
+                        <input type="text" name="addr" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <input type="hidden" name="action" value="dohandimport">
+                        <input type="submit" value="提交" onclick="return gotopp();"/>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+	</form>
+</div>
+
+<script>
+    {literal}
+    $(function(){
+        var scanf = new gun($('input[name="code"]'),function(isscanf){
+            $('input[name="time"]').focus();
+        })
+
+    })
+    {/literal}
+</script>
+{/block}

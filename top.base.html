@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link rel="stylesheet" type="text/css" media="screen" href="/resource/css/style.css">
+	<script type="text/javascript">
+		function logout() {
+			if (confirm("确定要退出吗？")) {
+	            window.parent.document.location.href = 'login.php?action=logout';
+	        }
+		} 
+	</script>
+</head>
+<body>
+	<div id="top">
+		<div id="logo"></div>
+		<div id="top_r">
+			
+				<!-- <li><a href="#"><img src="resource/image/full-time.png" border="0"></a><h2><a href="#">设置</a></h2></li> -->
+		<a href="#" onClick="logout()"><img src="/resource/image/logout.png" border="0">
+<p>退出</p>
+</a>
+        
+		</div>
+	</div>
+	<div id="top_nav">
+		
+		<div id="nav_l">
+			<h2><span id="lbSchool">管理员:<a href="index.php?action=userinfo" target="main">{$userinfo.name}</a></span></h2>
+		</div>
+		
+		<div id="nav_r">
+			<ul id="ul">
+				<!-- class="current" -->
+                <li id="li0"><a href="jump.php?action=main" target="main">首页</a></li>
+                <li id="li0"><a href="jump.php?action=see" target="main">统计查询</a></li>
+                <li id="li0"><a href="jump.php?action=param" target="main">参数设置</a></li>
+			</ul>
+            <div class="clear"></div>
+		</div>
+	</div>
+</body>
+</html>

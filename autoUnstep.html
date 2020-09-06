@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>自动反踩同程</title>
+    <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+    <link rel="stylesheet" href="../resource/css/tableCustom.css" >
+    <style rel="stylesheet">
+        .autoUnstepTable{
+            border: 1px silver solid;
+        }
+        .autoUnstep{
+            position: relative;
+            transition:  top 0.5s;
+
+        }
+        .searchUp{
+            top:-40px
+        }
+        .searchDown{
+            top:0px
+        }
+        .autoUnstepTable>thead>tr>th{
+            border: 1px #E7E7E7 solid;
+        }
+        .autoUnstepTable>tbody>tr>td{
+            border: 1px #E7E7E7 solid;
+        }
+        /*搜索框主体dom*/
+        .searchDom{
+            /*display: block;*/
+            position: relative;
+            width: 1000px;
+            display: flex;
+            /*visibility: visible;*/
+            /*transition: top 2s,position 2s,visibility 2s;*/
+        }
+        .searchDom>div{
+            width: 300px;
+            margin: 3px 3px;
+        }
+        footer{
+            width: 100px;
+            margin: 3px 3px;
+        }
+        /*搜索三角按钮*/
+        #searchdiv{
+            display: inline-block;
+            position: absolute;
+            left: 15px;
+            border-style: solid;
+            border-color: #2D8CF0 transparent transparent;
+            border-width: 15px 15px 0px ;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div id="autoUnstep">
+    <div class="autoUnstep searchUp">
+        <transition name="search">
+
+        </transition>
+        <div class="searchDom">
+            <!--平台订单号-->
+            <div>
+                <i-input class="chooseChild" v-model="searchObj.platformOrder">
+                    <span slot="prepend">平台订单号</span>
+                </i-input>
+            </div>
+            <!--小编-->
+            <div>
+                <i-input class="chooseChild" v-model="searchObj.smartNumber">
+                    <span slot="prepend">小编</span>
+                </i-input>
+            </div>
+            <!--姓名-->
+            <div>
+                <i-input class="chooseChild" v-model="searchObj.man">
+                    <span slot="prepend">乘机人</span>
+                </i-input>
+            </div>
+            <!--状态-->
+            <div>
+                <i-select v-model="searchObj.state" placeholder="状态">
+                    <i-option value=1>等待返踩</i-option>
+                    <i-option value=2>等待结果</i-option>
+                    <i-option value=3>等待支付</i-option>
+                    <i-option value=4>异常</i-option>
+                    <i-option value=5>完成</i-option>
+                </i-select>
+            </div>
+            <footer>
+                <i-button type="success" icon="ios-search" size="small" @click="sureSearch">开始搜索</i-button>
+            </footer>
+        </div>
+        <div id="searchdiv" title="搜索" @click="searchShow"></div>
+        <table class="autoUnstepTable" style="font-size: 12px;width: 100%">
+            <colgroup>
+                <col style="width:auto"><!--平台订单号-->
+                <col style="width:auto"><!--小编-->
+                <col style="width:auto"><!--姓名-->
+                <col style="width:auto"><!--结果-->
+                <col style="width:auto"><!--返踩时间-->
+                <col style="width:auto"><!--状态-->
+                <col style="width:80px"><!--操作-->
+            </colgroup>
+            <thead >
+            <tr style="text-align:center;height: 50px" class="headBorder">
+                <th>平台订单号</th>
+                <th>小编</th>
+                <th>姓名</th>
+                <th>结果</th>
+                <th>返踩时间</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody class="" >
+            <tr v-for="(ord,index) in allOrderObj" :key="ord.index" style="height: 40px">
+                <!--平台订单号-->
+                <td>{{ord.platformOrder}}</td>
+                <!--小编-->
+                <td>{{ord.smartNumber}}</td>
+                <!--姓名-->
+                <td>
+                    <div>{{ord.man}}</div>
+                </td>
+                <!--结果-->
+                <td>{{ord.bk_result}}</td>
+                <!--返踩时间-->
+                <td>{{ord.orderTime}}</td>
+                <!--状态-->
+                <td>{{ord.state | stateFilter}}</td>
+                <!--操作-->
+                <td>
+                    <!--<button @click="dealFun(ord.id)">处理</button>-->
+                    <footer>
+                        <i-button type="info"  size="small" @click="dealFun(ord.id)">处理</i-button>
+                    </footer>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div style="float: right;margin-top: 20px">
+            <span>总计{{count}}条</span>
+            <button type="button"  class=""  @click="firstpage">第一页</button>
+            <button type="button"  class=""  @click="uppage">前一页</button>
+            共<span>{{pages}}</span>页&nbsp;&nbsp;
+            第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" :value="num" ref="num">&nbsp;页&nbsp;&nbsp;
+            <button  class=""  @click="gotopage">转到</button>
+            <button  class=""  @click="downpage">后一页</button>
+            <button  class=""  @click="llastpage">最后一页</button>
+        </div>
+    </div>
+</div>
+<script src="../vue/vue.js"></script>
+<script src="../resource/iview-2.0/dist/iview.js"></script>
+<script src="../vue/axios.min.js"></script>
+<script>
+    new Vue({
+        el:'#autoUnstep',
+        data:{
+            //table数据载体 v-for循环
+            allOrderObj:null,
+            count:undefined,
+            pages:undefined,
+            num:1,
+            //搜索开关
+            searchFlag:false,
+            //搜索载体对象
+            searchObj:{
+                platformOrder:'',
+                smartNumber:'',
+                man:'',
+                state:'',
+            },
+            //搜索克隆对象
+            searchCloneObj:{
+                platformOrder:'',
+                smartNumber:'',
+                man:'',
+                state:'',
+            }
+        },
+        methods:{
+            //初始化数据函数
+            dataFun(page,search){
+                let obj = search;
+                obj.page = page;
+                axios({
+                    url:'../bingo/tc_retall_on.php?action=select_data',
+                    method:'post',
+                    data:obj
+                }).then(res=>{
+                    this.allOrderObj = res.data.list;
+                    this.count = res.data.count;
+                    this.pages = res.data.pages;
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //处理函数
+            dealFun(id){
+                axios({
+                    url:'../bingo/tc_retall_on.php?action=manual_processing',
+                    method:'post',
+                    data:{
+                        id
+                    }
+                }).then(res=>{
+                    if(res.data.msg==100){
+                        window.location.reload(true)
+                    }else{
+                        alert('操作失败')
+                    }
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //搜索栏打开函数
+            searchShow(){
+                let searchUp = document.getElementsByClassName('autoUnstep')[0];
+                if(this.searchFlag){
+                    searchUp.classList.remove('searchDown')
+                }else{
+                    searchUp.classList.add('searchDown')
+                }
+                this.searchFlag = !this.searchFlag;
+            },
+            //确当搜索按钮函数
+            sureSearch(){
+                this.searchCloneObj = JSON.parse(JSON.stringify(this.searchObj))
+                axios({
+                    url:'../bingo/tc_retall_on.php?action=select_data',
+                    method:'post',
+                    data:this.searchCloneObj
+                }).then(res=>{
+                    this.allOrderObj = res.data.list;
+                    this.count = res.data.count;
+                    this.pages = res.data.pages;
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //分页函数
+            //向后转页面 —
+            uppage:function(){
+                if(this.num>1){
+                    this.num -= 1;
+                }else if(this.num<1){
+                    alert('没有该页码')
+                }else{
+                    return
+                }
+                this.axfun(this.num);
+            },
+            //向前转页面 +
+            downpage:function(){
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if(this.num<this.pages){
+                    this.num = this.num + 1;
+                }else{
+                    return
+                };
+                this.axfun(this.num)
+            },
+            //直接去某页面
+            gotopage:function () {
+                let val = this.$refs.num.value;
+                if(val > this.pages||val<1){
+                    //页数框页码重置
+                    this.$refs.num.value = this.num;
+                    alert('没有该页码');
+                }else{
+                    this.num = Math.round(this.num);
+                    this.num = val;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去首页
+            firstpage:function () {
+                //如果num已经是第一页了，就不再请求了
+                if(this.num == 1){
+                    return
+                }
+                this.num = 1;
+                this.axfun(this.num)
+            },
+            //直接去末尾页
+            llastpage:function () {
+                //如果已经等于最后已页，就不再请求
+                if(this.num == this.pages){
+                    return
+                }
+                this.num = this.pages;
+                this.axfun(this.num)
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun:function(page){
+                this.dataFun(page,this.searchCloneObj)
+                /*if(!this.searchObj.searchFlag){
+                    this.dataFun(page)
+                }else{
+                    this.dataFun(page,this.searchObj)
+                }*/
+            },
+        },
+        filters:{
+            stateFilter(data){
+                switch (data*1){
+                    case 1:
+                        return '等待返踩';
+                    case 2:
+                        return '等待结果';
+                    case 3:
+                        return '等待支付结果';
+                    case 5:
+                        return '支付完成等待票号';
+                }
+
+            }
+        },
+        created(){
+            this.dataFun(1,this.searchCloneObj)
+        }
+    })
+</script>
+</body>
+</html>

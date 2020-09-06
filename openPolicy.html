@@ -1,0 +1,1748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../vue/vue.js"></script>
+    <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+    <link rel="stylesheet" href="../resource/css/tableCustom.css">
+
+    <style type="text/css">
+        .tableDiv{
+            /*overflow: scroll;*/
+            /*overflow-x: scroll;*/
+        }
+        /*搜索样式*/
+        #findWind{
+            width: 900px;
+            margin: 10px;
+            margin-left: 100px;
+            display: flex;
+            flex-wrap:wrap;
+            /*justify-content: space-around;*/
+            align-items: center;
+        }
+        #findWind>div{
+            margin: 10px 10px 5px 0px;
+        }
+        #findWind>div>select{
+            width: 150px;
+            border: 1px solid #dcdee2;
+            height: 27px;
+            border-radius: 3px;
+        }
+        #findWind>div>input{
+            width: 150px;
+            border: 1px solid #dcdee2;
+            height: 27px;
+            border-radius: 3px;
+        }
+        /*table最上面一排操作按钮*/
+        #handlebut{
+            display: flex;
+        }
+        #handlebut>*{
+            margin-left: 15px;
+        }
+
+        /*生效*/
+        tr[data-lin='1']{}
+        /*过期*/
+        tr[data-lin='2']{
+            background-color: rgba(255,163,0,0.2);
+        }
+        /*不生效*/
+        tr[data-lin='0']{
+            /*给字体加中间线*/
+            /*text-decoration:line-through;*/
+            /*text-decoration-color:red;*/
+            /*color:red;*/
+            /*划线颜色一定要放到添加划线样式的下面*/
+        }
+        .page{
+            margin:10px;
+            float:right;
+        }
+        .red{
+            color: red;
+        }
+        .ivu-radio-wrapper.ivu-radio-group-item.ivu-radio-default{
+            margin-top: 8px;
+        }
+    </style>
+    <!--处理组件样式-->
+    <style>
+        /*处理组件样式*/
+        #dealpol>div{
+            margin: 7px 1px;
+            display: flex;
+            /*align-items: center;*/
+        }
+        .minTitle{
+            width: 120px;
+            flex-shrink:0;
+            line-height: 35px;
+        }
+        /*批量勾选平台input样式*/
+        .plateCheckedDiv{
+            display: flex;
+            flex-wrap: wrap;
+            /*width: auto;*/
+            /*height: auto;*/
+        }
+        .plateChecked{
+            /*justify-content: right;*/
+            margin: 0px 3px;
+            /*width: 75px;*/
+            /*margin-right: 5px;*/
+        }
+        /*批量修改样式*/
+        #lotSizeChangeWindow>div{
+            margin-top: 5px;
+        }
+    </style>
+    <style>
+        table>thead>tr>th{
+            /*border-collapse: collapse;*/
+            border: 1px silver solid;
+        }
+        .tableDiv>table>tbody>tr>td{
+            border: 1px silver solid;
+            padding: 0 2px;
+            /*height: 50px;*/
+        }
+        .divv::before{
+            content:"";
+            position:absolute;
+            left:1px;
+            /*top:0;*/
+            width:100%;
+            height:6px;
+            /*box-sizing:border-box;*/
+            border-bottom:1px solid red;
+            /*transform-origin:bottom center;*/
+        }
+    </style>
+</head>
+<body>
+<div id="VuePolicy">
+    <!--查找弹窗-->
+    <find-Window v-if="findFlag"></find-Window>
+    <!--数据展示table-->
+    <policy ref="policyTable"></policy>
+    <!--处理弹窗-->
+    <deal-policy v-if="dealPolicy"></deal-policy>
+</div>
+<!--查询框-->
+<template id="findWindow">
+    <div id="findWind">
+        <!--政策适用对象-->
+        <div>
+            <span>适用平台</span>
+            <Select v-model="plattform" filterable style="width:150px">
+                <Option v-for="item in plattformArr" :value="item.value" :key="item.value">{{ item.label }}</Option>
+            </Select>
+        </div>
+        <!--航空公司-->
+        <div>
+            <span>航司</span>
+            <input type="text" v-model="airline">
+        </div>
+        <!--出票渠道-->
+        <div>
+            <span>出票渠道</span>
+            <Select v-model="ticket_object" filterable style="width:150px">
+                <Option v-for="item in ticket_objectArr" :value="item.value" :key="item.value">{{ item.label}}</Option>
+            </Select>
+        </div>
+        <i-button @click="findFun" size="small">查询</i-button>
+    </div>
+</template>
+<!--主体展示table-->
+<template id="table-div-dom">
+    <div>
+        <!--批量修改弹窗-->
+        <lot-size-change v-if="lotSizeFlag" :lot-size-flag="lotSizeFlag" @lot-change="lotChange"></lot-size-change>
+        <div class="tableDiv">
+            <div id="handlebut">
+                <div>
+                    <radio-group @on-change="ThreeRadioFun">
+                        <Radio label="all">
+                            <span>全部</span>
+                        </Radio>
+                        <Radio label="no" >
+                            <span>无效</span>
+                        </Radio>
+                        <Radio label="ok">
+                            <span>有效</span>
+                        </Radio>
+                    </radio-group>
+                </div>
+                <i-Button size="small"  @click="findshow">
+                    <span>查询框</span>
+                </i-Button>
+                <i-Button size="small"  @click="newAdd">新增</i-Button>
+                <i-Button size="small"  @click="copyFun">复制</i-Button>
+                <i-Button size="small"  @click="lotChange">批量修改</i-Button>
+                <i-Button size="small"  @click="logDelet">批量删除</i-Button>
+            </div>
+            <table style="width: 100%">
+                <colgroup>
+                    <col width="60px"> <!--序号-->
+                    <col width="40px"> <!--航司-->
+                    <col width="65px"> <!--出票类型-->
+                    <col width="65px"> <!--乘客类型-->
+                    <col width="80px"> <!--适应人数-->
+                    <col width="60px"> <!--账户-->
+                    <col width="60px"> <!--出发城市-->
+                    <col width="60px"> <!--到达城市-->
+                    <col width="60px"> <!-- 排除航线-->
+                    <col width="70px"> <!--适用仓位-->
+                    <col width="60px"> <!-- 排除仓位-->
+                    <col width="90px"> <!--最大亏损-->
+                    <col width="90px"> <!--票价范围-->
+                    <col width="90px"> <!--总价范围-->
+                    <col width="70px"> <!--行程-->
+                    <col width="auto"> <!--适用平台-->
+                    <col width="70px"> <!--起飞时段-->
+                    <col width="70px"> <!--出票时段-->
+                    <col width="70px"> <!--是否生效-->
+                    <col width="70px"> <!--优先级-->
+                    <col width="90px"> <!--状态设置-->
+                </colgroup>
+                <thead>
+                <tr class="TableHead">
+                    <th style="width: 40px">
+                        <input type="checkbox" @click="allInput" id="inputAllDom">
+                        全选</th>
+                    <th>航司</th>
+                    <th>出票渠道</th>
+                    <th>年龄段</th>
+                    <th>适应人数</th>
+                    <th>账户</th>
+                    <th>出发</th>
+                    <th>到达</th>
+                    <th>排除航线</th>
+                    <th>仓位</th>
+                    <th>排除仓位</th>
+                    <th>最大亏损</th>
+                    <th>票价范围</th>
+                    <th>总价范围</th>
+                    <th>行程</th>
+                    <th>适用平台</th>
+                    <th>起飞</th>
+                    <th>出票</th>
+                    <th>是否生效</th>
+                    <th>优先级</th>
+                    <th>状态设置</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(ele,index) in tableObj" :key="ele.id" >
+                    <!--序号-->
+                    <td>
+                        <input type="checkbox" @click="addId(ele.id)" style="margin-top: 5px" ref="inputDom">
+                        {{ele.id}}
+                    </td>
+                    <!--航司-->
+                    <td>
+                        <div class="divv" v-if="ele.is_effective==0">{{ele.airline}}</div>
+                        <div v-else>{{ele.airline}}</div>
+                    </td>
+                    <!--出票类型   ele.ticket_username | tickType-->
+                    <td>
+                        <div v-if="ele.ticket_object*1==3">{{ele.ticket_object | tickType}} - {{ele.ticket_platform}}</div>
+                        <div v-else>{{ele.ticket_object | tickType}}</div>
+
+                    </td>
+                    <!--乘客类型-->
+                    <td>
+                        {{ele.passenger_age_min}}-{{ele.passenger_age_max}}
+                    </td>
+                    <!--适应乘客人数-->
+                    <td>
+                        <span>{{ele.passenger_num_min}}</span>
+                        <span>-</span>
+                        <span>{{ele.passenger_num_max}}</span>
+                    </td>
+                    <!--账户   ele.ticket_username | tickAccount-->
+                    <td>{{ele.ticket_username}}</td>
+                    <!--出发城市-->
+                    <td>{{ele.dpt_city}}</td>
+                    <!--到达城市-->
+                    <td>{{ele.arr_city}}</td>
+                    <!--排除航线-->
+                    <td>{{ele.exclude_city}}</td>
+                    <!--适用仓位-->
+                    <td :title="ele.position">
+                        <div style="width: 100px;overflow: hidden;margin: 0 auto">{{ele.position}}</div>
+                    </td>
+                    <!--排除仓位-->
+                    <td :data-lin="ele.is_effective">{{ele.exclude_position}}</td>
+                    <!--最大亏损-->
+                    <td>
+                        <div v-if="ele.loss!=null">{{ele.loss}}</div>
+                        <div v-else="ele.rebate!=null">{{ele.rebate}}</div>
+                    </td>
+                    <!--票价范围-->
+                    <td>{{ele.fare_root | fare_rootFilter}}</td>
+                    <!--总价范围-->
+                    <td>{{ele.total_root | fare_rootFilter}}</td>
+                    <!--行程-->
+                    <td>
+                        <div v-if="ele.stroke_type==0">单程</div>
+                        <div v-else-if="ele.stroke_type==1">往返</div>
+                        <div v-else="ele.stroke_type==2">全部</div>
+                    </td>
+                    <!--适用平台-->
+                    <td>
+                        <div>{{ele.plattform | platform}}</div>
+                        <!--<div>{{ele.plattform}}</div>-->
+                    </td>
+                    <!--起飞时段-->
+                    <td>
+                        <div>{{ele.fly_date_min}}</div>
+                        <div>{{ele.fly_date_max}}</div>
+                    </td>
+                    <!--出票时段-->
+                    <td>
+                        <div>{{ele.ticket_date_min}}</div>
+                        <div>{{ele.ticket_date_max}}</div>
+                    </td>
+                    <!--是否生效-->
+                    <td>{{ele.is_effective | is_effectiveFun}}</td>
+                    <!--优先级-->
+                    <td>{{ele.priority}}级</td>
+                    <!--状态设置-->
+                    <td>
+                        <i-button @click="changePolicy(ele.id)" class="butt2">修改</i-button>
+                        <i-button @click="disable(ele.id)" class="butt2" v-if="ele.is_effective==1">禁用</i-button>
+                        <i-button @click="enable(ele.id)" class="butt2" v-else-if="ele.is_effective==0">启用</i-button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--分页逻辑-->
+        <div  class="page">
+            <div>
+                <button @click="firstpage">首页</button>
+                <button @click="uppage">上一页</button>
+                共<span>{{pages}}</span>页&nbsp;&nbsp;
+                第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" id="apage" v-model="num" ref="num" @click="saveNum(num)">&nbsp;页&nbsp;&nbsp;
+                <button type="button" title="确定"  @click="gotopage">转到</button>
+                <button @click="downpage">下一页</button>
+                <button @click="lastpage">末页</button>
+            </div>
+        </div>
+    </div>
+</template>
+<!--处理弹窗-->
+<template id="dealPolicy">
+    <div>
+        <Drawer
+                v-model="selfFlag"
+                draggable
+                width="700"
+                scrollable
+                fullscreen
+                placement="left"
+                transfer
+                title="修改弹窗"
+                @on-ok="dealPolicySure"
+                @on-cancel="dealPolicyClose"
+        >
+            <div id="dealpol">
+                <!--选择航空公司-->
+                <div>
+                    <div class="minTitle"><span>选择航空公司&#8194;：</span></div>
+                    <div>
+                        <i-select  size="small" style="width:100px" v-model="policyObj.airline">
+                            <i-option v-for="item in airline" :value="item" :key="item">{{item}}</i-option>
+                        </i-select>
+                    </div>
+                </div>
+                <!--适用平台-->
+                <div>
+                    <div class="minTitle">
+                        <span class="red">*</span>
+                        <span>适用平台：</span>
+                    </div>
+                    <div class="plateCheckedDiv">
+                        <div class="plateChecked">
+                            <input type="checkbox" id="plateAll" @click="plattformHandleCheckAll" ref="plateAll">
+                            <span>全选</span>
+                        </div>
+                        <div class="plateChecked">
+                            <input type="checkbox" id="1" value=1 v-model="plattformCheckAll">
+                            <label for="1">XSS</label>
+                        </div>
+                        <div class="plateChecked">
+                            <input type="checkbox" id="2" value=2 v-model="plattformCheckAll">
+                            <label for="2">XSG</label>
+                        </div>
+                        <div class="plateChecked">
+                            <input type="checkbox" id="3" value=3 v-model="plattformCheckAll">
+                            <label for="3">TTR</label>
+                        </div>
+                        <div class="plateChecked">
+                            <input type="checkbox" id="4" value="4" v-model="plattformCheckAll">
+                            <label for="4">携程</label>
+                        </div>
+                        <div class="plateChecked">
+                            <input type="checkbox" id="5" value="5" v-model="plattformCheckAll">
+                            <label for="5">携程团队</label>
+                        </div>
+                        <div class="plateChecked">
+                            <input type="checkbox" id="6" value="6" v-model="plattformCheckAll">
+                            <label for="6">平安淘宝</label>
+                        </div>
+                        <div class="plateChecked">
+                            <input type="checkbox" id="7" value="7" v-model="plattformCheckAll">
+                            <label for="7">向上淘宝</label>
+                        </div>
+                        <div class="plateChecked">
+                            <input type="checkbox" id="8" value="8" v-model="plattformCheckAll">
+                            <label for="8">淘宝B平台</label>
+                        </div>
+                        <div class="plateChecked">
+                            <input type="checkbox" id="9" value="9" v-model="plattformCheckAll">
+                            <label for="9">同程</label>
+                        </div>
+                        <div class="plateChecked">
+                            <input type="checkbox" id="10" value="10" v-model="plattformCheckAll">
+                            <label for="10">美团</label>
+                        </div>
+                        <div class="plateChecked">
+                            <input type="checkbox" id="11" value="11" v-model="plattformCheckAll">
+                            <label for="11">517</label>
+                        </div>
+                        <div class="plateChecked">
+                            <input type="checkbox" id="12" value="12" v-model="plattformCheckAll">
+                            <label for="12">八千翼</label>
+                        </div>
+                        <div class="plateChecked">
+                            <input type="checkbox" id="13" value="13" v-model="plattformCheckAll">
+                            <label for="13">pai</label>
+                        </div>
+                        <div class="plateChecked">
+                            <input type="checkbox" id="14" value="14" v-model="plattformCheckAll">
+                            <label for="14">同程klf</label>
+                        </div>
+                        <div class="plateChecked">
+                            <input type="checkbox" id="15" value="15" v-model="plattformCheckAll">
+                            <label for="15">携程klf</label>
+                        </div>
+                        <div class="plateChecked">
+                            <input type="checkbox" id="16" value="16" v-model="plattformCheckAll">
+                            <label for="16">携程分销</label>
+                        </div>
+                    </div>
+                </div>
+                <!--乘客类型-->
+                <div>
+                    <div class="minTitle">
+                        <span class="red">*</span>
+                        <span>乘客年龄：</span>
+                    </div>
+                    <div>
+                        <i-input style="width: 150px" v-model.number.trim="policyObj.passenger_age_min">
+                        </i-input>
+                        -
+                        <i-input style="width: 150px" v-model.number.trim="policyObj.passenger_age_max">
+                        </i-input>
+                    </div>
+                </div>
+                <!--行程类别-->
+                <div>
+                    <div class="minTitle">行程类型&#8194;：</div>
+                    <radio-group v-model="policyObj.stroke_type">
+                        <Radio label="0">
+                            <span>单程</span>
+                        </Radio>
+                        <Radio label="1">
+                            <span>往返程</span>
+                        </Radio>
+                        <Radio label='2'>
+                            <span>单程或往返程</span>
+                        </Radio>
+                    </radio-group>
+                </div>
+                <!--适应人数-->
+                <div style="display: flex">
+                    <div class="minTitle">
+                        <span class="red">*</span>
+                        <span>适应人数：</span>
+                    </div>
+                    <div>
+                        <i-input style="width: 150px" v-model.trim="policyObj.passenger_num_min">
+                        </i-input>
+                        -
+                        <i-input style="width: 150px" v-model.trim="policyObj.passenger_num_max">
+                        </i-input>
+                    </div>
+                </div>
+                <!--出发城市-->
+                <div>
+                    <i-input style="width: 300px" v-model.trim="policyObj.dpt_city">
+                        <span slot="prepend">出发城市</span>
+                    </i-input>
+                </div>
+                <!--到达城市-->
+                <div>
+                    <i-input style="width: 300px" v-model.trim="policyObj.arr_city">
+                        <span slot="prepend">到达城市</span>
+                    </i-input>
+                </div>
+                <!--排除航线-->
+                <div>
+                    <i-input style="width: 300px" v-model.trim="policyObj.exclude_city">
+                        <span slot="prepend">排除航线</span>
+                    </i-input>
+                </div>
+                <!--确定适用航班-->
+                <div>
+                    <div class="minTitle">
+                        <span class="red">*</span>
+                        <span>适用航班号：</span>
+                    </div>
+                    <radio-group v-model="flight">
+                        <Radio label="2">
+                            <span>适用全部</span>
+                        </Radio>
+                        <Radio label="1">
+                            <span>适用</span>
+                        </Radio>
+                        <Radio label="0">
+                            <span>不适用</span>
+                        </Radio>
+                    </radio-group>
+                    <div>
+                        <i-input style="width: 300px" v-model.trim="flightText">
+                            <span slot="prepend">适用或不适用航班</span>
+                        </i-input>
+                    </div>
+                </div>
+                <!--适用仓位-->
+                <div>
+                    <div class="minTitle">
+                        <span class="red">*</span>
+                        <span>适用仓位：</span>
+                    </div>
+                    <div>
+                        <i-input type="textarea" style="width: 300px" v-model.number.trim="policyObj.position">
+                        </i-input>
+                    </div>
+                </div>
+                <!--排除仓位-->
+                <div>
+                    <i-input style="width: 300px" v-model.trim="policyObj.exclude_position">
+                        <span slot="prepend">排除仓位</span>
+                    </i-input>
+                </div>
+
+                <!--政策代码-->
+                <div>
+                    <i-input style="width: 300px" v-model.trim="policyObj.policycode">
+                        <span slot="prepend">政策代码：</span>
+                    </i-input>
+                </div>
+                <!--排除政策代码-->
+                <div>
+                    <div class="minTitle">
+                    <span class="red">*</span>
+                    <span>排除政策代码：</span>
+                    </div>
+                    <div>
+                    <i-input type="textarea" style="width: 300px" v-model.number.trim="policyObj.nopolicycode">
+                    </i-input>
+                    </div>
+                </div>
+
+                <!--起飞日期-->
+                <div>
+                    <span>起飞日期：</span>
+                    <date-picker type="daterange" @on-change="timeFly" v-model="policyObj.fly_date" split-panels placeholder="Select date" placement="bottom-end" placeholder="Select date" style="width: 200px"></date-picker>
+                </div>
+                <!--出票日期-->
+                <div>
+                    <span>出票日期：</span>
+                    <date-picker type="daterange" @on-change="timeTicket" v-model="policyObj.ticket_date" split-panels placeholder="Select date" placement="bottom-end" placeholder="Select date" style="width: 200px"></date-picker>
+                </div>
+                <!--开始结束天数-->
+                <div>
+                    <i-input style="width: 150px" v-model.trim="policyObj.beginnum">
+                        <span slot="prepend">开始天数</span>
+                    </i-input>
+                    <i-input style="width: 150px" v-model.trim="policyObj.endnum">
+                        <span slot="prepend">结束天数</span>
+                    </i-input>
+                </div>
+                <!--票价范围-->
+                <div>
+                    <div class="minTitle">
+                        <span class="red">*</span>
+                        <span>票价范围：</span>
+                    </div>
+                    <radio-group v-model="fare_root">
+                        <Radio label="2">
+                            <span>适用全部</span>
+                        </Radio>
+                        <Radio label="1">
+                            <span>大于</span>
+                        </Radio>
+                        <Radio label="0">
+                            <span>小于</span>
+                        </Radio>
+                    </radio-group>
+                    <div>
+                        <i-input style="width: 200px" v-model="fare_rootValue">
+                            <span slot="prepend">票价</span>
+                        </i-input>
+                        <span style="font-size: 12px;color: red">&nbsp;（当选择大于或小于时，票价栏必填）</span>
+                    </div>
+                </div>
+                <!--总价范围-->
+                <div>
+                    <div class="minTitle">
+                        <span class="red">*</span>
+                        <span>总价范围：</span>
+                    </div>
+                    <radio-group v-model="total_root">
+                        <Radio label="2">
+                            <span>适用全部</span>
+                        </Radio>
+                        <Radio label="1">
+                            <span>大于</span>
+                        </Radio>
+                        <Radio label="0">
+                            <span>小于</span>
+                        </Radio>
+                    </radio-group>
+                    <div>
+                        <i-input style="width: 200px" v-model="total_rootValue">
+                            <span slot="prepend">总价</span>
+                        </i-input>
+                        <span style="font-size: 12px;color: red">&nbsp;（当选择大于或小于时，总价栏必填）</span>
+                    </div>
+                </div>
+                <!--最大亏损-->
+                <div>
+                    <label style="margin-right: 20px"><input type="radio" value="loss"  v-model="loss"  ><span>最大亏损</span></label>
+                    <label style="margin-right: 20px"><input type="radio" value="rebate" v-model="loss"  ><span>最大亏损返点</span></label>
+                    <i-input style="width: 200px" v-model.trim="lossInputValue">
+                        <span slot="prepend">最大亏损(+/-)</span>
+                    </i-input>
+
+                </div>
+                <!--出票渠道-->
+                <div>
+                    <div class="minTitle">
+                        <span class="red">*</span>
+                        <span>出票渠道：</span>
+                    </div>
+                    <div>
+                        <radio-group @on-change="ticketObjFun" v-model="policyObj.ticket_object">
+                            <Radio label=1>
+                                <span>B2B</span>
+                            </Radio>
+                            <Radio label=2>
+                                <span>官网</span>
+                            </Radio>
+                            <Radio label=3>
+                                <span>反采</span>
+                            </Radio>
+                            <Radio label=4>
+                                <span>BSP</span>
+                            </Radio>
+                        </radio-group>
+                    </div>
+                </div>
+                <!--反踩平台-->
+                <div v-if="ticketPlatform.length">
+                    <div class="minTitle">
+                        <span class="red">*</span>
+                        <span>反踩平台：</span>
+                    </div>
+                    <div>
+                        <i-select  size="small" style="width:120px"  v-model="policyObj.ticket_platform">
+                            <i-option v-for="(val,index) in ticketPlatform" :key="index" :value="val">{{val}}</i-option>
+                        </i-select>
+                    </div>
+                </div>
+                <!--出票账户-->
+                <div>
+                    <div class="minTitle">
+                        <span class="red">*</span>
+                        <span>出票账户：</span>
+                    </div>
+                    <div>
+                        <i-select  size="small" style="width:120px"  v-model="policyObj.ticket_username">
+                            <i-option v-for="(ele,index) in ticketUsername" :key="index" :value="ele">{{ele}}</i-option>
+                        </i-select>
+                    </div>
+                </div>
+                <!--出票方式-->
+                <div>
+                    <div class="minTitle">
+                        <span class="red">*</span>
+                        <span>出票方式：</span>
+                    </div>
+                    <div>
+                        <i-select  size="small" style="width:120px"  v-model="policyObj.ticket_way">
+                            <i-option  :value="1">最低价</i-option>
+                            <i-option  :value="2">旗舰店</i-option>
+                            <i-option  :value="3">代理最低</i-option>
+                            <i-option  :value="4">原舱</i-option>
+                            <i-option  :value="5">绿翼</i-option>
+                            <i-option  :value="6">行程单</i-option>
+                        </i-select>
+                    </div>
+                </div>
+                <!--支付方式-->
+                <div>
+                    <div class="minTitle">
+                        <span class="red">*</span>
+                        <span>支付方式：</span>
+                    </div>
+                    <div>
+                        <i-select  size="small" style="width:120px"  v-model="policyObj.pay_way">
+                            <i-option v-for="(val,name,index) in payWay" :key="index" :value="val">{{val}}</i-option>
+                        </i-select>
+                    </div>
+                </div>
+                <!--进单编码-->
+                <div v-if="policyObj.ticket_object==1||policyObj.ticket_object==4">
+                    <div class="minTitle">
+                        <span class="red">*</span>
+                        <span>进单编码：</span>
+                    </div>
+                    <div>
+                        <i-select  size="small" style="width:120px"  v-model="policyObj.in_code">
+                            <i-option v-for="(ele,index) in inCodeArr" :key="index" :value="ele">{{ele}}</i-option>
+                        </i-select>
+                    </div>
+                </div>
+                <!--支付账号-->
+                <div>支付账号</div>
+                <!--适否换编码出票-->
+                <div>
+                    <div class="minTitle">
+                        <span class="red">*</span>
+                        <span>是否换编码出票：</span>
+                    </div>
+                    <div>
+                        <radio-group v-model="policyObj.is_new_pnr">
+                            <Radio label="0">
+                                <span>是</span>
+                            </Radio>
+                            <Radio label="1">
+                                <span>否</span>
+                            </Radio>
+                        </radio-group>
+                    </div>
+                </div>
+                <!--换编office-->
+                <div>换编office</div>
+                <!--优先级别-->
+                <div>
+                    <div class="minTitle">优先级别&#8194;：</div>
+                    <radio-group v-model="policyObj.priority">
+                        <Radio label="1">
+                            <span>一级</span>
+                        </Radio>
+                        <Radio label="2">
+                            <span>二级</span>
+                        </Radio>
+                        <Radio label='3'>
+                            <span>三级</span>
+                        </Radio>
+                    </radio-group>
+                </div>
+                <div style="display: flex;flex-direction: row-reverse">
+                    <button class="butt"  @click="dealPolicyClose">返回</button>
+                    <button class="butt"  @click="dealPolicySure">确定</button>
+                </div>
+            </div>
+        </Drawer>
+    </div>
+</template>
+<!--批量修改弹窗-->
+<template id="lotSizeChange">
+    <div>
+        <Modal
+                v-model="selfFlag"
+                draggable
+                scrollable title="批量修改"
+                @on-ok="sureLotSizeFun"
+                @on-cancel="closeLotSizeFun"
+        >
+            <div id="lotSizeChangeWindow">
+                <!--起飞日期-->
+                <div>
+                    <span>起飞日期：</span>
+                    <date-picker type="daterange"  format="yyyy-MM-dd" @on-change="timeFly" v-model="fly_date" split-panels placeholder="Select date" placement="bottom-end" placeholder="Select date" style="width: 200px"></date-picker>
+                </div>
+                <!--出票日期-->
+                <div>
+                    <span>出票日期：</span>
+                    <date-picker type="daterange" @on-change="timeTicket" v-model="ticket_date" split-panels placeholder="Select date" placement="bottom-end" placeholder="Select date" style="width: 200px"></date-picker>
+                </div>
+                <!--最大亏损-->
+                <div>
+                    <label style="margin-right: 20px"><input type="radio" value="loss"  v-model="loss"  ><span>最大亏损</span></label>
+                    <label style="margin-right: 20px"><input type="radio" value="rebate" v-model="loss"  ><span>最大亏损返点</span></label>
+                    <i-input style="width: 200px" v-model.trim="lossInputValue">
+                        <span slot="prepend">最大亏损(+/-)</span>
+                    </i-input>
+                </div>
+            </div>
+        </Modal>
+    </div>
+</template>
+
+
+<script type="text/javascript" src="../resource/iview-2.0/dist/iview.min.js"></script>
+<script type="text/javascript" src="../vue/vuex.js"></script>
+<script type="text/javascript" src="../vue/axios.min.js"></script>
+<script type="text/javascript" src="../vue/vue-router.js"></script>
+
+
+<script type="text/javascript">
+    Vue.config.devtools = true;
+    Vue.config.debug = true;
+    //政策主体table
+    Vue.component('policy',{
+        template:'#table-div-dom',
+        data(){
+            return{
+                //政策主体数据
+                tableObj:null,
+                num:1,
+                //nnum用来保存num之前的页数
+                nnum:undefined,
+                pages:undefined,
+                findObj:null,
+                //    批量修改开关
+                lotSizeFlag:false,
+            }
+        },
+        methods:{
+            //初始化数据请求函数
+            tableData(page=this.num,findObj=null){
+                if(findObj){
+                    this.findObj = findObj;
+                }
+                axios({
+                    url:'../bingo/automatic_new.php?action=all_policy',
+                    method:'post',
+                    data:{
+                        findObj,
+                        page,
+                        type:1
+                    }
+                }).then(res=>{
+                    this.tableObj = res.data.list;
+                    this.pages = res.data.pages;
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //全选input按钮
+            allInput(){
+                if(!this.tableObj){
+                    return
+                }
+                if(event.target.checked){
+                    this.$store.state.idList = [];
+                    for(let a=0,leng = this.tableObj.length;a<leng;a++){
+                        this.$refs.inputDom[a].checked = true;
+                        this.$store.state.idList.push(this.tableObj[a].id);
+                    }
+                }else{
+                    for(let a=0,leng = this.tableObj.length;a<leng;a++){
+                        this.$refs.inputDom[a].checked = false;
+                        this.$store.state.idList=[];
+                    }
+                }
+            },
+            //禁用按钮
+            disable(idd){
+                this.$store.state.idList.push(idd);
+                let id = this.$store.state.idList;
+                axios({
+                    url:'../bingo/automatic_new.php?action=disable',
+                    method:'post',
+                    data:id
+                }).then(res=>{
+                    if(res.data=='success'){
+                        window.location.reload(true)
+                    }
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //启用按钮
+            enable(data){
+                this.$store.state.idList.push(data);
+                let id = this.$store.state.idList;
+                axios({
+                    url:'../bingo/automatic_new.php?action=enable',
+                    method:'post',
+                    data:id
+                }).then(res=>{
+                    if(res.data=='success'){
+                        window.location.reload(true)
+                    }
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //input选择单个政策
+            addId(id){
+                let allDom = document.getElementById('inputAllDom');
+                if(event.target.checked){
+                    this.$store.state.idList.push(id);
+                    if(this.$store.state.idList.length == this.tableObj.length){
+                        allDom.checked = true;
+                    }
+                }else{
+                    this.$store.state.idList.forEach((value,index)=>{
+                        if(value==id){
+                            this.$store.state.idList.splice(index,1);
+                        }
+                    })
+                    allDom.checked = false;
+                }
+            },
+            //无效，有效，全选三个单选的按钮函数
+            ThreeRadioFun(data){
+                if(data=='ok'){
+                    this.effectiveFun()
+                }else if(data=='no'){
+                    this.invalid()
+                }else{
+                    axios({
+                        url:'../bingo/automatic_new.php?action=all_policy',
+                        method:'post',
+                        data:{
+                            page:1,
+                            type:1
+                        }
+                    }).then(res=>{
+                        this.tableObj = res.data.list;
+                    }).catch(err=>{
+                        console.log(err)
+                    })
+                }
+                for(let a=0,leng = this.tableObj.length;a<leng;a++){
+                    this.$refs.inputDom[a].checked = false;
+                    this.$store.state.idList=[];
+                }
+            },
+            //无效按钮r
+            invalid(){
+                axios({
+                    url:'../bingo/automatic_new.php?action=invalid',
+                    method:'post',
+                    data:{
+                        page:0,
+                        type:1
+                    }
+                }).then(res=>{
+                    this.tableObj = res.data.list;
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //有效按钮
+            effectiveFun(){
+                axios({
+                    url:'../bingo/automatic_new.php?action=effective',
+                    method:'post',
+                    data:{
+                        page:0,
+                        type:1
+                    }
+                }).then(res=>{
+                    this.tableObj = res.data.list;
+                    console.log(res.data)
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //全选按钮就是created函数中的请求
+            //是否显示查询框
+            findshow(){
+                this.$store.state.findFlag = ! this.$store.state.findFlag
+            },
+            //新增按钮
+            newAdd(){
+                //开启关闭处理政策弹窗
+                this.$store.state.dealPolicy = ! this.$store.state.dealPolicy;
+                //告诉弹窗当前触发的是新增按钮
+                this.$store.state.policyFunctionFlag = true;
+
+            },
+            //修改按钮
+            changePolicy(id){
+                //告诉弹窗当前触发的是修改按钮
+                // let leng = this.$store.state.idList.length;
+                // if(leng==1){
+                    this.$store.state.policyFunctionFlag = false;
+                    this.$store.state.dealPolicy = ! this.$store.state.dealPolicy;
+                    this.$store.state.ordId = id;
+                // }else{
+                //     alert('修改功能只支持单个订单修改，请勿多选')
+                // }
+            },
+            //复制按钮
+            copyFun(){
+                if(!this.$store.state.idList.length){
+                    alert('请勾选任意一条政策');
+                    return
+                }
+                axios({
+                    url:'../bingo/automatic_new.php?action=copy',
+                    method:'post',
+                    data:{
+                        id:this.$store.state.idList
+                    }
+                }).then(res=>{
+                    this.tableData();
+                    for(let a=0,leng = this.tableObj.length;a<leng;a++){
+                        this.$refs.inputDom[a].checked = false;
+                        this.$store.state.idList=[];
+                    }
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //批量修改
+            lotChange(){
+                alert('功能暂未开启');
+                return
+                if(!this.$store.state.idList.length){
+                    alert('请勾选任意一条政策');
+                    return
+                }
+                //批量修改弹窗开关，在store中触发
+                this.lotSizeFlag = !this.lotSizeFlag;
+            },
+            //批量删除
+            logDelet(){
+                if(!this.$store.state.idList.length){
+                    alert('请勾选任意一条政策');
+                    return
+                }
+                axios({
+                    url:'../bingo/automatic_new.php?action=delete',
+                    method:'post',
+                    data:{
+                        id:this.$store.state.idList
+                    }
+                }).then(res=>{
+                    this.tableData()
+                    for(let a=0,leng = this.tableObj.length;a<leng;a++){
+                        this.$refs.inputDom[a].checked = false;
+                        this.$store.state.idList=[];
+                    }
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+
+            //分页函数
+            //保存num
+            saveNum(data){
+              this.nnum = data;
+            },
+            //向后转页面 —
+            uppage:function(){
+                if(this.num>1){
+                    this.num -= 1;
+                }else if(this.num<1){
+                    alert('没有该用页码')
+                }else{
+                    return
+                };
+                this.axfun(this.num);
+            },
+            //向前转页面 +
+            downpage:function(){
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if(this.num<this.pages){
+                    this.num = this.num + 1;
+                }else{
+                    return
+                };
+                this.axfun(this.num)
+            },
+            //直接去某页面
+            gotopage:function () {
+                let val = this.num;
+                if(val > this.pages||val<1){
+                    this.num = this.nnum;
+                    alert('没有该页码');
+                }else if(val==this.pages){
+                    //输入框当前页等于总页数的时候，是没必要做跳转的
+                    return
+                }else{
+                    this.num = Math.round(this.num);
+                    this.num = val;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去首页
+            firstpage:function () {
+                if(this.num == 1){
+                    return
+                }else{
+                    this.num = 1;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去末尾页
+            lastpage:function () {
+                if(this.num == this.pages){return}else {
+                    this.num = this.pages;
+                    this.axfun(this.num);
+                }
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun:function(page){
+                this.tableData(page,this.findObj)
+            },
+        },
+        filters:{
+            platform(data){
+                // data = data*1
+                data = data.split(';');
+                data.splice(0,1);
+                data.splice(data.length-1,1)
+                let s = '';
+                for(let a=0;a<data.length;a++){
+                    s += replacePlateFun(data[a]) + ';'
+                }
+                function replacePlateFun(str){
+                    str = str*1
+                    switch(str){
+                        case 1:
+                            return "XSS";
+                        case 2:
+                            return "XSG";
+                        case 3:
+                            return "TTR";
+                        case 4:
+                            return "携程";
+                        case 5:
+                            return "携程团队";
+                        case 6:
+                            return "平安淘宝";
+                        case 7:
+                            return "向上淘宝";
+                        case 8:
+                            return "淘宝B平台";
+                        case 9:
+                            return "同程";
+                        case 10:
+                            return "美团";
+                        case 11:
+                            return "517";
+                        case 12:
+                            return "八千翼";
+                        case 13:
+                            return "pai";
+                        case 14:
+                            return "同程klf";
+                        case 15:
+                            return "携程klf";
+                        case 16:
+                            return "携程分销";
+                        default:
+                            return '未知平台'
+                    }
+                }
+                return s
+            },
+            tickType(data){
+                switch(data*1){
+                    case 1:
+                        return "B2B";
+                    case 2:
+                        return "官网";
+                    case 3:
+                        return "OP";
+                }
+            },
+            tickAccount(data){
+                if(data){
+                    let data01 = data.split('-');
+                    return data01[1];
+                }
+            },
+            is_effectiveFun(data){
+                if(data){
+                    switch (data) {
+                        case '1':return '生效';
+                        case '0':return '禁用';
+                        case '2':return '过期';
+                    }
+                }
+            },
+            fare_rootFilter(data){
+                if(data){
+                    let data00 = data.split(/-/);
+                    if(data00[0]!='2'){
+                        switch (data00[0]) {
+                            case '0':return "小于"+data00[1];
+                            case '1':return "大于"+data00[1];
+                        }
+                    }else{
+                        return "适用全部"
+                    }
+                }
+            }
+        },
+        created(){
+            this.tableData(1)
+        }
+    });
+    //搜索框
+    Vue.component('findWindow',{
+        template:'#findWindow',
+        data(){
+            return{
+                //出票渠道
+                ticket_objectArr:[
+                    {value:0, label:'全部'},
+                    {value:1, label:'B2B'},
+                    {value:2, label:'官网'},
+                    {value:3, label:'OP'},
+                ],
+                ticket_object:null,
+                //航司
+                airline:null,
+                //适用平台,for循环使用数组
+                plattformArr:[
+                    {value:0, label:'适用全部'},
+                    {value:1, label:'XSS'},
+                    {value:2, label:'XSG'},
+                    {value:3, label:'TTR'},
+                    {value:4, label:'携程'},
+                    {value:5, label:'携程团队'},
+                    {value:6, label:'平安淘宝'},
+                    {value:7, label:'向上淘宝'},
+                    {value:8, label:'淘宝B平台'},
+                    {value:9, label:'同程'},
+                    {value:10, label:'美团'},
+                    {value:11, label:517},
+                    {value:12, label:'八千翼'},
+                    {value:13, label:'pai'},
+                    {value:14, label:'同程klf'},
+                    {value:15, label:'携程klf'},
+                    {value:16, label:'携程分销'},
+                ],
+                //适用平台的选择值
+                plattform:null,
+            }
+        },
+        computed:{
+            findFlag(){
+                return this.$store.state.findFlag;
+            }
+        },
+        methods:{
+            handleChange(data){
+                this.dateValue = data
+            },
+            //查找方法
+            findFun(){
+            //实际调用的是table的请求数据的方法。
+                let findObj = {
+                    airline:this.airline,
+                    ticket_object:this.ticket_object,
+                    plattform:this.plattform,
+                };
+                return this.$parent.$refs.policyTable.tableData(1,findObj)
+            }
+        }
+    });
+    //翻页
+    Vue.component('changepage',{
+        template:'changepage'
+    });
+    //处理页面
+    Vue.component('dealPolicy',{
+        template:'#dealPolicy',
+        data(){
+            return{
+                selfFlag:true,
+                //是否显示处理窗口
+                policyObj:{
+                    //行程类别
+                    stroke_type:"0",
+                    //适应乘客年龄(小)
+                    passenger_age_min:null,
+                    //适应乘客年龄(大)
+                    passenger_age_max:null,
+                    //适应乘客人数小值
+                    passenger_num_min:1,
+                    //适应乘客人数大值
+                    passenger_num_max:9,
+                    //航司
+                    airline:null,
+                    //出发城市
+                    dpt_city:null,
+                    //到达城市
+                    arr_city:null,
+                    //适用航班
+                    flight:'2',
+                    //仓位全选按钮值
+                    position:null,
+                //    排除航线
+                    exclude_city:null,
+                    // 排除仓位
+                    exclude_position:null,
+                //    政策代码
+                    policycode:null,
+                //    排除政策代码
+                    nopolicycode:null,
+                //起飞日期始
+                    fly_date_min:null,
+                    //起飞日期止
+                    fly_date_max:null,
+                //    出票日始
+                    ticket_date_min:null,
+                    //出票日止
+                    ticket_date_max:null,
+                //    开始天数
+                    beginnum:'',
+                //    结束天数
+                    endnum:'',
+                    //    最大亏损
+                    loss:true,
+                    rebate:false,
+                    //出票渠道
+                    ticket_object:null,
+                    //出票账户、
+                    ticket_username:null,
+                    //支付方式
+                    pay_way:'',
+                //    进单编码
+                    in_code:null,
+                //    平台
+                    plattform:'0',
+                //    票价范围规则
+                    fare_root:null,
+                //    是否换编码出票
+                    is_new_pnr:'1',
+                    // 优先级
+                    priority:null,
+
+                },
+                //航司 ajax后获取的数据
+                airline:null,
+                //适用航班的radio和input
+                flight:null,
+                flightText:null,
+                //票价范围radio和input值
+                fare_root:null,
+                fare_rootValue:null,
+                //总价范围radio和input值
+                total_root:null,
+                total_rootValue:null,
+                //给后台的policyObj中的账号相关数据都不会用到下面两个数据，
+                //出票账户被勾选的账号。
+                ticketUsername:[],
+                inCodeArr:[],
+                ticketPlatform:[],
+                payWay:[],
+                //用与for循环的出票select载体
+                ForticketUsername:null,
+
+                cityList:null,
+                model1: '',
+            //    最大亏损的input值
+                loss:'loss',
+                lossInputValue:-15,
+            //    平台多选功能
+                plattformIndeterminate:false,
+                plattformCheckAll:[],
+            }
+        },
+        computed:{
+            dealPolicy(){
+                return this.$store.state.dealPolicy
+            },
+            fly_date(){
+                const t1 = this.policyObj.fly_date_min;
+                const t2 = this.policyObj.fly_date_max;
+                return [t1,t2]
+            },
+            ticket_date(){
+                const t1 = this.policyObj.ticket_date_min;
+                const t2 = this.policyObj.ticket_date_max;
+                return [t1,t2]
+            }
+        },
+        watch:{
+            //平台多选操作
+            plattformCheckAll(){
+                if(this.plattformCheckAll.length === 13){
+                    this.$refs.plateAll.checked = true
+                }else{
+                    this.$refs.plateAll.checked = false
+                }
+            }
+        },
+        methods:{
+            //处理政策页面的关闭按钮
+            dealPolicyClose(){
+                this.$store.state.dealPolicy = ! this.$store.state.dealPolicy;
+            },
+            //平台多选
+            plattformHandleCheckAll () {
+                if(event.target.checked){
+                    this.plattformCheckAll = ["1", "2", "3", "4","5","6", "7", "8", "9", "10", "11", "12", "13"]
+                }else{
+                    this.plattformCheckAll = [];
+                }
+            },
+            //起飞时间出发函数
+            timeFly(data){
+                this.policyObj.fly_date_min = data[0];
+                this.policyObj.fly_date_max = data[1];
+            },
+            //持票时间出发函数
+            timeTicket(data){
+                this.policyObj.ticket_date_min = data[0];
+                this.policyObj.ticket_date_max = data[1];
+            },
+            //政策页面确定按钮
+            dealPolicySure(){
+                //最大亏损是否纯数字判断 有无非数字 有 进入判断
+                if(!(this.lossInputValue)*1){
+                    //非数字是否是符号 . 是则进入判断
+                    alert('最大亏损只能输入正确格式的金额');
+                    return
+                }
+                //确定按钮的新增函数
+                let policyObj = JSON.parse(JSON.stringify(this.policyObj));
+
+                //没有仓位
+                if(!this.policyObj.position){
+                    alert('仓位没有填写')
+                    return
+                }
+                //出票账户数据，并调好格式
+                if(!policyObj.ticket_username){
+                    alert('出票账户没有勾选');
+                    return
+                }
+                //票价范围设置格式调整
+                if(this.fare_root=='2'){
+                    policyObj.fare_root = this.fare_root
+                }else{
+                    //判断票价范围，当选择大于或小于的时候，票价必填
+                    if(!this.fare_rootValue){
+                        alert('票价范围数值没有填写');
+                        return
+                    }
+                    if(!((this.fare_rootValue.trim())*1)){
+                        return alert('票价必填且为数字')
+                    }
+                    policyObj.fare_root = this.fare_root +'-'+this.fare_rootValue.trim();
+                }
+                //总价范围设置格式调整
+                if(this.total_root=='2'){
+                    policyObj.total_root = this.total_root
+                }else{
+                    //判断票价范围，当选择大于或小于的时候，票价必填
+                    if(!this.total_rootValue){
+                        alert('总价范围数值没有填写');
+                        return
+                    }
+                    if(!((this.total_rootValue.trim())*1)){
+                        return alert('总价必填且为数字')
+                    }
+                    policyObj.total_root = this.total_root +'-'+this.total_rootValue.trim();
+                }
+                //适用航班格式调整
+                if(this.flight=='2'){
+                    policyObj.flight = this.flight;
+                }else{
+                    policyObj.flight = this.flight +'-'+ this.flightText;
+                }
+                //最大亏损格式调整
+                if(this.loss == 'loss'){
+                    policyObj.loss = this.lossInputValue;
+                    policyObj.rebate = null;
+                }else if(this.loss == 'rebate'){
+                    policyObj.rebate = this.lossInputValue;;
+                    policyObj.loss = null
+                }
+
+                //适用平台格式调整
+                let plateCheck = '';
+                let plateChecklength = this.plattformCheckAll.length;
+                if(plateChecklength === 1){
+                    plateCheck = this.plattformCheckAll[0]+';';
+                }else{
+                    plateCheck = this.plattformCheckAll[0]+';'
+                    for(let i=1;i<plateChecklength;i++){
+                        plateCheck += this.plattformCheckAll[i]+';'
+                    }
+
+                }
+                plateCheck = ';'+plateCheck
+                policyObj.plattform = plateCheck;
+                policyObj.type = 1;
+
+                //确认必选项是否都已填上
+                if(!(policyObj.fare_root&&policyObj.flight&&policyObj.passenger_age_min&&policyObj.passenger_age_max)){
+                    switch(false){
+                        case !!policyObj.fare_root:alert('票价范围规则 没有填写');return;
+                        case !!policyObj.flight:alert('适用航班 没有填写');return;
+                        case !!policyObj.passenger_age_min:
+                            if(typeof policyObj.passenger_age_min != 'number'){
+                                alert('适应乘客年龄(小) 没有填写或格式不对');
+                                return;
+                            }
+                        case !!policyObj.passenger_age_max:
+                            if(typeof policyObj.passenger_age_max != 'number'){
+                                alert('适应乘客年龄(大) 没有填写或格式不对');
+                                return;
+                            }
+                            break
+                    }
+                    return
+                }else if(!(policyObj.is_new_pnr&&policyObj.passenger_num_max&&policyObj.passenger_num_min)){
+                    switch(false){
+                        case !!policyObj.is_new_pnr:alert('是否换编码出票 没有填写');return;
+                        case !!policyObj.passenger_num_max:alert('适应乘客人数大值 没有填写');return;
+                        case !!policyObj.passenger_num_min:alert('适应乘客人数小值 没有填写');return;
+                        case !!policyObj.pay_type:alert('支付方式 没有填写');return;
+                            break
+                    }
+                }else if(!(policyObj.plattform&&policyObj.stroke_type)){
+                    switch(false){
+                        case !!policyObj.plattform:alert('适用对象(平台) 没有填写');return;
+                    }
+                }
+                if(this.$store.state.policyFunctionFlag){
+                    axios({
+                        url:'../bingo/automatic_new.php?action=confirm',
+                        method:'post',
+                        data:policyObj
+                    }).then(res=>{
+                        this.$store.state.dealPolicy = false;
+                        window.location.reload(true);
+                    }).catch(err=>{
+                        console.log(err)
+                    })
+                }else{
+                    //确定按钮的修改函数
+                    axios({
+                        url:'../bingo/automatic_new.php?action=check_update',
+                        method:'post',
+                        data:policyObj
+                    }).then(res=>{
+                        this.$store.state.dealPolicy = false;
+                        window.location.reload(true);
+                    }).catch(err=>{
+                        console.log(err)
+                    })
+                }
+            },
+        //    出票渠道修改时候触发的函数
+            ticketObjFun(data){
+                axios({
+                    url:'../bingo/automatic_new.php?action=type',
+                    method:'post',
+                    data:{
+                        ticket_object:data
+                    }
+                }).then(res=>{
+                    //支付账户
+                    this.ticketUsername = res.data.ticket_username;
+                    //当点击反踩的时候出现
+                    this.ticketPlatform = res.data.ticket_platform;
+                    //支付方式
+                    this.payWay = res.data.pay_way;
+                    this.inCodeArr = res.data.in_code;
+                }).catch(err=>{console.log(err)})
+            }
+        },
+        mounted(){
+
+        },
+        created(){
+            //this.$store.state.policyFunctionFlag用来判断当前是用的新增函数修改按钮
+            //新增按钮函数
+            if(this.$store.state.policyFunctionFlag){
+                axios({
+                    url:'../bingo/automatic_new.php?action=add_new',
+                    method:'get',
+                }).then(res=>{
+                    this.airline = res.data.airline;
+                    this.ForticketUsername = res.data.ticket_username;
+                }).catch(err=>{
+                    console.log(err)
+                })
+            }else{
+                if(this.$store.state.ordId){
+                    var id = [];
+                    id.push(this.$store.state.ordId);
+                }else{
+                    var id = this.$store.state.idList;
+                }
+                //修改按钮函数
+                axios({
+                    url:'../bingo/automatic_new.php?action=modify',
+                    method:'post',
+                    data:{
+                        id
+                    }
+                }).then(res=>{
+                    //所有出票账户，用与for循环
+                    this.ForticketUsername = res.data.ticket_username;
+
+                    this.inCodeArr  = res.data.in_code;
+
+                    this.ticketUsername =res.data.ticket_username;
+                    this.ticketPlatform = res.data.ticket_platform;
+                    this.payWay = res.data.pay_way;
+                    //主体数据，包括航司中被选中的航司，仓位中被选中的仓位
+                    this.policyObj = res.data.list[0];
+                    this.policyObj.ticket_way *=1
+                    //最大亏损调整渲染值，此出不直接只用最大亏损作为radio是否选择
+                    //参数原因在于，当值为0时，会导致radio不可选
+                    if(this.policyObj.loss||this.policyObj.loss == 0){
+                        this.loss = 'loss';
+                        this.lossInputValue = this.policyObj.loss
+                    }else if(this.policyObj.rebate||this.policyObj.rebate == 0){
+                        this.loss = 'rebate';
+                        this.lossInputValue = this.policyObj.rebate
+                    }
+                    //所有航司，用与for循环
+                    this.airline = res.data.airline;
+                    let a01 = res.data.list[0].flight.split(/-/);
+                    this.flight = a01[0];
+                    this.flightText = a01[1];
+                    a01 = null;
+                    //票价范围设置
+                    let a02 = res.data.list[0].fare_root.split(/-/);
+                    this.fare_root = a02[0];
+                    this.fare_rootValue = a02[1];
+                    //总价范围设置
+                    let a03 = res.data.list[0].total_root.split(/-/);
+                    this.total_root = a03[0];
+                    this.total_rootValue = a03[1];
+                    //起飞日期格式调整
+                    this.policyObj.fly_date =[res.data.list[0].fly_date_min, res.data.list[0].fly_date_max];
+                    //出票日期格式调整
+                    this.policyObj.ticket_date = [res.data.list[0].ticket_date_min,res.data.list[0].ticket_date_max]
+                    //平台格式调整
+                    let platt = res.data.list[0].plattform;
+                    platt = platt.split(';');
+                    platt.splice(0,1);
+                    platt.splice(platt.length-1,1)
+                    this.plattformCheckAll = platt;
+                    //重置vuex里面的id为空
+                    this.$store.state.ordId = undefined;
+                }).catch(err=>{
+                    console.log(err)
+                })
+            }
+        }
+    });
+    //批量修改弹窗
+    Vue.component('lotSizeChange',{
+        template:'#lotSizeChange',
+        data(){
+            return{
+                fly_date:undefined,
+                ticket_date:undefined,
+                loss:"loss",
+                lossInputValue:15,
+                policyObj:{},
+                selfFlag:true,
+            }
+        },
+        props:['lot-size-flag'],
+        watch:{},
+        computed:{},
+        methods:{
+            closeLotSizeFun(){
+                this.selfFlag = false;
+                return this.$emit('lot-change')
+            },
+            //起飞时间出发函数
+            timeFly(data){
+                this.policyObj.fly_date_min = data[0];
+                this.policyObj.fly_date_max = data[1];
+            },
+            //持票时间出发函数
+            timeTicket(data){
+                this.policyObj.ticket_date_min = data[0];
+                this.policyObj.ticket_date_max = data[1];
+            },
+        //    提交批量修改数据
+            sureLotSizeFun(){
+                //最大亏损格式调整
+                if(this.loss == 'loss'){
+                    this.policyObj.rebate = null;
+                }else if(this.loss == 'rebate'){
+                    this.policyObj.loss = null;
+                }
+                this.policyObj[this.loss] = this.lossInputValue;
+                this.policyObj.idList = this.$store.state.idList;
+                this.selfFlag = false;
+                return this.$emit('lot-change');
+            },
+        },
+    })
+    const store = new Vuex.Store({
+        state:{
+            //查找传开关
+            findFlag:false,
+            //处理 操作政策弹窗的开关，
+            dealPolicy:false,
+            //开启操作政策弹窗后调用不同函数体的开关，新增和修改都是开启弹窗，但是两种调用的函数不同
+            //初始值为true,表总是新增
+            policyFunctionFlag:true,
+            //政策弹窗的数据载体
+            dealPolicyObj:null,
+            //保存已经勾选的序号
+            idList:[],
+           //当单个政策需要修改的时候，用来传给后台的id
+            ordId:undefined,
+
+        },
+        mutations:{
+
+        }
+    });
+    let a = new Vue({
+        el:'#VuePolicy',
+        store,
+        data:{
+
+        },
+        computed:{
+            findFlag(){
+                return this.$store.state.findFlag;
+            },
+            dealPolicy(){
+                return this.$store.state.dealPolicy;
+            },
+        },
+        methods:{
+
+        }
+
+    })
+</script>
+</body>
+</html>

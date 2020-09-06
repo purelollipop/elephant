@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>KN Title</title>
+    <meta charset="utf-8">
+    <script src="../vue/vue.js"></script>
+    <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+    <link rel="stylesheet" href="../resource/css/tableCustom.css" >
+    <style>
+        .ivu-page{
+            text-align: right;
+        }
+        .upup_Talbe{
+            width: 100%;
+            border: 1px silver solid;
+        }
+        .headBorder>th{
+            height: 40px;
+            border: 1px #E7E7E7 solid;
+        }
+        .upup_Talbe>tbody>tr>td{
+            border: 1px #E7E7E7 solid;
+        }
+        /*航班信息的样式*/
+        .td_message{
+            display: flex;
+            /*width: 120px;*/
+            margin: 0 auto;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            width: 130px;
+        }
+        .td_message>div{
+            margin-left: 2px;
+        }
+        .headBorder>th{
+            color: #0e9aef
+        }
+        .mask{
+            position: absolute;
+            top: 0%;
+            left: 0%;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+            z-index:10;
+        }
+        .btnclose{
+            width: 30px;
+            height: 30px;
+            border: 1px solid white;
+            float: right;
+            background-color: white;
+        }
+        .containt{
+            width: 80%;
+            height: 45%;
+            margin: auto;
+            margin-top: 10%;
+            z-index: 100;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        [v-cloak] {
+            display: none;
+        }
+        [data-bottomBorder='true']{
+            border-bottom: 2px black solid;
+        }
+    </style>
+</head>
+<body>
+<div id="kndom" v-cloak>
+	<Row :gutter="24" type="flex"  class="code-row-bg" style="padding: 5px;margin-left: 10px">
+        <i-Button type="primary" size="small"  @click="search">搜索</i-Button>
+    </Row>
+    <!--搜索遮罩-->
+    <div v-if="visibleDiv" >
+        <div class="mask">
+            <input type="button" value="X" class="btnclose" @click="visible()">
+            <div class="containt">
+                <h3 style="margin-left:48%;color: red;">搜索弹窗</h3><br>
+                <Row :gutter="24" >
+                    <i-Col span="5">
+                        <!--时长:-->
+                        <div>
+                            <i-input class="chooseChild" style="width: 85%;" v-model="chooseObj.intime">
+                                <span slot="prepend">时长</span>
+                            </i-input>
+                        </div>
+                    </i-Col>
+                    <i-Col span="5">
+                        <!--Pnr小编-->
+                        <div>
+                            <i-input class="chooseChild" style="width: 85%;" v-model="chooseObj.pnr">
+                                <span slot="prepend">Pnr小编</span>
+                            </i-input>
+                        </div>
+                    </i-Col>
+                    <i-Col span="5">
+                        <!--航司-->
+                        <div>
+                            <i-input class="chooseChild" style="width: 85%;" v-model="chooseObj.company">
+                                <span slot="prepend">航司</span>
+                            </i-input>
+                        </div>
+                    </i-Col>
+                    <i-Col span="5">
+                        <!--余位-->
+                        <div>
+                            <i-input class="chooseChild" style="width: 85%;" v-model="chooseObj.cursite">
+                                <span slot="prepend">余位</span>
+                            </i-input>
+                        </div>
+                    </i-Col>
+                    <i-Col span="4">
+                        <!--航班信息-->
+                        <div>
+                            <i-input class="chooseChild" style="width: 85%;" v-model="chooseObj.people_No">
+                                <span slot="prepend">航班信息</span>
+                            </i-input>
+                        </div>
+                    </i-Col>
+
+                </Row>
+                <br>
+                <Row :gutter="24" >
+                    <i-Col span="5">
+                        <!--收付款-->
+                        <div>
+                            <i-input class="chooseChild" style="width: 85%;" v-model="chooseObj.userpay">
+                                <span slot="prepend">收付款</span>
+                            </i-input>
+                        </div>
+                    </i-Col>
+                    <i-Col span="5">
+                        <!--票号:-->
+                        <div>
+                            <i-input class="chooseChild" style="width: 85%;" v-model="chooseObj.recode">
+                                <span slot="prepend">票号</span>
+                            </i-input>
+                        </div>
+                    </i-Col>
+                    <i-Col span="5">
+                        <!--支付时间-->
+                        <div>
+                            <i-input class="chooseChild" style="width: 85%;" v-model="chooseObj.pay_time">
+                                <span slot="prepend">支付时间</span>
+                            </i-input>
+                        </div>
+                    </i-Col>
+                    <i-Col span="5">
+                        <!--航司订单号-->
+                        <div>
+                            <i-input class="chooseChild" style="width: 85%;" v-model="chooseObj.company_cunm">
+                                <span slot="prepend">航司订单号</span>
+                            </i-input>
+                        </div>
+                    </i-Col>
+                    <i-Col span="4">
+                        <!--订票账号-->
+                        <div>
+                            <i-input class="chooseChild" style="width: 85%;" v-model="chooseObj.yb_cnum">
+                                <span slot="prepend">订票账号</span>
+                            </i-input>
+                        </div>
+                    </i-Col>
+                </Row >
+                <br>
+                <Row :gutter="24" >
+                    <i-Col span="5">
+                        <!--状态-->
+                        <div>
+                            <i-input class="chooseChild" style="width: 85%;" v-model="chooseObj.state">
+                                <span slot="prepend">状态</span>
+                            </i-input>
+                        </div>
+                    </i-Col>
+                    <i-Col span="5">
+                        <!--平台状态-->
+                        <div>
+                            <i-input class="chooseChild" style="width: 85%;" v-model="chooseObj.order_id">
+                                <span slot="prepend">平台状态</span>
+                            </i-input>
+                        </div>
+                    </i-Col>
+                    <i-Col span="5">
+                        <!--信息:-->
+                        <div>
+                            <i-input class="chooseChild" style="width: 85%;" v-model="chooseObj.note">
+                                <span slot="prepend">信息</span>
+                            </i-input>
+                        </div>
+                    </i-Col>
+                    <i-Col span="5">
+                        <!--支付-->
+                        <div>
+                            <i-input class="chooseChild" style="width: 85%;" v-model="chooseObj.pos_o">
+                                <span slot="prepend">支付</span>
+                            </i-input>
+                        </div>
+                    </i-Col>
+                    <i-Col span="4">
+
+                    </i-Col>
+                </Row>
+                <br>
+                <Row :gutter="5" type="flex" justify="center" class="code-row-bg">
+                    <i-Button type="primary" size="small" style="float: right" @click="searchInfo">
+                        确定
+                    </i-Button>
+                </Row>
+            </div>
+        </div>
+    </div>
+    <!--<i-Table border :columns="columns1" :data="historyData" align="center"></i-Table>-->
+    <table class="upup_Talbe">
+        <colgroup>
+            <col style="width:3%"><!--序号-->
+            <col style="width:3%"><!--时长-->
+            <col style="width:4.5%"><!--Pnr小编-->
+            <col style="width:3%"><!--航司-->
+            <col style="width:auto"><!--余位-->
+            <col style="width:12%"> <!--航班信息-->
+            <col style="width:4%;"><!--收付/款-->
+            <col style="width:4%;"><!--红包-->
+            <col style="width:auto"><!--票号-->
+            <col style="width:70px"><!--支付时间-->
+            <col style="width:120px"><!--航司订单号	-->
+            <col style="width:90px"><!--订票账号-->
+            <col style="width:70px"><!--状态-->
+            <col style="width:auto"><!--平台状态-->
+            <col style="width:8%"><!--信息-->
+            <col style="width:150px"><!--操作-->
+        </colgroup>
+        <thead>
+        <tr  class="headBorder">
+            <th style="padding: 1px;">
+                <div>
+                    <!--<input type="checkbox">-->
+                    <span>全选</span>
+                </div>
+            </th>
+            <th>时长</th>
+            <th>Pnr小编</th>
+            <th>航司</th>
+            <th>余位</th>
+            <th>航班信息</th>
+            <th>收付/款</th>
+            <th>红包</th>
+            <th>票号</th>
+            <th>支付时间</th>
+            <th>航司订单号</th>
+            <th>订票账号</th>
+            <th>状态</th>
+            <th>平台状态</th>
+            <th>信息</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(ele,index) in list" :key="ele.id" :data-bottomBorder="ele.bottomBorder">
+                <td>{{index | indexFilter}}</td>
+                <td>{{ele.intime}}</td>
+                <td>{{ele.pnr}}</td>
+                <td>{{ele.company}}</td>
+                <td>{{ele.cursite}}</td>
+                <td>
+                    <div class="td_message">
+                        <div>{{ele.param.FlightNo}}</div>
+                        <div>{{ele.param.orgCode}}</div>
+                        <div>{{ele.param.dstCode}}</div>
+                        <div>{{ele.param.FDate}}</div>
+                        <div>{{ele.people_num}}</div>
+                    </div>
+                </td>
+                <td>
+                    <div>{{ele.userpay}}</div>
+                    <div>{{ele.needpay}}</div>
+                </td>
+                <td>{{ele.redAmount}}</td>
+                <td>{{ele.recode}}</td>
+                <td>{{ele.paytime}}</td>
+                <td>{{ele.company_cnum}}</td>
+                <td>{{ele.yb_cnum}}</td>
+                <td>{{ele.state | stateFilter}}</td>
+                <td>{{ele.order_id}}</td>
+                <td :title="ele.note">
+                    <div style="width: 100px;overflow: hidden;height: 40px">{{ele.note}}</div>
+                </td>
+                <td>
+                    <div v-if="ele.order=='1'">
+                        <div class="butt" @click="repay(ele.id)"
+                                 style="width: 30px;color: red;margin: 1px" v-if="ele.order_id!='出票完成'">重付</div>
+                        <div class="butt" @click="replay(ele.id)"
+                             style="width: 30px;color: green;margin: 1px">重回</div>
+                        <div class="butt" @click="feorder(ele.id)"
+                             style="width: 30px;color: purple;margin: 1px">取置</div>
+                        <div class="butt" @click="reorder(ele.id)"
+                             style="width: 30px;color: blue;margin: 1px" v-if="ele.order_id!='出票完成'">重订</div>
+                        <div class="butt" @click="grab_the_order(ele.id)"
+                             style="width: 30px;color: deeppink;margin: 1px">抢单</div>
+                    </div>
+                    <div v-else="ele.order_id!='1'">
+                        <div class="butt" @click="refeorder(ele.id)"
+                             style="width: 30px;color: orange;margin: 1px">强置</div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <!--分页逻辑-->
+    <div style="float: right;margin-top: 20px">
+        <button type="button"  class=""  @click="firstpage">第一页</button>
+        <button type="button"  class=""  @click="uppage">前一页</button>
+        共<span>{{pages}}</span>页&nbsp;&nbsp;
+        第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" :value="num" ref="num">&nbsp;页&nbsp;&nbsp;
+        <button  class=""  @click="gotopage">转到</button>
+        <button  class=""  @click="downpage">后一页</button>
+        <button  class=""  @click="llastpage">最后一页</button>
+    </div>
+</div>
+<script src="../resource/iview-2.0/dist/iview.js"></script>
+<script src="../vue/axios.min.js"></script>
+<script type="text/javascript">
+     a = new Vue({
+        el:'#kndom',
+        data() {
+            return{
+                visibleDiv:false,
+                list:null,  //接口获取的总数据
+                dataCount:undefined, // 总数据的条目
+                pages:undefined,     // 每页显示多少条
+                num:1,
+                arrayList:[],
+                chooseObj:{
+                    //时长
+                    intime:"",
+                    //Pnr小编
+                    pnr:"",
+                    //航司
+                    company:"",
+                    //余位
+                    cursite:"",
+                    //航班信息
+                    people_No:"",
+                    //收付款
+                    userpay:"",
+                    //红包
+                    redAmount:"",
+                    //票号
+                    recode:"",
+                    //支付时间
+                    pay_time:"",
+                    //航司订单号
+                    company_cunm:"",
+                    //订票账号
+                    yb_cnum:"",
+                    //状态
+                    state:"",
+                    //平台状态
+                    order_id:"",
+                    //信息
+                    note:"",
+                    //支付
+                    pos_o:"",
+                },
+            }
+        },
+        methods:{
+            //遮罩弹窗切换
+            visible(){
+                    this.visibleDiv = !this.visibleDiv
+            },
+            //请求数据及分页（假分页，全部请求）
+            initial:function (page) {
+                let url ='../bingo/kn_pnrlist.php?action=query_data';
+                //初始化传入页数
+                let data= {page};
+                axios.post(url,data).then(function (response) {
+                        if(response.data.res==='success'){
+                            this.pages = response.data.pages; //接口返回数据的总条目数
+                            this.list=response.data.list;   //接口返回的总数据
+                            //航司信息解析
+                            for(let a=0,leng=this.list.length;a<leng;a++){
+                                this.list[a].param = JSON.parse(this.list[a].param)
+                            }
+                            //异常与时间排序
+                            let arraya = [];
+                            for(let b=0;b<this.list.length;b++){
+                                if(this.list[b].order === '1'){
+                                    arraya.push(this.list.splice([b],1)[0]);
+                                    b = b - 1;
+                                }
+                            }
+                            if(arraya.length < 19&&arraya.length>=1){
+                                (arraya[arraya.length-1]).bottomBorder = true;
+                            }
+                            this.list = arraya.concat(this.list);
+                        }else{
+                            alert('数据请求失败')
+                        }
+                    }.bind(this)).catch(function (error) {
+                        console.error(error);
+                    });
+            },
+            //重付
+            repay(id){
+                axios({
+                    url:'../bingo/kn_pnrlist.php?action=repay',
+                    method:'post',
+                    data:{id}
+                }).then(res=>{
+                    //成功为100，失败为101
+                    if(res.data.code==100){
+                        window.location.reload(true)
+                    }else{
+                        alert(res.data.msg)
+                    }
+                }).catch(err=>{console.log(err)})
+            },
+            //重订
+            reorder(id){
+                axios({
+                    url:'../bingo/kn_pnrlist.php?action=reorder',
+                    method:'post',
+                    data:{id}
+                }).then(res=>{
+                    //成功为100，失败为101
+                    if(res.data.code==100){
+                        window.location.reload(true)
+                    }else{
+                        alert(res.data.msg)
+                    }
+                }).catch(err=>{console.log(err)})
+            },
+            //重回
+            replay(id){
+                axios({
+                    url:'../bingo/kn_pnrlist.php?action=replay',
+                    method:'post',
+                    data:{id}
+                }).then(res=>{
+                    //成功为100，失败为101
+                    if(res.data.code==100){
+                        window.location.reload(true)
+                    }else{
+                        alert(res.data.msg)
+                    }
+                }).catch(err=>{console.log(err)})
+            },
+            //取置
+            feorder(id){
+                axios({
+                    url:'../bingo/kn_pnrlist.php?action=feorder',
+                    method:'post',
+                    data:{id}
+                }).then(res=>{
+                    //成功为100，失败为101
+                    if(res.data.code==100){
+                        window.location.reload(true)
+                    }else{
+                        alert(res.data.msg)
+                    }
+                }).catch(err=>{console.log(err)})
+            },
+            //强制置顶
+            refeorder(id){
+
+                axios({
+                    url:'../bingo/kn_pnrlist.php?action=refeorder',
+                    method:'post',
+                    data:{id}
+                }).then(res=>{
+                    //成功为100，失败为101
+                    if(res.data.code==100){
+
+                        window.location.reload(true)
+                    }else{
+                        alert(res.data.msg)
+                    }
+                }).catch(err=>{console.log(err)})
+            },
+            //抢单
+            grab_the_order(id){
+                let face_price = prompt('金额', '');
+
+                if (face_price!=null && face_price!="")
+                {
+                    axios({
+                        url:'../bingo/kn_pnrlist.php?action=grab_the_order',
+                        method:'post',
+                        data:{face_price,id}
+                    }).then(res=>{
+                        //成功为100，失败为101
+                        if(res.data.code==100){
+                            window.location.reload(true)
+                        }else{
+                            alert(res.data.msg)
+                        }
+                    }).catch(err=>{console.log(err)})
+                }
+
+            },
+
+            //页数变化的时候改变每一页的内容
+            //分页函数
+            //向后转页面 —
+            uppage:function(){
+                if(this.num>1){
+                    this.num -= 1;
+                }else if(this.num<1){
+                    alert('没有该页码')
+                }else{
+                    return
+                }
+                this.axfun(this.num);
+            },
+            //向前转页面 +
+            downpage:function(){
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if(this.num<this.pages){
+                    this.num = this.num + 1;
+                }else{
+                    return
+                };
+                this.axfun(this.num)
+            },
+            //直接去某页面
+            gotopage:function () {
+                let val = this.$refs.num.value;
+                if(val > this.pages||val<1){
+                    //页数框页码重置
+                    this.$refs.num.value = this.num;
+                    alert('没有该页码');
+                }else if(val == this.num){
+                    return
+                }else{
+                    this.num = Math.round(this.num);
+                    this.num = val;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去首页
+            firstpage:function () {
+                //如果num已经是第一页了，就不再请求了
+                if(this.num == 1){
+                    return
+                }
+                this.num = 1;
+                this.axfun(this.num)
+            },
+            //直接去末尾页
+            llastpage:function () {
+                //如果已经等于最后已页，就不再请求
+                if(this.num == this.pages){
+                    return
+                }
+                this.num = this.pages;
+                this.axfun(this.num)
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun:function(page){
+                this.initial(page)
+            },
+
+            //搜索信息
+            search(){
+                this.visibleDiv = !this.visibleDiv
+            },
+            searchInfo(){
+                this.visibleDiv = !this.visibleDiv
+                let url ='../bingo/kn_pnrlist.php?action=select_data';
+                let data =this.chooseObj
+                axios.post(url, {data})
+                    .then((response)=> {
+                        console.log("data:"+JSON.stringify(response))
+                        if(response.data.res=='success'){
+
+                            this.list = response.data.list
+                        }else{
+                            alert('数据请求失败')
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+        },
+
+        filters:{
+            indexFilter(data){
+                let n = (a.num-1)*20+1;
+                return data+n
+            },
+            stateFilter(data){
+                switch (data) {
+                    case '0':
+                        return data = "等待大编";
+                        break;
+                    case '1':
+                        return data = '等待询价';
+                        break;
+                    case '2':
+                        return data = '手工出票';
+                        break;
+                    case '3':
+                        return data = '自动出票';
+                        break;
+                    case '4':
+                        return data = '出票完成等待回帖';
+                        break;
+                    case '5':
+                        return data = '回帖完成';
+                        break;
+                    case '6':
+                        return data = '异常';
+                        break;
+                }
+            }
+        },
+
+        created:function(){
+            this.initial(1);
+        },
+    })
+</script>
+</body>
+</html>

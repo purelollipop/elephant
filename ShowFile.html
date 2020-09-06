@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>示例文档</title>
+    <script src="../vue/vue.js"></script>
+    <script src="../vue/axios.min.js"></script>
+    <script src="../vue/vue-router.js"></script>
+    <script rel="stylesheet" src="../resource/iview-2.0/dist/iview.js"></script>
+    <script type="text/javascript" src="../resource/javascripts/jquery-2.1.0.min.js"></script>
+    <style>
+        *{
+            margin: 0px;
+            padding: 0px;
+            font-size: 12px;
+        }
+        a{
+            text-decoration: none;
+            color: #333333;
+        }
+        html{
+           background-color: #fafafa;
+
+        }
+        .main{
+            height: 1100px;
+            width: 100%
+        }
+        header{
+            width: 100%;
+            height: 70px;
+
+        }
+        .left-side{
+            width: 25%;
+            float: left;
+            height: calc(100% - 90px);
+        }
+        .container{
+            width: 50%;
+            background-color: #ffffff;
+            float: left;
+            height: calc(100% - 90px);
+            box-shadow: -1px -1px 5px #999999;
+        }
+        .right-side{
+            width: 25%;
+            float: left;
+            height: calc(100% - 90px);
+        }
+        footer{
+            height: 30px;
+            clear: both;
+        }
+
+        .el-menu{
+            list-style: none;
+            background-color: rgb(250, 250, 250);
+            width: 70%;
+            float: right;
+        }
+        .el-menu-item{
+            margin-left: 27%;
+            height: 30px;
+            width: 70%;
+            margin-top: 2px;
+        }
+        .el-menu-item:hover{
+            cursor: pointer;
+            background-color: #999999;
+        }
+        .el-input__inner{
+            -webkit-appearance: none;
+            background-color: #FFF;
+            background-image: none;
+            border-radius: 4px;
+            border: 1px solid #DCDFE6;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            color: #606266;
+            display: inline-block;
+            font-size: inherit;
+            height: 40px;
+            line-height: 40px;
+            outline: 0;
+            padding: 0 15px;
+            -webkit-transition: border-color .2s cubic-bezier(.645,.045,.355,1);
+            transition: border-color .2s cubic-bezier(.645,.045,.355,1);
+            float: right;
+            margin-right: 10px;
+        }
+        .doc-title-box{
+            width: 90%;
+            margin: auto;
+            height: 60px;
+            line-height: 60px;
+            text-align: center;
+            border-bottom: 1px solid lightgray;
+        }
+        .page_content_main{
+            width: 90%;
+            margin: auto;
+            padding: 10px 10px 90px;
+            overflow: hidden;
+            font-size: 11pt;
+            line-height: 1.7;
+            color: #333;
+        }
+        .tab_nav{
+            display: none;
+        }
+        .on{
+            display: block;
+        }
+        .closed{
+            display: block;
+        }
+        .show{
+            display: block;
+        }
+        .open{
+            display: block;
+        }
+        .hide{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="main" id="app">
+        <header>
+
+        </header>
+        <div class="left-side">
+            <div>
+                <input type="text" autocomplete="off" placeholder="输入关键字后按回车以搜索" class="el-input__inner">
+            </div>
+            <ul class="el-menu">
+                <li class="el-menu-item active list_nav">
+                    <a href="javascript:;" @click="curId=0" :class="{'cur':curId===0}">
+                        <i><img src="../images/font/fuzhi3.png" width="16" height="16"></i>
+                        <span>{{messages.msg0}}</span>
+                    </a>
+                </li>
+                <li class="el-menu-item list_nav">
+                    <a href="javascript:;" @click="curId=1" :class="{'cur':curId===1}">
+                        <i><img src="../images/font/fuzhi3.png" width="16" height="16"></i>
+                        <span>{{messages.msg1}}</span>
+                    </a>
+                </li>
+                <li class="el-menu-item list_nav">
+                    <a href="javascript:;" @click="curId=2" :class="{'cur':curId===2}">
+                        <i><img src="../images/font/fuzhi3.png" width="16" height="16"></i>
+                        <span>{{messages.msg2}}</span>
+                    </a>
+                </li>
+                <li class="el-menu-item">
+                    <span class="closed" onclick="toggleTable(this)">
+                        <i><img src="../images/font/file.png" width="16" height="16"></i>
+                        {{files1}}
+                    </span>
+                    <ul class="hide" style="list-style: none;padding: 0px;margin: 0px">
+                        <li class="el-menu-item list_nav">
+                            <a href="javascript:;" @click="curId=3" :class="{'cur':curId===3}">
+                            <i><img src="../images/font/fuzhi3.png" width="16" height="16"></i>
+                            <span>{{messages.msg3}}</span>
+                            </a>
+                        </li>
+                        <li class="el-menu-item list_nav">
+                            <a href="javascript:;" @click="curId=4" :class="{'cur':curId===4}">
+                                <i><img src="../images/font/fuzhi3.png" width="16" height="16"></i>
+                                <span>{{messages.msg4}}</span>
+                            </a>
+                        </li>
+                        <li class="el-menu-item list_nav">
+                            <a href="javascript:;" @click="curId=5" :class="{'cur':curId===5}">
+                                <i><img src="../images/font/fuzhi3.png" width="16" height="16"></i>
+                                <span>{{messages.msg5}}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="container">
+            <div class="tab_nav on" v-show="curId===0">
+                <div class="doc-title-box">
+                    <h2 style="font-size: 20px">{{containObj[0].title}}</h2>
+                </div>
+                <div class="page_content_main">
+                    <h3 style="font-size: 20px">{{containObj[0].describe}}</h3>
+                    <p>
+                        {{containObj[0].container}}
+                    </p>
+                </div>
+            </div>
+            <div class="tab_nav" v-show="curId===1">
+                <div class="doc-title-box">
+                    <h2 style="font-size: 20px">{{containObj[1].title}}</h2>
+                </div>
+                <div class="page_content_main">
+                    <h3 style="font-size: 20px">{{containObj[1].describe}}</h3>
+                    <p>
+                        {{containObj[1].container}}
+                    </p>
+                </div>
+            </div>
+            <div class="tab_nav" v-show="curId===2">
+                <div class="doc-title-box">
+                    <h2 style="font-size: 20px">{{containObj[2].title}}</h2>
+                </div>
+                <div class="page_content_main">
+                    <h3 style="font-size: 20px">{{containObj[2].describe}}</h3>
+                    <p>
+                        {{containObj[2].container}}
+                    </p>
+                </div>
+            </div>
+
+            <div class="tab_nav" v-show="curId===3">
+                <div class="doc-title-box">
+                    <h2 style="font-size: 20px">{{containObj[3].title}}</h2>
+                </div>
+                <div class="page_content_main">
+                    <h3 style="font-size: 20px">{{containObj[3].describe}}</h3>
+                    <p>
+                        {{containObj[3].container}}
+                    </p>
+                </div>
+            </div>
+            <div class="tab_nav" v-show="curId===4">
+                <div class="doc-title-box">
+                    <h2 style="font-size: 20px">{{containObj[4].title}}</h2>
+                </div>
+                <div class="page_content_main">
+                    <h3 style="font-size: 20px">{{containObj[4].describe}}</h3>
+                    <p>
+                        {{containObj[4].container}}
+                    </p>
+                </div>
+            </div>
+            <div class="tab_nav" v-show="curId===5">
+                <div class="doc-title-box">
+                    <h2 style="font-size: 20px">{{containObj[5].title}}</h2>
+                </div>
+                <div class="page_content_main">
+                    <h3 style="font-size: 20px">{{containObj[5].describe}}</h3>
+                    <p>
+                        {{containObj[5].container}}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="right-side"></div>
+        <footer></footer>
+    </div>
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return{
+                    curId:0,
+                    files1:"数据字典示例",
+                    messages:{
+                        msg0:"序言",
+                        msg1:"全局错误码",
+                        msg2:"修改记录",
+                        msg3:"user",
+                        msg4:"page",
+                        msg5:"item",
+                    },
+                    containObj:[
+                        {title:"序言",
+                        describe:"这是一个示例文档",
+                        container:"你可以点击左侧菜单以查看接口示例和数据字典示例"
+                        },
+                        {title:"全局错误码",
+                            describe:"这是一个示例文档",
+                            container:"你可以点击左侧菜单以查看接口示例和数据字典示例"
+                        },
+                        {title:"修改记录",
+                            describe:"这是一个示例文档",
+                            container:"你可以点击左侧菜单以查看接口示例和数据字典示例"
+                        },
+                        {title:"user",
+                            describe:"这是一个示例文档",
+                            container:"你可以点击左侧菜单以查看接口示例和数据字典示例"
+                        },
+                        {title:"page",
+                            describe:"这是一个示例文档",
+                            container:"你可以点击左侧菜单以查看接口示例和数据字典示例"
+                        },
+                        {title:"item",
+                            describe:"这是一个示例文档",
+                            container:"你可以点击左侧菜单以查看接口示例和数据字典示例"
+                        }
+                    ]
+                }
+            },
+            methods:{},
+            created(){}
+        })
+    </script>
+    <script>
+        // 选项卡
+        let aList=document.getElementsByClassName("list_nav"),
+            aTab=document.getElementsByClassName("tab_nav");
+        for(let i=0;i<aList.length;i++){
+            aList[i].index=i;
+            //清除所有li的class
+            aList[i].onclick=function(){
+                for(let i=0;i<aList.length;i++){
+                    aList[i].classList.remove("active");
+                    aTab[i].classList.remove("on");
+                }
+                //给当前li添加样式
+                aList[this.index].classList.add("active");
+                aTab[this.index].classList.add("on");
+            }
+        }
+
+
+    </script>
+    <script>
+        // 二级菜单
+        function toggleTable(span){
+            if(span.className=="open"){
+                span.className="closed";
+                span.nextElementSibling.className="hide";
+            }else{
+                let open=document.querySelector("[class=tree] span[class=open]");
+                if(open!=null){
+                    open.className="closed";
+                    open.nextElementSibling.className="hide";
+                }
+                span.className="open";
+                span.nextElementSibling.className="show";
+            }
+        }
+    </script>
+
+</body>
+</html>

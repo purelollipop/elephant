@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+
+    <title>春秋分析</title>
+    <script src="../bingo/js/jquery.min.js"></script>
+	<link href="../bingo/css/bootstrap.min14ed.css?v=3.3.6" rel="stylesheet">
+	<link href="../bingo/css/style.min862f.css?v=4.1.0" rel="stylesheet">
+	<script src="../vue/vue.js"></script>
+	<script src="../vue/axios.min.js"></script>
+	<script src="../bingo/js/plugins/layer/laydate/laydate.js"></script>
+	<style type="text/css">
+	.content{
+		padding:50px;
+	}
+	body{
+		background-color:#f5f5f5;
+	}
+	span{
+		cursor:pointer;
+		text-decoration:underline;
+	}
+	.details{
+		position:fixed;
+		right:10px;
+		height:700px;
+		overflow-y:scroll; 
+	}
+	td{
+		word-wrap:break-word;word-break:break-all;
+		max-width:250px;
+	}
+	.info{
+		position: fixed;
+		width: 400px;
+		max-height:300px;
+		background-color: white;
+		border-radius: 5px;
+		box-shadow: 0px 1px 10px;
+		left: 0;           
+		right: 0;           
+		top: 0;
+		bottom:0;
+		margin: auto;     
+		max-width: 100%;   
+		z-index: 1;  
+		padding:10px;
+		overflow-y:scroll;
+	}
+	.info p {
+		padding:20px;
+		word-wrap:break-word;
+		word-break: break-all;
+	}
+	</style>
+</head>
+<body>
+<div class="content">
+	<div class="row">
+		<div class="col-sm-6">
+			<div class="ibox float-e-margins">
+				<div class="ibox-title">
+					<h5>今日数据</h5>
+				</div>
+				<div class="ibox-content">
+
+					<table class="table table-striped">
+						<thead>
+						<tr>						
+							<th>机器人编号</th>
+							<th>指令数量</th>
+							<th>最新结果</th>
+							<th>状态</th>
+							<th>最大连错</th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr  v-for="tvalue in tarr">
+						   <td><span v-on:click="countError(tvalue.pos)">{{tvalue.pos}}</span></td>
+						   <td>{{tvalue.count}}</td>
+						   <td>{{tvalue.result}}</td>
+						   <td>
+							<template v-for='items in tvalue.state'>
+								<p v-if="items.state > 1">
+								  <span v-on:click="showDetails(tvalue.pos,items.state,items.count)">{{state[items.state]}}--{{items.count}}</span>
+								</p>
+								<p v-else>
+								  {{state[items.state]}}--{{items.count}}
+								</p>
+							</template>
+						   </td>
+						   <td :data-id="tvalue.pos">
+								{{errortimes[tvalue.pos]}}
+						   </td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-6 details">
+			<div class="ibox float-e-margins">
+				<div class="ibox-title">
+					<h5>异常详情</h5>
+				</div>
+				<div class="ibox-content">
+					<table class="table table-striped">
+						<thead>
+						<tr>						
+							<th>机器人编号</th>
+							<th>指令</th>
+							<th>指令参数</th>
+							<th>结果</th>
+							<th>时间</th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr  v-for="value in details">
+							<td>{{value.pos}}</td>
+							<td>{{value.cmd}}</td>
+							<td>
+								<p v-if="value.param !=''">
+								  <span v-bind:title="value.param" @click=showMsg(value.param)>参数</span>
+								</p>
+								<p v-else>								 
+								</p>
+							</td>
+							<td>
+								<p v-if="value.result !=''">
+								  <span v-bind:title="value.result" @click=showMsg(value.result)>结果</span>
+								</p>
+								<p v-else>								 
+								</p>
+							</td>
+							<td>{{value.creat_time}}</td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="info" v-if="flag" >
+		<button type="button" class="close m-b"  @click="close"><span aria-hidden="true">x</span><span class="sr-only">关闭</span></button>
+		<p>{{info}}</p>
+	</div>
+</div>
+<script type="text/javascript">
+    var analysis = new Vue({
+        el:'.content',
+        data:{
+            tarr:'',
+			state:{'0':'待出票','1':'已出票','3':'超时','4':'异常'},
+			details:'',
+			errortimes:{},
+			info:'',
+			flag:false
+        },
+        methods:{
+			 showDetails: function (pos,stateValue,count) {				 
+				  axios.get('../bingo/chb2b.php?t=chb2b&action=showDetails', {
+					params: {
+						pos:pos,
+						state:stateValue,
+						count:count
+					}
+				  }).then(function (response) {
+					 analysis.details = response.data
+				  }).catch(function (error) {
+					console.log(error);
+				  });
+			},
+			countError: function (pos) {				 
+				  axios.get('../bingo/chb2b.php?t=chb2b&action=countError', {
+					params: {
+						pos:pos
+					}
+				  }).then(function (response) {
+					// analysis.errortimes[pos]=response.data;
+					 Vue.set(analysis.errortimes,[pos],response.data);					 
+					 console.log(analysis.errortimes);
+					 console.log(analysis.state);
+				  }).catch(function (error) {
+					console.log(error);
+				  });
+			},
+			showMsg:function(msg) {
+				this.flag=!this.flag;
+				this.info=msg;
+			},
+			close:function() {
+				this.flag=false;
+			}
+        },
+        created:function () {
+			axios.get('../bingo/chb2b.php?t=chb2b&action=getGroup', {
+
+			  }).then(function (response) {
+				 analysis.tarr = response.data
+			  }).catch(function (error) {
+				console.log(error);
+			  });
+          
+        },
+        mounted:function () {
+
+        }
+    })
+</script>
+</body>
+</html>
+
+
+

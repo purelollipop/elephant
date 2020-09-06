@@ -1,0 +1,317 @@
+{extends file='main.base.html'}
+
+{block name=headjs}
+<!--<link type="text/css" rel="stylesheet" media="screen" href="/resource/css/lib_page.css">-->
+<script type="text/javascript" src="/resource/javascripts/lib_page.js"></script>
+<script type="text/javascript" src="/resource/javascripts/date.selector.js"></script>
+
+<script src="../vue/vue.js"></script>
+<!--<link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">-->
+<!--<link rel="stylesheet" href="../resource/css/tableCustom.css" >-->
+<style>
+    /*.btn.btn-primary{*/
+    /*width: 15px;*/
+    /*height: 15px;*/
+    /*background: #0a6aa1;*/
+    /*border: solid thin #f1a417;*/
+    /*}*/
+
+    /*#lay td{*/
+    /*position: relative;*/
+    /*top: -24px;*/
+    /*}*/
+    /*#lay th>div:nth-child(2n+0){*/
+    /*background-color: #E4F1F8;*/
+    /*}*/
+
+    /*#lay tr:nth-child(2n+0){*/
+    /*background-color: #E4F1F8;*/
+    /*}*/
+    /*.layui-layer-dialog .layui-layer-content {*/
+    /*position: relative;*/
+    /*padding: 0px 20px;*/
+    /*line-height: 24px;*/
+    /*word-break: break-all;*/
+    /*font-size: 14px;*/
+    /*overflow: auto;*/
+    /*}*/
+    .historyTwo{
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        box-shadow: 0px 0px 5px 1px;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%,-50%);
+        background-color: white;
+        overflow-y: hidden;
+        font-size: 12px;
+    }
+    .headerP{
+        height: 30px;
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+    .headerButton{
+        position: absolute;
+        top: 1px;
+        right: 1px;
+    }
+    header>div:nth-of-type(1){
+        height: 30px;
+        display: flex;
+        justify-content: space-around;
+        margin-left: -30px;
+        border-bottom: 1px solid silver;
+    }
+    .list_th a{
+        color: #515a6e;
+    }
+    .tableDom{
+        /*height: 40%;*/
+        /*overflow: hidden*/
+        display: block;
+        height: 200px;
+        /*overflow-y: scroll;*/
+        border-collapse:collapse;
+
+    }
+    .tableDom tr:hover{
+        background-color: white;
+    }
+    .headDom{
+        width: 98%;
+        display: block;
+        /*position: fixed;*/
+    }
+    .headDom>tr>th{
+        border:none;
+        margin-left:4%;
+    }
+    .headDom>tr{
+        display: flex;
+        justify-content: space-around;
+        /*width: 150px;*/
+
+    }
+    .color>td{
+        /*padding: 1px 0px 2px 0px;*/
+    }
+    .tableBody{
+        display: block;
+        height: 555px;
+        overflow-y: scroll;
+    }
+    .tableBody tr{
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+        text-align: center;
+
+    }
+    /*.tableBody tr td{*/
+        /*!*display: flex;*!*/
+        /*!*justify-content: space-around;*!*/
+    /*}*/
+
+    .historyTwo ::-webkit-scrollbar{
+        width: 7px;
+        /*height: 4px;*/
+        /*background-color: red;*/
+    }
+    .historyTwo ::-webkit-scrollbar-track{
+        -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+        border-radius: 10px;
+        background-color: grey;
+        height: 150px;
+        /*width: 8px;*/
+    }
+    .historyTwo ::-webkit-scrollbar-track-piece{
+        /*background-color: red;*/
+    }
+    .historyTwo ::-webkit-scrollbar-thumb
+    {
+        border-radius: 10px;
+        border: 1px silver solid;
+        /*-webkit-box-shadow: inset 0 0 6px cornflowerblue;*/
+        background-color: whitesmoke;
+        height: 30px;
+    }
+</style>
+{/block}
+
+{block name=body}
+
+<div class="right_title">
+	<h2>
+    {$show.name}管理
+    </h2>
+</div>
+<div class="r_bg">
+	<div class="list_top">
+		<ul>
+        	{if $use_do.add}
+			<li class="list_a1">
+            <a href="{$cur_url}?t={$table}&action=add{$other_sp}">
+            添加{$show.name}
+            </a>
+            </li>
+            {/if}
+            {if $use_do.out}
+            <li class="list_a4">
+                <a href="{$cur_url}?t={$table}&action=query&us=1&do=out{$other_sp}">
+                    导出excel
+                </a>
+            </li>
+            {/if}
+            {if $use_do.top}
+            <li class="list_a1">
+            	{$top_more}
+            </li>
+            {/if}
+		</ul>
+    </div>
+    {if $use_do.find}
+	<div class="search" >
+    <h1>搜索范围:</h1>
+        <div class="sea_pad">
+            <form id="find_form" action="{$cur_url}">
+            <input type="hidden" value="{$table}" name="t" />
+            <input type="hidden" value="0" name="us" />
+            {if $other_sp}
+                {parse_str($other_sp, $osplist)}
+                {foreach $osplist as $key => $one}
+                	<input type="hidden" value="{$one}" name="{$key}" />
+                {/foreach}
+            {/if}
+            <ul>
+            {foreach $show.find as $find}
+            	{if $find.type == -1}
+					{foreach $find.elements as $ele}
+                    	<input type="hidden"  value="{$ele.val}" name="{$ele.id}"/>
+                    {/foreach}
+                {else}
+                	<li>
+                	{if $find.type == 0}
+                    	<span>{$find.name} 为:</span>
+                    {elseif $find.type == 1}
+                    	<span>{$find.name} 中包含有:</span>
+                    {elseif $find.type == 2}
+                    	<span>{$find.name} 的范围为:</span>
+                    {else}
+                    	<span>{$find.name}:</span>
+                    {/if}
+                    {foreach $find.elements as $ele}
+                    	{if $find.type == 2 && $ele@index == 0}
+                        	大于
+                        {/if}
+                        {if $find.type == 2 && $ele@index == 1}
+                        	小于
+                        {/if}
+                        {if $ele.is_sel}
+                            <select name="{$ele.id}" style="width:128px;">
+                                <option value>=全部=</option>
+                                {foreach $ele.data as $data}
+                                <option value="{$data.id}" {if $data.set} selected="selected" {/if} >{$data.name}</option>
+                                {/foreach}
+                            </select>
+                        {else}
+
+                        	<input
+                            {if $ele.date}
+                            class="dateselect" readonly="readonly"
+                            {/if}
+                            type="text" value="{$ele.val}" name="{$ele.id}"/>
+                        {/if}
+                    {/foreach}
+                    </li>
+                {/if}
+            {/foreach}
+            </ul>
+            <input type="submit" value="搜索">
+            <input type="button" onclick="window.location.href='{$cur_url}?t={$table}{$other_sp}'" value="搜索全部">
+            <button type="button" id="exchange" >交换往返</button>
+            </form>
+        </div>
+	</div>
+    {/if}
+
+	<table class="aa02_table" widtd="100%" border="0" align="center" cellpadding="0" cellspacing="0">
+		<tbody class="historytwo">
+			<tr class="list_th">
+            	<td>序号</td>
+            	{foreach $show.col as $col}
+				<td>
+                {if $col.ord !== false}
+                    {if $col.ord > 0}
+                    <a href="{$cur_url}?t={$table}{$other_sp}&us=1&o=-{$col@iteration}">{$col.name}▲</a>
+                    {elseif $col.ord < 0}
+                    <a href="{$cur_url}?t={$table}{$other_sp}&us=1&o=0">{$col.name}▼</a>
+                    {else}
+                    <a href="{$cur_url}?t={$table}{$other_sp}&us=1&o={$col@iteration}">{$col.name}</a>
+                    {/if}
+                {else}
+                	{$col.name}
+                {/if}
+                </td>
+                {/foreach}
+				<td>操作</td>
+			</tr>
+			{foreach $show.row as $row}
+			<tr>
+            	<td>{$begin_index + $row@iteration}</td>
+            	{foreach $row.val as $val}
+				<td>
+				{if $val@iteration == 6}
+                    <a style="cursor: pointer;text-decoration: underline;color: #3385ff;" @click="shown" data-tb="{$table}" data-dp="{$row.hisparam.dptAirport}" data-ar="{$row.hisparam.arrAirPort}" data-da="{$row.hisparam.date}" data-co="{$row.hisparam.code}">
+                        {$val}
+                    </a>
+                {else}
+                    {$val}
+				{/if}
+				</td>
+                {/foreach}
+				<td>
+                	{if $use_do.delete}
+					<a conf href="{$cur_url}?t={$table}&action=delete&id={$row.id}{$other_sp}">删除</a>
+                    {/if}
+                    {if $use_do.edit}
+					<a href="{$cur_url}?t={$table}&action=edit&id={$row.id}{$other_sp}">修改</a>
+                    {/if}
+                    {if $use_do.move}
+                    <a href="{$cur_url}?t={$table}&action=move&move=1&id={$row.id}{$other_sp}">上移</a>
+                    <a href="{$cur_url}?t={$table}&action=move&move=-1&id={$row.id}{$other_sp}">下移</a>
+                    {/if}
+                    {if $use_do.more}
+                    {$row.more_do}
+                    {/if}
+				</td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+    {$page_html}
+</div>
+{/block}
+
+{block name=footjscode}
+<!--<script type="text/javascript" src="/vue/vue.js"></script>-->
+<script type="text/javascript" src="/vue/axios.min.js"></script>
+<script rel="stylesheet" src="../resource/iview-2.0/dist/iview.js"></script>
+<script type="text/javascript" src="../resource/main/echarts.min.js"></script>
+<script type="text/javascript" src="/vue/pl/historynew2.js"></script>
+<script>
+$("#exchange").click(function(){
+
+	var fd_dptAirport=$("input[name='fd_dptAirport']").val(),
+		fd_arrAirPort=$("input[name='fd_arrAirPort']").val();
+	var temp=fd_dptAirport;
+		$("input[name='fd_dptAirport']").val(fd_arrAirPort);
+		$("input[name='fd_arrAirPort']").val(temp);
+})
+</script>
+
+{/block}
+

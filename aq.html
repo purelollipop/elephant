@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="renderer" content="webkit">
+  <title>九元</title>
+  <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+  <script src="../vue/vue.js"></script>
+  <script src="../resource/iview-2.0/dist/iview.min.js"></script>
+  <style>
+    /*提示框溢出导致表格样式省略号出现*/
+    .hideenCnum{
+      overflow: visible;
+    }
+    .hideenCnum>.ivu-table-cell{
+      overflow: visible;
+    }
+    /*串号函数点击样式*/
+    .serialNumber{
+      width: 100px;
+      height: 36px;
+      /*text-align: center;*/
+      /*vertical-align:middle;*/
+      overflow: hidden;
+      text-overflow: ellipsis;
+      /*white-space: nowrap;*/
+      /*line-height: 40px;*/
+      /*background-color:rgb(235,247,255)*/
+      color: #746ECF;
+      /*border-color: #746ECF;*/
+
+    }
+    .serialNumber:active{
+      background-color: white;
+    }
+  .ivu-table-cell {
+    padding: 10px;
+    /*padding-right: 2px;*/
+  }
+
+  /*.ivu-card-body {*/
+  /*padding: 2px;*/
+  /*!*padding-left: 0px;*!*/
+  /*!*padding-right: 0px;*!*/
+  /*!*padding-bottom: 3px;*!*/
+
+  /*}*/
+
+  /*.chooseChild {*/
+  /*width: 180px;*/
+  /*!*margin-right: 10px;*!*/
+  /*margin-top: 5px;*/
+  /*}*/
+
+  /*.ivu-input-group {*/
+  /*display: table;*/
+  /*border-collapse: separate;*/
+  /*position: relative;*/
+  /*font-size: 12px;*/
+  /*top: 0px;*/
+  /*}*/
+
+  /*.ivu-select-single .ivu-select-selection .ivu-select-placeholder {*/
+  /*color: #000000;*/
+  /*}*/
+  .ivu-table-cell {
+    padding: 1px;
+    /*padding-right: 2px;*/
+  }
+
+  ::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+  }
+
+  .ivu-table .demo-table-error-row td {
+    background-color: #e8f8f5;
+    /*color: #1a7bb9;*/
+    /*border-top: 2px solid #ff0000;*/
+  }
+
+  [data-bottomBorder='true'] {
+    border-bottom: 2px black solid;
+  }
+
+  .ivu-table td.demo-table-info-column {
+    background-color: #2db7f5;
+    color: #fff;
+  }
+
+  .butt {
+    background-color: #F0FAFF;
+    cursor: pointer;
+    display: inline-block;
+    margin: 1px 0 1px 0;
+    padding: 0 5px;
+    border: 1px silver solid;
+  }
+
+  .butt:hover {
+    background-color: orange;
+  }
+
+  .butt:active {
+    background-color: cornflowerblue;
+  }
+
+  .ivu-table .demo-table-info-row td {
+    border-bottom: 2px solid black;
+  }
+  </style>
+</head>
+<body>
+<div id="orderApp">
+  <com-Accomplish></com-Accomplish>
+</div>
+<template id="test">
+  <Row span="24">
+    <i-Col>
+      <!--搜索-->
+      <Card dis-hover style="margin-bottom: -10px;margin-top: -10px">
+        <i-Button type="primary" size="small" @click="closeSearch">
+          <Icon type="ios-search"></Icon>
+          搜索
+        </i-Button>
+        <input type="text" v-model="token" placeholder="token输入">
+        <select v-model="motive">
+          <option value="0">正常</option>
+          <option value="1">压位</option>
+        </select>
+        <i-button type="primary"  @click="tokenFun" size="small">确定</i-button>
+        <Card v-if="searchFlag" style="margin-top: 5px">
+          <Row type="flex" justify="start" :gutter="5" class="code-row-bg">
+            <i-Col>
+              <i-Input style="width: 180px" v-model="chooseObj.company">
+                <span slot="prepend">航司</span>
+              </i-Input>
+            </i-Col>
+            <i-Col>
+              <i-Input style="width: 180px" v-model="chooseObj.company_cnum">
+                <span slot="prepend">航司订单号</span>
+              </i-Input>
+            </i-Col>
+            <i-Col>
+              <i-Input style="width: 180px" v-model="chooseObj.pnr">
+                <span slot="prepend">pnr小编</span>
+              </i-Input>
+            </i-Col>
+            <!--<i-Col>-->
+            <!--<i-Input style="width: 180px" v-model="chooseObj.yb_cnum">-->
+            <!--<span slot="prepend">订票账号</span>-->
+            <!--</i-Input>-->
+            <!--</i-Col>-->
+            <i-Col>
+              <Date-picker type="datetime" format="yyyy-MM-dd HH:mm"
+                           placement="bottom-end"
+                           placeholder="支付时间"
+                           @on-change="TimeFun">
+              </Date-picker>
+            </i-Col>
+          </Row>
+          <Row type="flex" justify="end" :gutter="5" class="code-row-bg">
+            <i-Col>
+              <i-Button @click="choosesuo">确定</i-Button>
+            </i-Col>
+          </Row>
+        </Card>
+      </Card>
+      </Card>
+    </i-Col>
+    <i-Col>
+      <!--表格-->
+      <i-Table ref="ticketTable" :row-class-name="rowClassName" border
+               highlight-row height="700" size="small"
+               :loading="loading"
+               :columns="accomplishColumns" :data="accomplishData">
+      </i-Table>
+      <!--翻页-->
+      <div style="margin-bottom:2px;">
+        <div style="float: right;padding-right: 12px">
+          <Page show-total
+                :total="pageTotal"
+                :current="pageNum"
+                show-elevator
+                placement="top"
+                :page-size=20
+                @on-change="handlePage"
+                @on-page-size-change='handlePageSize'>
+          </Page>
+        </div>
+      </div>
+    </i-Col>
+  </Row>
+</template>
+</body>
+<script src="../vue/axios.min.js"></script>
+<script>
+
+const comAccomplish = {
+  template: '#test',
+  data () {
+    return {
+      face_price: null,
+      accomplishColumns: [
+        {
+          title:"序列",
+          align: 'center',
+          width: 30,
+          fixed: 'left',
+          // className: 'demo-table-info-column',
+          render: (h, params) => {
+            return h('span', params.index + (this.pageNum - 1) * this.pageSize + 1)
+          }
+        },
+        {
+          title: '时长',
+          key: 'intime',
+          align: 'center',
+          width: 40
+        },
+        {
+          title: 'pnr小编',
+          key: 'pnr',
+          align: 'center',
+          width: 120,
+          render:(h,params)=>{
+            return h('div',{},[
+              h('div',{domProps:{innerHTML:params.row.pnr}}),
+              h('i-input',{
+                attrs:{size:"small",placeholder:"备注",value:params.row.big_pnr},
+                domProps:{value:params.row.big_pnr},
+                on:{input:(value)=> {
+                    this.accomplishData[params.index].remaks = value
+                  }
+                }
+              },[
+                h('i-button',{
+                  slot:"append",
+                  attrs:{icon:"ios-sync",size:"small"},
+                  on:{
+                    click:()=>{
+                      this.remaksFun(params.row.id,params.index,params.row.index)
+                    }
+                  }
+                },)
+              ])
+            ])
+            // if(params.row.order === '1'){
+            //
+            // }else{
+            //   return h('div',{domProps:{innerHTML:params.row.yb_cnum}})
+            // }
+          }
+        },
+        {
+          title: '余位',
+          align: 'center',
+          width: 80,
+          render: (h, params) => {
+            let str = undefined;
+            let cur = params.row.cursite;
+            //判断text数值是否小于7，用来标红
+            let text = cur.substring(cur.indexOf('[') + 4, cur.indexOf(']'));
+            //判断余位中是否有 ] 号，用来分行展示
+            str = cur.search(/]/);
+            //当置顶且paytime不为空的时候，同时余位小于7，标红
+            if (params.row.order === '1' && (params.row.paytime === '' || params.row.paytime === null)&&text < 6) {
+              if(str!=-1){
+                str+=1
+                cur = cur.slice(0,str)+'*'+cur.slice(str);
+                cur = cur.split(/\*/);
+                return  h('div', {
+                  style: {
+                    color: 'red',
+                  }
+                }, [h('div',cur[0]),h('div',cur[1])])
+              }else{
+                return h('div',{style:{color:'red'},domProps:{innerHTML:cur}} )
+              }
+            }else{
+              if(str!=-1){
+                str+=1
+                cur = cur.slice(0,str)+'*'+cur.slice(str);
+                cur = cur.split(/\*/);
+                return h('div',{},[h('div',cur[0]),h('div',cur[1])])
+              }else{
+                return h('div', cur)
+              }
+            }
+          }
+        },
+        {
+          title: '航班信息',
+          align: 'center',
+          width: 150,
+          render: (h, params) => {
+            let fdate = '';
+            let tab = undefined;
+            switch (params.row.level_type) {
+              case "1":
+                 tab = "去哪儿";
+                 break;
+              case "2":
+                 tab = "淘宝";
+                break;
+              case "3":
+                 tab = "同程";
+                 break
+              case "5":
+                tab = "携程";
+                break;
+            }
+            if (params.row.order === '1'&&!params.row.pay_time) {
+              if (this.timeNow() > ((this.timeGet(params.row.param.FDate)) - 172800000)) {
+                fdate = h('span', {
+                  style: {
+                    marginRight: '10px',
+                    color: 'red'
+                  }
+                }, params.row.param.FDate)
+              } else {
+                fdate = h('span', {
+                  style: {
+                    marginRight: '10px'
+                  }
+                }, params.row.param.FDate)
+              }
+            } else {
+              fdate = h('span', {
+                style: {
+                  marginRight: '10px'
+                }
+              }, params.row.param.FDate)
+            }
+            // console.log('params.row.FDate:' + params.row.param.FDate)
+            // console.log('当前时间:' + this.timeNow())
+            // console.log('1 : ' + (this.timeGet(params.row.param.FDate)))
+            // console.log('2 : ' + ((this.timeGet(params.row.param.FDate)) - 172800000))
+            return h('div', [
+              h('span', {
+                style: {
+                  marginRight: '10px'
+                }
+              }, params.row.param.FlightNo),
+              h('span', {
+                style: {
+                  marginRight: '10px'
+                }
+              }, params.row.param.dep),
+              h('span', params.row.param.arr),
+              h('br'),
+              fdate,
+              h('span', params.row.people_num),
+              h('span',{
+                style: {
+                  marginLeft: '10px'
+                }
+              }, tab),
+            ])
+          }
+        },
+        {
+          title: '票号',
+          // key: 'recode',
+          align: 'center',
+          render: (h, params) => {
+            let texts = ''
+            if (params.row.recode !== null) {
+              if (params.row.recode.length > 12) {
+                //进行截取列显示字数
+                texts = params.row.recode.substring(0, 12) + '...'
+              } else {
+                texts = params.row.recode
+              }
+            }
+            return h('div', [
+              h('Tooltip', {
+                props: {
+                  // theme:'light',
+                  placement: 'top',
+                  transfer: true
+                }
+              }, [
+                texts,
+                h('div', {
+                  slot: 'content',
+                  style: {
+                    whiteSpace: 'normal',
+                    wordBreak: 'break-all'
+                  }
+                }, params.row.recode)
+              ])
+            ])
+          }
+        },
+        {
+          title: '收款',
+          key: 'userpay',
+          align: 'center',
+          width: 50
+        },
+        {
+          title: '付款',
+          key: 'needpay',
+          align: 'center',
+          width: 50
+        },
+        {
+          title: '时间',
+          align: 'center',
+          width:76,
+          render: (h, params) => {
+            let date = ''
+            let booktimeOf = ''
+            let paytimeOf = ''
+            let booktime = params.row.booktime
+            let paytime = params.row.paytime
+            if (booktime === null || booktime === '') {
+              booktimeOf = booktime
+            } else {
+              booktimeOf = booktime.substring(8)
+            }
+            if (paytime === null || paytime === '') {
+              paytimeOf = paytime
+            } else {
+              paytimeOf = paytime.substring(8)
+            }
+
+            if (params.row.order === '1' && (params.row.paytime === '' || params.row.paytime === null)) {
+
+              if ((this.timeNow() - (this.timeGet(params.row.booktime))) > 1500000) {
+                date = h('span', {
+                  style: {
+                    color: 'orange'
+                  }
+                }, booktimeOf)
+              } else {
+                if ((this.timeNow() - (this.timeGet(params.row.booktime))) < 900000 && (this.timeNow() - (this.timeGet(params.row.booktime))) > 1500000) {
+                  date = h('span', {
+                    style: {
+                      color: 'red'
+                    }
+                  }, booktimeOf)
+                } else {
+                  date = h('span', booktimeOf)
+                }
+              }
+            } else {
+              date = h('span', booktimeOf)
+            }
+            return h('div', [
+              h('Tooltip', {
+                props: {
+                  // theme:'light',
+                  placement: 'top',
+                  transfer: true,
+                  maxWidth: '210',
+                  content: '预定时间: ' + booktime +
+                    ' 支付时间: ' + paytime
+                }
+              }, [
+                date,
+                h('br'),
+                h('span', paytimeOf)
+              ])
+            ])
+          }
+        },
+        {
+          title: '订单号',
+          key: 'company_cnum',
+          width:100,
+          align: 'center',
+          className:'hideenCnum',
+          render:(h, params)=>{
+            //注意，此处有特殊显示，要求当params.row.payNumber为空的时候，
+            //依然能显示两行，第二行为空，iview似乎做自己做了内部处理，直接做出一行且居中。
+            //所以使用判断的方法。且visibility这里不能接收变量，只能固定写字符做处理，且
+            //params.row.payNumber不能赋值，一旦赋值，似乎在渲染的时候，又再做了if判断处理
+            if(!params.row.payNumber){
+              // params.row.payNumber = 100
+              return h('Tooltip',{
+                        attrs:{
+                          content:"订单号:"+(params.row.company_cnum)+'\n流水号:'+params.row.payNumber,
+                          maxWidth:'210',
+                          // transfer:true
+                        }},
+                      [
+                        h('div',{},[
+                          // h('div',{slot:'content',},[h('p',123),h('p',456)]),
+                          h('div',{style:{
+                              width:'100px',
+                              // height:'20px',
+                              overflow:"hidden",
+                              textOverflow: 'ellipsis',
+                              whiteSpace:'nowrap',
+                            },domProps:{innerHTML:params.row.company_cnum}}),
+                          h('div',{style:{
+                              width:'100px',
+                              // height:'20px',
+                              overflow:"hidden",
+                              textOverflow: 'ellipsis',
+                              whiteSpace:'nowrap',
+                              visibility:"hidden",
+                            },domProps:{innerHTML:"hidden"}})
+                        ]),
+                      ])
+            }else{
+              return h('Tooltip',{
+                        attrs:{
+                          content:"订单号:"+(params.row.company_cnum)+'\n流水号:'+params.row.payNumber,
+                          maxWidth:'210'
+                        }},
+                      [
+                        h('div',{},[
+                          h('div',{style:{
+                              width:'100px',
+                              // height:'20px',
+                              overflow:"hidden",
+                              textOverflow: 'ellipsis',
+                              whiteSpace:'nowrap',
+                            },domProps:{innerHTML:params.row.company_cnum}}),
+                          h('div',{style:{
+                              width:'100px',
+                              // height:'20px',
+                              overflow:"hidden",
+                              textOverflow: 'ellipsis',
+                              whiteSpace:'nowrap',
+                              // visibility:"hidden",
+                            },domProps:{innerHTML:params.row.payNumber}})
+                        ]),
+                      ])
+            }
+
+          }
+        },
+              // <Input search enter-button="Search" placeholder="Enter something..." />
+        {
+          title: '订票账号',
+          key: 'yb_cnum',
+          align: 'center',
+          render:(h,params)=>{
+            if(params.row.order === '1'){
+              return h('div',{},[
+                h('div',{domProps:{innerHTML:params.row.yb_cnum}}),
+                h('i-input', {
+                  style:{width:'100%'},
+                  domProps:{type:'text',},
+                  attrs:{placeholder:'手机号',size:'small'},
+                  on:{input:(value)=> {
+                    this.accomplishData[params.index].token = value;
+                    }}},)
+              ])
+            }else{
+              return h('div',{domProps:{innerHTML:params.row.yb_cnum}})
+            }
+            /*return h('div',[
+              h('div',{domProps:{innerHTML:params.row.yb_cnum}}),
+              h('input', {
+                style:{width:'100%'},
+                domProps:{type:'text',value:params.row.token},
+                on:{input:(event)=> {
+                    this.accomplishData[params.index].token = event.target.value;
+              }}},)
+              // h('i-input',{
+              //   attrs:{size:"small",suffix:"ios-sync"}
+              // },),
+            ])*/
+          }
+        },
+        {
+          title: '状态',
+          key: 'state',
+          align: 'center',
+          width: 80,
+          filters: [
+            {
+              label: '等待预定',
+              value: '0'
+            },
+            {
+              label: '等待支付',
+              value: '1'
+            },
+            {
+              label: '手工出票',
+              value: '2'
+            },
+            {
+              label: '等待回帖',
+              value: '3'
+            },
+            {
+              label: '出票完成等待回帖',
+              value: '4'
+            },
+            {
+              label: '回帖完成',
+              value: '5'
+            },
+            {
+              label: '异常',
+              value: '6'
+            },
+            {
+              label: '官网预订',
+              value: '7'
+            }
+          ],
+          filterMultiple: false,
+          filterMethod: (value, row) => {
+            return value === row.state
+          },
+          render: (h, params) => {
+            let type = params.row.state
+            switch (type) {
+              case '0':
+                return h('span', '等待预定')
+                break
+              case '1':
+                return h('span', '等待支付')
+                break
+              case '2':
+                return h('span', '手工出票')
+                break
+              case '3':
+                return h('span', '等待回帖')
+                break
+              case '4':
+                return h('span', '出票完成等待回帖')
+                break
+              case '5':
+                return h('span', '回帖完成')
+                break
+              case '6':
+                return h('span', '异常')
+                break
+              default:
+                return h('span', '')
+            }
+          }
+        },
+        {
+          title: '平台状态',
+          key: 'order_id',
+          width:110,
+          align: 'center',
+          render:(h,params)=>{
+            if(params.row.order === '1'){
+              return h('div',{},[
+                h('div',{domProps:{innerHTML:params.row.order_id}}),
+                h('i-input',{
+                  attrs:{size:"small",placeholder:"验证码"},
+                  on:{input:(value)=> {
+                      this.accomplishData[params.index].verificationNum = value
+                    }
+                  }
+                  },[
+                        h('i-button',{
+                          slot:"append",
+                          attrs:{icon:"ios-sync",size:"small"},
+                          on:{
+                            click:()=>{
+                              this.verificationNumFun(params.row.id,params.index,)
+                            }
+                          }
+                        },)
+                ])
+              ])
+            }else{
+              return h('div',{},[
+                h('div',{domProps:{innerHTML:params.row.order_id}}),
+              ])
+            }
+          }
+        },
+        {
+          title: '信息',
+          width:100,
+          key: 'note',
+          align: 'center',
+          render: (h, params) => {
+            let texts = '';
+            let text = params.row.note;
+            let textflag = undefined;
+            if(text){
+              textflag = text.search('是否串号');
+            }else{
+              textflag = -1;
+            }
+            if(textflag==-1){
+              if (params.row.note !== null) {
+                if (params.row.order === '1') {
+                  if (params.row.note === '有直享舱,手工支付!' || params.row.note === '可降舱,手工处理!') {
+                    if (params.row.note.length > 12) {
+                      texts = h('div', {
+                        style: {
+                          color: 'red'
+                        }
+                      }, params.row.note.substring(0, 12) + '...')
+                    } else {
+                      texts = h('div', {
+                        style: {
+                          color: 'red'
+                        }
+                      }, params.row.note)
+                    }
+                  } else {
+                    if (params.row.note.length > 15) {
+                      texts = params.row.note.substring(0, 15) + '...'
+                    } else {
+                      texts = params.row.note
+                    }
+                  }
+                } else {
+                  if (params.row.note.length > 12) {
+                    texts = params.row.note.substring(0, 12) + '...'
+                  } else {
+                    texts = params.row.note
+                  }
+                }
+              }
+            }else{
+              return h('div',{
+                attrs:{title:text},
+                domProps:{innerHTML:text},
+                class:{
+                  serialNumber:true
+                },
+                style:{
+                  cursor:'pointer',
+                },
+                on:{
+                  click: ()=> {
+                    this.serialNumber(params.row.id)
+                  },
+                }},
+              )
+            }
+
+            return h('div', [
+              h('Tooltip', {
+                props: {
+                  // theme:'light',
+                  placement: 'top',
+                  transfer: true
+                }
+              }, [
+                texts,
+                h('div', {
+                  slot: 'content',
+                  style: {
+                    whiteSpace: 'normal',
+                    wordBreak: 'break-all'
+                  }
+                }, params.row.note)
+              ])
+            ])
+          }
+        },
+        {
+          title: '操作',
+          align: 'center',
+          fixed: 'right',
+          render: (h, params) => {
+            if (params.row.order === '1') {
+              return h('div', [
+                h('span', [
+                  h('Poptip', {
+                    props: {
+                      confirm: true,
+                      transfer: true,
+                      placement: 'left-start',
+                      title: '确定要重付吗?',
+                      type: 'error',
+                      size: 'small',
+                      width: '300',
+                      vModel: true
+                    },
+                    on: {
+                      'on-ok': () => {
+                        this.repay(params.row.id)
+                      },
+                      'on-cancel': () => {
+                        this.$Message.info('重付已取消!')
+                      }
+                    }
+                  }, [
+                    h('div', {
+                      class: 'butt',
+                      style: {
+                        width: '30px',
+                        color: 'red',
+                        margin: '1px',
+                        display: (params.row.order_id !== '出票完成') ? 'inline-block' : 'none'
+                        // marginTop: '2px',
+                        // marginRight: '3px'
+                      }
+                    }, '重付')
+                  ])
+                ]),
+                //重订
+                h('span', [
+                  h('Poptip', {
+                    props: {
+                      confirm: true,
+                      transfer: true,
+                      placement: 'left-start',
+                      title: '确定要重启订票吗?',
+                      type: 'error',
+                      size: 'small',
+                      width: '300',
+                      vModel: true
+                    },
+                    on: {
+                      'on-ok': () => {
+                        this.reOrder(params.row.id,params,params.row.yb_cnum)
+                      },
+                      'on-cancel': () => {
+                        this.$Message.info('重订已取消!')
+                      }
+                    }
+                  }, [
+                    h('div', {
+                      class: 'butt',
+                      style: {
+                        width: '30px',
+                        color: 'blue',
+                        margin: '1px',
+                        display: (params.row.order_id !== '出票完成') ? 'inline-block' : 'none'
+                        // marginTop: '2px',
+                        // marginRight: '3px'
+                      }
+                    }, '重订')
+                  ])
+                ]),
+                // h('br'),
+                //重回
+                h('span', [
+                  h('Poptip', {
+                    props: {
+                      confirm: true,
+                      transfer: true,
+                      placement: 'left-start',
+                      title: '确定要重回吗?',
+                      type: 'error',
+                      size: 'small',
+                      width: '300',
+                      vModel: true
+                    },
+                    on: {
+                      'on-ok': () => {
+                        this.replay(params.row.id)
+                      },
+                      'on-cancel': () => {
+                        this.$Message.info('重回已取消!')
+                      }
+                    }
+                  }, [
+                    h('div', {
+                      class: 'butt',
+                      style: {
+                        width: '30px',
+                        color: 'green',
+                        margin: '1px'
+                        // marginTop: '2px',
+                        // marginRight: '3px'
+                      }
+                    }, '重回')
+                  ])
+                ]),
+                // h('span', [
+                //   h('Poptip', {
+                //     props: {
+                //       confirm: true,
+                //       transfer: true,
+                //       placement: 'left-start',
+                //       title: '确定要直享吗?',
+                //       type: 'error',
+                //       size: 'small',
+                //       width: '300',
+                //       vModel: true
+                //     },
+                //     on: {
+                //       'on-ok': () => {
+                //         this.get_straight(params.row.id,params)
+                //       },
+                //       'on-cancel': () => {
+                //         this.$Message.info('直享已取消!')
+                //       }
+                //     }
+                //   }, [
+                //     h('div', {
+                //       class: 'butt',
+                //       style: {
+                //         width: '30px',
+                //         color: '#A52A2A',
+                //         margin: '1px',
+                //         display: (params.row.curcabin === '1') ? 'none' : 'inline-block'
+                //         // marginTop: '2px',
+                //         // marginRight: '3px'
+                //       }
+                //     }, '直享')
+                //   ])
+                // ]),
+                h('span', [
+                  h('Poptip', {
+                    props: {
+                      confirm: true,
+                      transfer: true,
+                      placement: 'left-start',
+                      title: '确定要取置吗?',
+                      type: 'error',
+                      size: 'small',
+                      width: '300',
+                      vModel: true
+                    },
+                    on: {
+                      'on-ok': () => {
+                        this.feOrder(params.row.id)
+                      },
+                      'on-cancel': () => {
+                        this.$Message.info('取消置顶已取消!')
+                      }
+                    }
+                  }, [
+                    h('div', {
+                      class: 'butt',
+                      style: {
+                        width: '30px',
+                        color: 'purple',
+                        margin: '1px'
+                        // marginTop: '2px',
+                        // marginRight: '3px'
+                      }
+                    }, '取置')
+                  ])
+                ]),
+                //抢单
+                h('span', [
+                  h('Poptip', {
+                    props: {
+                      transfer: true,
+                      placement: 'right-start',
+                      width: '180',
+                      title: '抢单金额',
+                      wordWrap: true
+                    },
+                    on: {
+                      'on-popper-show': () => {
+                        this.face_price = null
+                        axios({
+                          url:'../bingo/aq_pnrlist.php?action=offer_price',
+                          method:'post',
+                          data:{
+                            id:params.row.id
+                          }
+                        }).then(res=>{
+                          this.face_price = res.data.price
+                        }).catch(err=>{console.log(err)})
+
+                      }
+                    }
+                  }, [
+                    [
+                      h('div', {
+                          slot: 'content'
+                        },
+                        [
+                          h('Input', {
+                            props: {
+                              type: 'text',
+                              size: 'small',
+                              placeholder: '金额',
+                              value: this.face_price
+                            },
+                            style: {
+                              width: '130px',
+                              marginTop: '-5px'
+                            },
+                            on: {
+                              input: (cVal) => {
+                                this.face_price = cVal
+                              }
+                            }
+                          }),
+                          h('Button', {
+                            props: {
+                              type: 'primary',
+                              size: 'small'
+                            },
+                            style: {
+                              marginTop: '5px',
+                              float: 'right'
+                            },
+                            on: {
+                              click: () => {
+                                this.grab_the_order(params.row.id, this.face_price)
+                              }
+                            }
+                          }, '确定')
+                        ]
+                      )
+                    ],
+                    h('div', {
+                      class: 'butt',
+                      style: {
+                        width: '30px',
+                        color: 'deeppink',
+                        margin: '1px'
+                      }
+                    }, '抢单')
+                  ])
+                ]),
+                //官网
+                /*h('span',{
+                  domProps:{innerHTML:'官网'},
+                  style: {width: '30px', color: 'purple', margin: '1px'},
+                  class:{'butt':true},
+                  on:{
+                    click:()=>{
+                      this.officialWebFun(params.row.id,params.index)
+                    }
+                  }
+                },),*/
+                //换号
+                h('span',{
+                  domProps:{innerHTML:'换号'},
+                  style: {width: '30px', color: 'purple', margin: '1px'},
+                  class:{'butt':true},
+                  on:{
+                    click:()=>{
+                      this.eplaceorder(params.row.id)
+                    }
+                  }
+                },)
+                // h('div',{style:{display:'inline-block'}},[
+                //   h('Poptip', {
+                //   props: {
+                //     confirm: true,
+                //     transfer: true,
+                //     placement: 'left-start',
+                //     title: '确定要高仓吗?',
+                //     type: 'error',
+                //     size: 'small',
+                //     width: '300',
+                //     vModel: true
+                //   },
+                //   on: {
+                //     'on-ok': () => {
+                //       this.heightPosition(params.row.id,params)
+                //     },
+                //     'on-cancel': () => {
+                //       this.$Message.info('高仓已取消!')
+                //     }
+                //   },},
+                //           [
+                //             h('div', {
+                //               class: 'butt',
+                //               style: {
+                //                 width: '30px',
+                //                 color: 'red',
+                //                 margin: '1px',
+                //               }
+                //             }, '高舱')
+                //           ]
+                // )])
+                // h('span', [
+                //   h('Poptip', {
+                //     props: {
+                //       confirm: true,
+                //       transfer: true,
+                //       placement: 'left-start',
+                //       title: '确定要抢单吗?',
+                //       type: 'error',
+                //       size: 'small',
+                //       width: '300',
+                //       vModel: true
+                //     },
+                //     on: {
+                //       'on-ok': () => {
+                //         this.grab_the_order(params.row.id)
+                //       },
+                //       'on-cancel': () => {
+                //         this.$Message.info('抢单已取消!')
+                //       }
+                //     }
+                //   }, [
+                //     h('div', {
+                //       class: 'butt',
+                //       style: {
+                //         width: '30px',
+                //         color: 'deeppink',
+                //         margin: '1px'
+                //         // marginTop: '2px',
+                //         // marginRight: '3px'
+                //       }
+                //     }, '抢单')
+                //   ])
+                // ])
+              ])
+            } else if (params.row.order != '1') {
+              return h('div', [
+                h('span', [
+                  h('Poptip', {
+                    props: {
+                      confirm: true,
+                      transfer: true,
+                      placement: 'left-start',
+                      title: '确定要强置?',
+                      type: 'error',
+                      size: 'small',
+                      width: '300',
+                      vModel: true
+                    },
+                    on: {
+                      'on-ok': () => {
+                        this.reFeOrder(params.row.id)
+                      },
+                      'on-cancel': () => {
+                        this.$Message.info('强置已取消!')
+                      }
+                    }
+                  }, [
+                    h('div', {
+                      class: 'butt',
+                      style: {
+                        width: '30px',
+                        color: 'black',
+                        margin: '1px'
+                        // marginTop: '2px',
+                        // marginRight: '3px'
+                      }
+                    }, '强置')
+                  ])
+                ])
+              ])
+            }
+          }
+        }
+      ],
+      accomplishData: [],
+      list: null,
+      loading: false,
+
+      searchFlag: false,
+      pageTotal: undefined,
+      pageNum: 1,
+      pageSize: 20,
+
+      arraya: null,
+      chooseObj: {
+        //时长
+        intime: null,
+        //Pnr小编
+        pnr: null,
+        //航司
+        company: null,
+        //余位
+        cursite: null,
+        //航班信息
+        people_No: null,
+        //收付款
+        userpay: null,
+        //红包
+        redAmount: null,
+        //票号
+        recode: null,
+        //支付时间
+        pay_time: null,
+        //航司订单号
+        company_cunm: null,
+        //订票账号
+        yb_cnum: null,
+        //状态
+        state: null,
+        //平台状态
+        order_id: null,
+        //信息
+        note: null,
+        //支付
+        pos_o: null
+      },
+      chooseObjClone: null,
+
+      boderBottomId: undefined,
+    //  token值
+      token:null,
+    //  压位值
+      motive:0,
+    //  串号数据（从后台接收来）
+      serialnumber:undefined,
+    }
+  },
+  computed: {},
+  mounted () {
+    this.initTable(1, this.chooseObjClone)
+  },
+  methods: {
+    //token输入函数
+    tokenFun(){
+      axios({
+        url:'../bingo/aq_pnrlist.php?action=add_token',
+        method:'post',
+        data:{token:this.token,motive:this.motive}
+      }).then(res=>{
+        if(res.data.code == 100){
+          alert(res.data.msg)
+        }else{
+          alert(res.data.msg)
+        }
+      }).catch(err=>{console.log(err)})
+    },
+    timeGet (time) {
+      let date = new Date(time)
+      date.getTime()
+      return date
+    },
+    timeNow () {
+      return new Date().getTime()
+    },
+    //备注函数
+    remaksFun(id,index){
+      let big_pnr = this.accomplishData[index].remaks;
+
+      if(!big_pnr){
+        big_pnr = "";
+      }
+      axios({
+        url:'../bingo/aq_pnrlist.php?action=remark',
+        method:'post',
+        data:{
+          id,
+          big_pnr
+        }
+      }).then(res=>{
+        if(res.data.code==100){
+          this.initTable(this.pageNum,this.chooseObjClone);
+        }else{
+          this.$Message.error({
+            content: res.data.msg,
+            duration: 6
+          })
+        }
+      }).catch(err=>{console.log(err)})
+    },
+    //官网点击函数（由之前的token函数改造成了手机号函数，所以变量名是token！！！）
+    officialWebFun(id,index){
+      //获取到手机号
+      let contact = this.accomplishData[index].token;
+      if(contact){
+        let b= contact.search(/^1[3|4|5|6|7|8|9][0-9]{9}$/)
+        if(b==-1){
+          return this.$Message.error("手机号格式不对");
+        }
+      }else{
+        return this.$Message.error("手机号格式不对");
+      }
+      axios({
+        url:'../bingo/aq_pnrlist.php?action=uccn',
+        method:'post',
+        data:{
+          id,
+          contact,
+        }
+      }).then(res=>{
+        if(res.data.code==100){
+          this.$Message.info(res.data.msg);
+        }else{
+          this.$Message.info(res.data.msg);
+        }
+      }).catch(err=>{console.log(err)})
+    },
+    //验证码函数
+    verificationNumFun(id,index){
+      let security_code = this.accomplishData[index].verificationNum;
+      if(!security_code){
+        return this.$Message.error("验证码格式不对");
+      }else if(security_code){
+        let securityFlag = security_code.search(/[^0-9]/);
+        if(securityFlag!=-1){
+          return this.$Message.error("验证码格式不对");
+        }
+      }
+      axios({
+        url:'../bingo/aq_pnrlist.php?action=security_code',
+        method:'post',
+        data:{
+          id,
+          security_code,
+        }
+      }).then(res=>{
+         if(res.data.code==100){
+           window.location.reload(true);
+         }else{
+           this.$Message.info(res.data.msg);
+         }
+      }).catch(err=>{console.log(err)})
+    },
+    //串号功能函数
+    serialNumber(id){
+      axios({
+        url:'../bingo/aq_pnrlist.php?action=booking_account',
+        method:'post',
+        data:{
+          id
+        }
+      }).then(res=>{
+        let tit = res.data;
+        let leng = tit.length;
+        let newa = [];
+        //给对象定义一个时间戳，方便排序时候换算
+        for(let ii=0;ii<leng;ii++){
+          let c = new Date(tit[ii].btime);
+          c = c.getTime();
+          tit[ii].c = c;
+        }
+        //对时间排序操作
+        for(let i=0;i<leng;i++){
+          if(!newa.length){
+            newa.push(tit[i]);
+          }else{
+            for(let u=0;u<newa.length;u++){
+              if(newa[u].c<tit[i].c){
+                if(u==0){
+                  newa.splice(u,0,tit[i]);
+                  break;
+                }else{
+                  if(u==(newa.length-1)){
+                    newa.splice(u,0,tit[i]);
+                    break
+                  }else{
+                    newa.splice(u,0,tit[i]);
+                    break;
+                  }
+                }
+              }else{
+                if(u==(newa.length-1)){
+                  newa.splice(u+1,0,tit[i]);
+                  break
+                }
+              }
+            }
+          }
+        }
+
+        let tabcolumn = undefined;
+        if(tit.length){
+          tabcolumn = [
+            // {title:'序号', key:''},
+            {title:'手机号', key:'ch_user',align:'center'},
+            {title:'时间', key:'btime',align:'center'},
+          ]
+        }else{
+          return
+        }
+        console.log(newa)
+        // serialnumber
+        this.$Modal.confirm({
+         width:'350px',
+          render:(h)=>{
+            return h('div',{},[
+                    h('i-table',{
+                      attrs:{
+                        data:newa,
+                        columns:tabcolumn,
+                        size:'small',
+                      }
+                    })
+            ])
+          }
+          // onOk: () => {
+          //   this.$Message.info('Clicked ok');
+          // },
+          // onCancel: () => {
+          //   this.$Message.info('Clicked cancel');
+          // }
+        });
+      }).catch(err=>{console.log(err)})
+    },
+    //重付
+    repay (id) {
+      axios({
+        url: '../bingo/aq_pnrlist.php?action=repay',
+        method: 'post',
+        data: { id }
+      }).then(res => {
+        //成功为100，失败为101
+        if (res.data.code === 100) {
+          window.location.reload(true)
+        } else {
+          this.$Message.error({
+            content: res.data.msg,
+            duration: 6
+          })
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    //重订
+    reOrder (id,params,num) {
+      axios({
+        url: '../bingo/aq_pnrlist.php?action=reorder',
+        method: 'post',
+        data: {
+          id,
+        }
+      }).then(res => {
+        //成功为100，失败为101
+        if (res.data.code === 100) {
+          this.initTable(this.pageNum,this.chooseObjClone);
+        } else {
+          this.$Message.error({
+            content: res.data.msg,
+            duration: 6
+          })
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    //直享
+    get_straight (id,params) {
+        axios({
+          url: '../bingo/aq_pnrlist.php?action=straight',
+          method: 'post',
+          data: { id,
+            token:this.accomplishData[params.index].token
+          }
+        }).then(res => {
+          //成功为100，失败为101
+          if (res.data.code === 100) {
+            window.location.reload(true)
+          } else {
+            this.$Message.error({
+              content: res.data.msg,
+              duration: 6
+            })
+          }
+        }).catch(err => {
+          console.log(err)
+        })
+    },
+    //重回
+    replay (id) {
+      axios({
+        url: '../bingo/aq_pnrlist.php?action=replay',
+        method: 'post',
+        data: { id }
+      }).then(res => {
+        //成功为100，失败为101
+        if (res.data.code == 100) {
+          window.location.reload(true)
+        } else {
+          this.$Message.error({
+            content: res.data.msg,
+            duration: 6
+          })
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    //高舱
+    heightPosition(id,params){
+        axios({
+          url: '../bingo/aq_pnrlist.php?action=premium',
+          method: 'post',
+          data: {
+            id,
+            token:this.accomplishData[params.index].token
+          }
+        }).then(res => {
+          //成功为100，失败为101
+          if (res.data.code == 100) {
+            window.location.reload(true)
+          } else {
+            this.$Message.error({
+              content: res.data.msg,
+              duration: 6
+            })
+          }
+        }).catch(err => {
+          console.log(err)
+        })
+    },
+    //取置
+    feOrder (id) {
+      axios({
+        url: '../bingo/aq_pnrlist.php?action=feorder',
+        method: 'post',
+        data: { id }
+      }).then(res => {
+        //成功为100，失败为101
+        if (res.data.code == 100) {
+          this.initTable(this.pageNum,this.chooseObjClone);
+        } else {
+          this.$Message.error({
+            content: res.data.msg,
+            duration: 6
+          })
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    //强制置顶
+    reFeOrder (id) {
+      axios({
+        url: '../bingo/aq_pnrlist.php?action=refeorder',
+        method: 'post',
+        data: { id }
+      }).then(res => {
+        //成功为100，失败为101
+        if (res.data.code == 100) {
+          window.location.reload(true)
+        } else {
+          this.$Message.error({
+            content: res.data.msg,
+            duration: 6
+          })
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    //抢单
+    grab_the_order (id, face_price) {
+      if (face_price == null || face_price == '') {
+        this.$Message.warning('请输入抢单金额')
+        return
+      }
+      axios({
+        url: '../bingo/aq_pnrlist.php?action=grab_the_order',
+        method: 'post',
+        data: { id, face_price }
+      }).then(res => {
+        //成功为100，失败为101
+        if (res.data.code === 100) {
+          window.location.reload(true)
+        } else {
+          this.$Message.error({
+            content: res.data.msg,
+            duration: 6
+          })
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    //换号
+    eplaceorder(id){
+      axios({
+        url: '../bingo/aq_pnrlist.php?action=replaceorder',
+        method: 'post',
+        data: { id }
+      }).then(res => {
+        //成功为100，失败为101
+        if (res.data.code == 100) {
+          window.location.reload(true)
+        } else {
+          this.$Message.error({
+            content: res.data.msg,
+            duration: 6
+          })
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    rowClassName (row, index) {
+      if (index === this.boderBottomId) {
+        return 'demo-table-info-row'
+      }
+    },
+    //初始化函数
+    initTable (page, data) {
+      // if (this.loading) return
+      this.loading = true
+      this.boderBottomId = undefined;
+      axios({
+        url: '../bingo/aq_pnrlist.php?action=select_data',
+        method: 'post',
+        data: {
+          page,
+          data
+        }
+      }).then(response => {
+        if (response.data.res === 'success') {
+          this.pageTotal = parseInt(response.data.count)
+          this.list = response.data.list;
+          for (let i = 0, l = this.list.length; i < l; i++) {
+            //因为后台数据传输没有解析，此出param需要自己解析一次，放入list中，param是其他相关航信
+            this.list[i].param = JSON.parse(this.list[i].param)
+            //前端此出自己构建一个token，用来在输入框输入，方便其他按钮获取值并传输
+            this.list[i].token = '';
+          }
+          //异常与时间排序,即array里存放的是置顶的单
+          let arraya = []
+          for (let b = 0; b < this.list.length; b++) {
+            if (this.list[b].order === '1') {
+              arraya.push(this.list.splice(b, 1)[0])
+              b = b - 1
+            }
+          }
+
+          if (arraya.length < 19 && arraya.length >= 1) {
+            this.boderBottomId = arraya.length - 1
+          }
+          //最终包含table数据的载体
+          this.accomplishData = arraya.concat(this.list)
+        } else {
+          this.$Message.error('无数据')
+        }
+        this.loading = false
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    closeSearch () {
+      this.searchFlag = !this.searchFlag
+    },
+    choosesuo () {
+      this.searchChoose = true
+      this.chooseObjClone = JSON.parse(JSON.stringify(this.chooseObj))
+      this.initTable(1, this.chooseObjClone)
+    },
+    //分页切换
+    handlePage (value) {
+      this.pageNum = value;
+      if (this.searchChoose) {
+        this.initTable(value, this.chooseObjClone)
+      } else {
+        this.initTable(value, null)
+        this.chooseObjClone = null
+      }
+    },
+    //条数切换
+    handlePageSize (value) {
+      this.pageSize = value
+      this.initTable()
+    },
+    TimeFun (data) {
+      this.chooseObj.pay_time = data
+    }
+  }
+}
+new Vue({
+  el: '#orderApp',
+  components: {
+    comAccomplish
+  },
+  data: {},
+  computed: {},
+  methods: {}
+})
+</script>
+</html>

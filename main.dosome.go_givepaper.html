@@ -1,0 +1,111 @@
+{extends file='main.base.html'}
+
+{block name=headjs}
+<link type="text/css" rel="stylesheet" media="screen" href="/resource/css/base.iduq.info.css">
+<script type="text/javascript" src="/resource/javascripts/Validform_v5.3.2_min.js"></script>
+<script type="text/javascript" src="/resource/javascripts/base.iduq.info.js"></script>
+<script>
+    {literal}
+    function gotopp(){
+        var cont = $('input[itcc]:checked').length;
+        if(cont < 1){
+            bingo.alert('请选择要提交的订单');
+            return false;
+        }
+        return true;
+    }
+
+    function mathsum(){
+        var sum = 0;
+        var price = 0;
+        $('input[itcc]:checked').each(function(){
+            sum++;
+            var cur = $(this).closest('.paperitem').find('td:eq(5)').html();
+            price += parseFloat(cur);
+        })
+        $('#bicount').html(sum+' 笔');
+        $('#paysum').html(price+' 元');
+    }
+    {/literal}
+</script>
+{/block}
+
+{block name=body}
+<div style="width:50%; margin:20px auto;">
+    <form action="dosome.php" method="post">
+        <table class="aa02_table" width="100" border="0" align="center" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="r_h2" colspan="2">公司交款</td>
+            </tr>
+        </table>
+
+        <table class="aa02_table"  widtd="100" border="0" align="center" cellpadding="0" cellspacing="0">
+            <tr class="list_th">
+                <td><label><input type="checkbox" id="allcc">全选</label></td>
+                <td>单号</td>
+                <td>类别</td>
+                <td>交单用户</td>
+                <td>交单时间</td>
+                <td>应交金额</td>
+                <td>已交金额</td>
+            </tr>
+            <tbody id="paperlist">
+            {foreach $list as $one}
+            <tr class="paperitem" myval="{$one.id}">
+                <td><input type="checkbox" name="itcc[]" itcc value="{$one.id}"></td>
+                <td>{$one.code}</td>
+                <td>{if $one.type == 1}到付{else}代收货款{/if}</td>
+                <td>{$one.username}</td>
+                <td>{$one.ctime}</td>
+                <td>{$one.case}</td>
+                <td>{$one.caseed}</td>
+            </tr>
+            {/foreach}
+            </tbody>
+        </table>
+
+
+        <table class="aa02_table" width="100" border="0" align="center" cellpadding="0" cellspacing="0">
+            <tr>
+                <td width="15%" align="right">数量：</td>
+                <td width="30%" id="bicount">
+                    0 笔
+                </td>
+            </tr>
+            <tr>
+                <td width="15%" align="right">应交总额：</td>
+                <td width="30%" id="paysum">
+                    0 元
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" align="center">
+                    <input type="hidden" name="action" value="go_outpaper"/>
+                    <input type="submit" value="提交" onclick="return gotopp();"/>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+
+<script>
+    {literal}
+    $(function(){
+        $('#allcc').on('click',function(){
+            var check = $('#allcc').is(':checked');
+            if(check){
+                $('input[itcc]').prop("checked", true);
+            }else{
+                $('input[itcc]').prop("checked", false);
+            }
+            mathsum();
+        });
+
+        $('input[itcc]').on('click',function(){
+            mathsum();
+        });
+    })
+    {/literal}
+</script>
+{/block}

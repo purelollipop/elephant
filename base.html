@@ -1,0 +1,189 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>机票票务管理</title>
+	<!--[if lt IE 9]>
+		<script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>
+		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<script src="Javascript/Flot/excanvas.js"></script>
+	<![endif]-->
+	<!-- The Fonts -->
+	<link href="http://fonts.useso.com/css?family=Oswald|Droid+Sans:400,700" rel="stylesheet" />
+	<!-- The Main CSS File -->
+	<link rel="stylesheet" href="style/style.css" />
+    <link href="resource/plugs/layer/skin/layer.css" rel="stylesheet" type="text/css">
+	<link href="resource/plugs/layer/skin/layer.ext.css" rel="stylesheet" type="text/css">
+	<!-- jQuery -->
+	<script src="scripts/jQuery/jquery-1.7.2.min.js"></script>
+	<!-- Flot -->
+	<script src="scripts/Flot/jquery.flot.js"></script>
+	<script src="scripts/Flot/jquery.flot.resize.js"></script>
+	<script src="scripts/Flot/jquery.flot.pie.js"></script>
+	<!-- DataTables -->
+	<script src="scripts/DataTables/jquery.dataTables.min.js"></script>
+	<!-- ColResizable -->
+	<script src="scripts/ColResizable/colResizable-1.3.js"></script>
+	<!-- jQuryUI -->
+	<script src="scripts/jQueryUI/jquery-ui-1.8.21.min.js"></script>
+	<!-- Uniform -->
+	<script src="scripts/Uniform/jquery.uniform.js"></script>
+	<!-- Tipsy -->
+	<script src="scripts/Tipsy/jquery.tipsy.js"></script>
+	<!-- Elastic -->
+	<script src="scripts/Elastic/jquery.elastic.js"></script>
+	<!-- ColorPicker -->
+	<script src="scripts/ColorPicker/colorpicker.js"></script>
+	<!-- SuperTextarea -->
+	<script src="scripts/SuperTextarea/jquery.supertextarea.min.js"></script>
+	<!-- UISpinner -->
+	<script src="scripts/UISpinner/ui.spinner.js"></script>
+	<!-- MaskedInput -->
+	<script src="scripts/MaskedInput/jquery.maskedinput-1.3.js"></script>
+	<!-- ClEditor -->
+	<script src="scripts/ClEditor/jquery.cleditor.js"></script>
+	<!-- Full Calendar -->
+	<script src="scripts/FullCalendar/fullcalendar.js"></script>
+	<!-- Color Box -->
+	<script src="scripts/ColorBox/jquery.colorbox.js"></script>
+	<!-- Kanrisha Script -->
+	<script src="scripts/kanrisha.js"></script>
+    <script src="scripts/json2.js"></script>
+	<script src="resource/plugs/layer/layer.js"></script>
+	<script src="scripts/idangerous.swiper.min.js"></script>
+	<script src="scripts/globe.js"></script>
+    {block name=headjs}{/block}
+</head>
+<body style="background:no-repeat center top fixed url(/images/Textures/gdy3.jpg) #ffffff;">
+	<!-- Top Panel -->
+	<div class="top_panel">
+		<div class="wrapper">
+			<div class="user">
+            	<a href="index.php">
+				<img src="Images/user_avatar.png" alt="user_avatar" class="user_avatar" />
+				<span class="label naa">{$userinfo.code}</span></a>
+                <span class="label">平台业绩  7天：{$news.yejiweek.case}</span>
+                <span class="label">当天：{$news.yeji.case}</span>
+				</div>
+			</div>
+			<div class="top_links">
+				<ul>
+	                <li class="i_22_upload">
+                    	<a href="login.php?action=logout" title="退出">
+                        <span class="label">退出</span>
+                        </a>
+                    </li>
+					<li class="i_22_settings">
+						<a href="index.php?action=userinfo" title="更改信息">
+							<span class="label">更改信息</span>
+						</a>
+					</li>
+                    <li class="i_22_inbox top_inbox">
+						<a href="index.php?action=newslist" title="平台公告">
+							<span class="label lasCount">平台公告</span>
+                            {if $news.yes}
+							<span class="small_count">{$news.count}</span>
+                            {/if}
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="copyrights">Collect from Bingo.Studio</a></div>
+	<header class="main_header">
+		<div class="wrapper">
+			<div class="logo">
+				<a href="index.php" title="福塔平台">
+					<img src="Images/kanrisha_logo.png" alt="kanrisha_logo" />
+				</a>
+			</div>
+			<nav class="top_buttons">
+				<ul>
+					<li class="big_button">
+						<div class="out_border">
+							<div class="button_wrapper">
+								<div class="in_border">
+									<a href="index.php?action=team" title="我的团队" class="the_button">
+										<span class="i_32_statistic"></span>
+									</a>
+								</div>
+							</div>
+						</div>
+					</li>
+					<li class="big_button">
+						<div class="out_border">
+							<div class="button_wrapper">
+								<div class="in_border">
+									<a href="index.php?action=server" title="服务中心" class="the_button">
+										<span class="i_32_support"></span>
+									</a>
+								</div>
+							</div>
+						</div>
+					</li>
+					<li class="big_button">
+						<div class="out_border">
+							<div class="button_wrapper">
+								<div class="in_border">
+									<a href="index.php?action=paper" title="订单信息" class="the_button">
+										<span class="i_32_delivery"></span>
+									</a>
+								</div>
+							</div>
+						</div>
+					</li>
+					<li class="big_button">
+						<div class="out_border">
+							<div class="button_wrapper">
+								<div class="in_border">
+									<a href="index.php?action=turninget" title="转让积分" class="the_button">
+										<span class="i_32_dollar"></span>
+									</a>
+								</div>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</header>
+
+	<div class="wrapper contents_wrapper">
+		
+		<aside class="sidebar">
+        {include 'left.html'}
+		</aside>
+
+		<div class="contents">
+        {block name=body}{/block}
+		</div>
+
+	</div>
+
+	<footer>
+		<div class="wrapper">
+			<span class="copyright">
+				Copyright © 2016. Bingo Information Technology Co., ltd All rights reserved.
+			</span>
+		</div>
+	</footer>
+<script>
+{literal}
+$(function(){
+	$.ajaxSetup({
+		error:function(x,e){
+			bingo.alert("调用错误请重试");
+			bingo.close();
+			window.location.href="index.php?action=main";
+			return false;
+		}
+
+	});
+});
+{/literal}
+</script>
+</body>
+</html>

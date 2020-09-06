@@ -1,0 +1,281 @@
+{extends file='main.base.html'}
+
+{block name=headjs}
+<link type="text/css" rel="stylesheet" media="screen" href="/resource/css/lib_page.css">
+<script type="text/javascript" src="/resource/javascripts/lib_page.js"></script>
+<script type="text/javascript" src="/resource/javascripts/date.selector.js"></script>
+<style>
+    .pritxt{
+        max-width: 5rem;
+    }
+    .link{
+        text-decoration: underline;
+        color: #0d8ddb;
+    }
+</style>
+
+<script type="text/javascript">
+    function getParam(id) {
+        var total_inventory =  document.getElementById('total_inventory' + id).value;
+        var received = document.getElementById('received' + id).value;
+        var remark = document.getElementById('remark' + id).value;
+        var price = document.getElementById('price' + id).value;
+
+        var regex = /^[0-9]*$/;
+        var isInteger = regex.test(received);
+
+
+        console.log(total_inventory,received,remark,price);
+
+        if(!regex.test(total_inventory)){
+            bingo.alert('总库存数额只能为正整数！');
+            return false;
+        }
+        if(!isInteger){
+            bingo.alert('已收数额只能为正整数！');
+            return false;
+        }
+        if(!received || !total_inventory){
+            bingo.alert('数额不可为空！');
+            return false;
+        }
+        console.log(id,received,remark);
+
+        bingo_ajax("tp_list.php?t=tp_list&action=ok",
+            {
+                id:id,
+                total_inventory:total_inventory,
+                received:received,
+                price:price,
+                remark:remark
+            },
+            function(data){
+                //alert('成功');
+                console.log(data);
+                window.location.href ="tp_list.php?t=tp_list";
+            },
+            true
+        )
+    }
+
+    window.onload=function(){
+        var hea = document.getElementsByClassName('headcheck')[0];
+        var che = document.getElementsByClassName('check');
+        var res = new Array()
+        hea.onclick=function(){
+            if(hea.checked == true ){
+                res = [];
+                for(var i=0;i<che.length;i++){
+                    che[i].checked = true;
+                    if(che[i].checked){
+                        res[i]=che[i].value;
+                    }
+                }
+            }else{
+                for(var b=0;b<che.length;b++){
+                    che[b].checked = false;
+                }
+            }
+        }
+        $('.btn-editall').click(function(){
+            $('.edit-form').toggle();
+        })
+    }
+    function change(){
+        if(!confirm("确认要删除？")){
+            $("input[type='checkbox']:checked").attr("checked",false);
+            return false;
+        }
+
+        var id=$("input[name='ids']:checked");
+        var str_id="";
+        for(var i=0;i<id.length;i++){
+            str_id+=id.eq(i).val()+",";
+        }
+        if(str_id==""){
+            alert('未选择数据');
+            return false;
+        };
+        bingo_ajax("{$cur_url}?t={$table}{$other_sp}&action=delAll",
+            {
+                ids:str_id,
+            },
+            function(data){
+                if(data=='ok'){
+                    alert('删除成功');
+                    location.reload();
+                }else{
+                    alert(data);
+                }
+            },
+            true
+        )
+
+    }
+
+
+</script>
+{/block}
+
+{block name=body}
+<div class="right_title">
+	<h2>
+    {$show.name}管理
+    </h2>
+</div>
+<div class="r_bg">
+	<div class="list_top">
+		<ul>
+        	{if $use_do.add}
+			<li class="list_a1">
+            <a href="{$cur_url}?t={$table}&action=add{$other_sp}">
+            添加{$show.name}
+            </a>
+            </li>
+
+
+            {/if}
+            {if $use_do.out}
+            <li class="list_a4">
+                <a href="{$cur_url}?t={$table}&action=query&us=1&do=out{$other_sp}">
+                    导出excel
+                </a>
+            </li>
+            {/if}
+            {if $use_do.top}
+            <li class="list_a1">
+            	{$top_more}
+            </li>
+            {/if}
+            {if $use_do.delAll}
+            <li>
+                <button onclick="change()">批量删除</button>
+            </li>
+            <!--<li>-->
+                <!--&nbsp;&nbsp;-->
+                <!--<a href="out_detail.php?t=yw_settlement_price">-->
+                    <!--查看明细-->
+                <!--</a>-->
+            <!--</li>-->
+            {/if}
+		</ul>
+    </div>
+    {if $use_do.find}
+	<div class="search" >
+    <h1>搜索范围:</h1>
+        <div class="sea_pad">
+            <form id="find_form" action="{$cur_url}">
+            <input type="hidden" value="{$table}" name="t" />
+            <input type="hidden" value="0" name="us" />
+            {if $other_sp}
+                {parse_str($other_sp, $osplist)}
+                {foreach $osplist as $key => $one}
+                	<input type="hidden" value="{$one}" name="{$key}" />
+                {/foreach}
+            {/if}
+            <ul>
+            {foreach $show.find as $find}
+            	{if $find.type == -1}
+					{foreach $find.elements as $ele}
+                    	<input type="hidden"  value="{$ele.val}" name="{$ele.id}"/>
+                    {/foreach}
+                {else}
+                	<li>
+                	{if $find.type == 0}
+                    	<span>{$find.name} 为:</span>
+                    {elseif $find.type == 1}
+                    	<span>{$find.name} 中包含有:</span>
+                    {elseif $find.type == 2}
+                    	<span>{$find.name} 的范围为:</span>
+                    {else}
+                    	<span>{$find.name}:</span>
+                    {/if}
+                    {foreach $find.elements as $ele}
+                    	{if $find.type == 2 && $ele@index == 0}
+                        	大于
+                        {/if}
+                        {if $find.type == 2 && $ele@index == 1}
+                        	小于
+                        {/if}
+                        {if $ele.is_sel}
+                            <select name="{$ele.id}" style="width:128px;">
+                                <option value>=全部=</option>
+                                {foreach $ele.data as $data}
+                                <option value="{$data.id}" {if $data.set} selected="selected" {/if} >{$data.name}</option>
+                                {/foreach}
+                            </select>
+                        {else}
+                        
+                        	<input 
+                            {if $ele.date} 
+                            class="dateselect" readonly="readonly" 
+                            {/if} 
+                            type="text" value="{$ele.val}" name="{$ele.id}"/>
+                        {/if}
+                    {/foreach}
+                    </li>
+                {/if}
+            {/foreach}
+            </ul>
+            <input type="submit" value="搜索">
+            <input type="button" onclick="window.location.href='{$cur_url}?t={$table}{$other_sp}'" value="搜索全部">
+            </form>
+        </div>
+	</div>
+    {/if}
+    
+	<table class="aa02_table" widtd="100%" border="0" align="center" cellpadding="0" cellspacing="0">
+		<tbody>
+			<tr class="list_th">
+                <td>
+                    <input type="checkbox" class="headcheck">
+                </td>
+            	<td>序号</td>
+            	{foreach $show.col as $col}
+				<td>
+                {if $col.ord !== false}
+                    {if $col.ord > 0}
+                    <a href="{$cur_url}?t={$table}{$other_sp}&us=1&o=-{$col@iteration}">{$col.name}▲</a>
+                    {elseif $col.ord < 0}
+                    <a href="{$cur_url}?t={$table}{$other_sp}&us=1&o=0">{$col.name}▼</a>
+                    {else}
+                    <a href="{$cur_url}?t={$table}{$other_sp}&us=1&o={$col@iteration}">{$col.name}</a>
+                    {/if}
+                {else}
+                	{$col.name}
+                {/if}
+                </td>
+                {/foreach}
+				<td>操作</td>
+			</tr>
+			{foreach $show.row as $row}
+			<tr>
+                <td>
+                    <input class='check' name="ids" type='checkbox'value='{$row.id}' id='{$row.id}'/>
+                </td>
+            	<td>{$begin_index + $row@iteration}</td>
+            	{foreach $row.val as $val}
+				<td>{$val}</td>
+                {/foreach}
+				<td>
+                	{if $use_do.delete}
+					<a conf href="{$cur_url}?t={$table}&action=delete&id={$row.id}{$other_sp}">删除</a>
+                    {/if}
+                    {if $use_do.edit}
+                        <a href="{$cur_url}?t={$table}&action=edit&id={$row.id}{$other_sp}">修改</a>
+                    {/if}
+                    {if $use_do.move}
+                    <a href="{$cur_url}?t={$table}&action=move&move=1&id={$row.id}{$other_sp}">上移</a>
+                    <a href="{$cur_url}?t={$table}&action=move&move=-1&id={$row.id}{$other_sp}">下移</a>
+                    {/if}
+                    {if $use_do.more}
+                    {$row.more_do}
+                    {/if}
+				</td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+    {$page_html}
+</div>
+{/block}

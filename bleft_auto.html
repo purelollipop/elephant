@@ -1,0 +1,76 @@
+			<!--左上图标宽度设置为160px-->
+<li class="nav-header" style="height: 156px;width: 160px">                     <!--左上图标-->
+				<div class="dropdown profile-element">
+
+					<a data-toggle="dropdown" class="dropdown-toggle" href="#">
+						<!--<div style="width: 60px;height: 75px"></div>-->
+							<span class="clear" style="text-align: right">
+							<span class="text-muted text-xs block">{$smarty.session.UserInfo.name}<b class="caret"></b></span>
+							</span>
+					</a>
+					<ul class="dropdown-menu animated fadeInRight m-t-xs">
+						<!-- <li><a class="J_menuItem" href="form_avatar.html">修改头像</a></li> -->
+						<li><a class="J_menuItem" href="updatePwd.php">修改密码</a></li>
+						<!-- <li><a class="J_menuItem" href="contacts.html">联系我们</a></li> -->
+						<!-- <li><a class="J_menuItem" href="mailbox.html">信箱</a></li> -->
+						<li class="divider"></li>
+						<li><a href="login.php?action=logout">安全退出</a>
+						</li>
+					</ul>
+				</div>
+				<div class="logo-element">
+				</div>
+			</li>
+			{foreach $menu as $v}
+             <li>
+				{if $v.child|@count eq 0}
+					{if $v.content neq '#'}
+                    <a href="{$v.content}" id="{$v.id}">  
+						<i class="fa {$v.icon}"></i>                    
+                        <span class="nav-label">{$v.name}</span>
+                    </a>
+					{/if}
+				{else}
+					<a href="javascript:;" id="{$v.id}">    
+						<i class="fa {$v.icon}"></i>
+                        <span class="nav-label">{$v.name}</span>
+                        <span class="fa arrow"></span>
+                    </a>
+					{foreach $v.child as $vo}
+                    <ul class="nav nav-second-level">
+                        <li>
+							{if $vo.child|@count eq 0}
+								{if $vo.content neq '#'}
+								<a class="J_menuItem" href="{$vo.content}" id="{$vo.id}">{$vo.name}</a>
+								{/if}
+							{else}
+                            <a href="javascript:;" id="{$vo.id}">
+                                <span class="nav-label">{$vo.name}</span>								
+                                <span class="fa arrow"></span>							
+                            </a>
+							{foreach $vo.child as $vol}
+                            <ul class="nav nav-third-level">
+								{if $vol.content neq '#'}
+									<li>
+										<a class="J_menuItem" href="{$vol.content}" id="{$vol.id}">{$vol.name}</a>
+									</li>
+								{/if}
+                            </ul>
+							{/foreach}
+							{/if}
+                        </li>
+                    </ul>
+					{/foreach}
+				{/if}
+                </li>
+			 {/foreach}
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            

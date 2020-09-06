@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>出票表</title>
+  <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+  <script src="../vue/vue.js"></script>
+  <script src="../resource/iview-2.0/dist/iview.min.js"></script>
+  <style>
+
+
+    table.gridtable {
+      width: 100%;
+      font-size:11px;
+      color:#333333;
+      border-width: 1px;
+      border-color: #e8eaec;
+      border-collapse: collapse;
+    }
+    table.gridtable th {
+      border-width: 1px;
+      padding: 8px;
+      border-style: solid;
+      border-color: #e8eaec;
+      background-color: #f8f8f9;
+      text-align:center
+    }
+    table.gridtable td {
+      border-width: 1px;
+      padding: 8px;
+      border-style: solid;
+      border-color: #e8eaec;
+      background-color: #ffffff;
+      text-align:center
+    }
+
+    /*游客模式*/
+    .clickshow {
+      pointer-events: none;
+    }
+    .demo >>> div.ivu-table-wrapper tr:hover td.no-hover {
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+<div id="infoApp">
+  <div :class="{clickshow:clickshow}" style="margin-left: 10px;margin-right: 10px">
+    <Spin fix size="large" v-if="LoadingFlag"></Spin>
+    <Row>
+      <i-Col span="24">
+        <Divider size="small" orientation="left">航班信息</Divider>
+        <i-Table border size="small" :columns="columnsOrder" :data="dataOrder">
+
+        </i-Table>
+      </i-Col>
+      <i-Col span="24">
+        <div>
+          <Divider size="small" orientation="left">联系人信息</Divider>
+          <i-Table border size="small" :columns="columnsContacts" :data="dataContacts">
+
+          </i-Table>
+        </div>
+        <div style="margin-top: 5px;">
+          <Alert type="warning" show-icon closable>
+            自动出票失败原因:
+            <span slot="desc"><h3 style="color: red">{{orderMsg}}</h3></span>
+          </Alert>
+        </div>
+      </i-Col>
+      <i-Col span="24">
+        <Divider size="small" orientation="left">乘机人信息</Divider>
+
+        <!--        <i-Table border size="small" :columns="columnsPassengers" :data="dataPassengers">-->
+
+        <!--        </i-Table>-->
+
+        <table class="gridtable">
+          <thead class="tableHead">
+          <tr>
+            <th style="width: 8%">乘客姓名</th>
+            <th style="width: 8%">乘客类型</th>
+            <th style="width: 8%">证件号</th>
+            <th style="width: 8%">出生日期</th>
+            <th style="width: 15%">rt编码票号</th>
+            <th style="width: 8%">票面价</th>
+            <th style="width: 8%">机建/燃油费</th>
+            <th style="width: 8%">收款金额</th>
+            <th style="width: 15%">支付金额</th>
+          </tr>
+          </thead>
+          <tbody class="tableBody">
+          <tr v-for="(item,index) in dataPassengers" :key="index">
+            <td>{{item.name}}</td>
+            <td>{{item.ageType | typeAge}}</td>
+            <td>{{item.cardNum}}</td>
+            <td>{{item.birthday}}</td>
+            <td><input type="text" v-model="item.ticketNo" placeholder="票号" :id="item.cardNum">
+            </td>
+            <td>{{item.viewPrice}}</td>
+            <td>{{item.tax}}</td>
+            <td>{{item.price}}</td>
+            <td :rowspan="item.rowspanle" v-if="index==0">
+              <input type="text" v-model="cashVal" v-if="!item.cash" placeholder="支付金额"
+                     :style="{display:index==0 ? 'inline-block' : 'none'}">
+              <input type="hidden" v-model="cashVal=item.cash" v-if="item.cash">
+              {{item.cash}}
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </i-Col>
+    </Row>
+    <br>
+    <br>
+    <Row type="flex" justify="center" class="code-row-bg" :gutter="16">
+      <i-Col>
+        <i-Button size="small" type="primary" @click="fanHui">返回</i-Button>
+      </i-Col>
+      <i-Col>
+        <i-Button size="small" type="primary" @click="saveTicket">审核订单</i-Button>
+        <!--        <Poptip placement="top" width="300">-->
+        <!--          <i-Button size="small" type="primary" @click="save">审核订单</i-Button>-->
+        <!--          &lt;!&ndash;          <div class="api" slot="content">&ndash;&gt;-->
+        <!--          &lt;!&ndash;            <i-Input v-model="cash" type="text" style="width: 200px"  placeholder="金额"></i-Input>&ndash;&gt;-->
+        <!--          &lt;!&ndash;            <i-Button type="primary" @click="saveTicket">确定</i-Button>&ndash;&gt;-->
+        <!--          &lt;!&ndash;          </div>&ndash;&gt;-->
+        <!--        </Poptip>-->
+
+      </i-Col>
+      <i-Col>
+        <i-Button size="small" type="primary" @click="save">保存订单</i-Button>
+      </i-Col>
+      <i-Col>
+        <Poptip
+          confirm
+          title="是否确定拒绝？"
+          @on-ok="jModal = true" width="200">
+          <i-Button size="small" type="primary">拒绝出票</i-Button>
+        </Poptip>
+        <Modal v-model="jModal" title="拒绝出票原因" width="300" :mask-closable=false>
+          <p>
+            <i-Input v-model="refusetext" type="textarea" :rows="3" placeholder="请输入拒绝出票原因..."></i-Input>
+          </p>
+          <div slot="footer">
+            <i-Button type="text" size="large" @click="jModal=false">取消</i-Button>
+            <i-Button type="primary" size="large" @click="surerefuse(refusetext)">确定</i-Button>
+          </div>
+        </Modal>
+      </i-Col>
+      <i-Col>
+        <Poptip
+          confirm
+          title="是否确定强制回填？"
+          @on-ok="constraint"
+          width="200">
+          <i-Button size="small" type="primary">强制回填</i-Button>
+        </Poptip>
+      </i-Col>
+      <i-Col>
+        <Poptip
+          confirm
+          title="是否确定解锁？"
+          @on-ok="relieve" width="200">
+          <i-Button size="small" type="primary">解锁返回</i-Button>
+        </Poptip>
+      </i-Col>
+      <i-Col>
+        <Poptip title="选择操作员" placement="right" width="200">
+          <i-Button size="small" type="primary" @click="changelock">订单转锁</i-Button>
+          <div slot="content">
+            <select class="workerlist">
+              <option :value="name" v-for="name in workerlist">{{name}}</option>
+            </select>
+            <i-Button size="small" @click="transferOrder">确定</i-Button>
+          </div>
+        </Poptip>
+      </i-Col>
+    </Row>
+  </div>
+</div>
+<script src="../vue/axios.min.js"></script>
+<script src="../vue/vuex.js"></script>
+<script src="../resource/main/index/http2.js"></script>
+<script>
+
+  Vue.directive('cell', {
+    // bind：只调用一次，指令第一次绑定到元素时调用。在这里可以进行一次性的初始化设置。
+    bind: function (el, binding) {
+      console.dir('function', el)
+      console.log(el, binding, '指令绑定')
+    },
+    // 当被绑定的元素插入到 DOM 中时……
+    inserted: function (el, binding) {
+      console.dir(el)
+      console.log(el, binding, '指令插入')
+      //找到td 元素 添加 更改 合并   rowSpan 或 colSpan
+      el.parentNode.parentNode[binding.arg] = binding.value
+      console.dir(el.parentNode.parentNode.rowSpan)
+    }
+  })
+  Vue.directive('rmcell', {
+    // bind：只调用一次，指令第一次绑定到元素时调用。在这里可以进行一次性的初始化设置。
+    bind: function (el, binding) {
+      console.dir(el)
+      console.log(el, binding, '指令绑定')
+    },
+    // 当被绑定的元素插入到 DOM 中时……
+    inserted: function (el, binding) {
+      console.dir(el.parentNode.parentNode)
+      console.log(el, binding, '移除指令插入')
+      //找到td 元素 移除
+      if (binding.arg === 'rowSpan') {
+        el.parentNode.parentNode.remove()
+      } else {
+        let parent = null
+        //合并n列 删除 n-1 次 单元格 的 下一个元素
+        for (let i = 0; i < binding.value - 1; i++) {
+          el.parentNode.parentNode.nextSibling.remove()
+          console.log('执行次数')
+        }
+      }
+
+    }
+  })
+
+  var ticketNo
+  var dataPassenger
+  var passengersList
+  new Vue({
+    el: '#infoApp',
+    data: {
+      orderNo: null,
+      jModal: false,
+      LoadingFlag: true,
+      workerlist: null,
+      refusetext: null,
+      clickshow: false,
+      cash: null,
+
+      cashValNews: null,
+      dataPassengersNews: null,
+
+      cashVal: null,
+
+      cashInfo: null,
+
+      columnsOrder: [
+        {
+          title: '订单来源',
+          key: 'ticketTable',
+          align: 'center',
+          width: 100
+        },
+        {
+          title: '系统订单号',
+          key: 'orderid',
+          align: 'center'
+        },
+        {
+          title: '供应订单号',
+          align: 'center',
+          key: 'orderNo'
+        },
+        {
+          title: '政策号',
+          align: 'center',
+          key: 'policyCode'
+        },
+        {
+          title: '航班号',
+          align: 'center',
+          key: 'flightNumber'
+        },
+        {
+          title: '舱位',
+          align: 'center',
+          key: 'cabin',
+          width: 100
+        },
+        {
+          title: '航程',
+          align: 'center',
+          width: 200,
+          render: (h, params) => {
+            return h('div', params.row.depAirport + '(' + params.row.depCity + ')' +
+              '-' + params.row.arrAirport + '(' + params.row.arrCity + ')')
+          }
+        },
+        {
+          title: '出发时间',
+          align: 'center',
+          render: (h, params) => {
+            return h('div', params.row.depData + ' ' + params.row.depTime)
+          }
+        },
+        {
+          title: '到达时间',
+          align: 'center',
+          render: (h, params) => {
+            return h('div', params.row.depData + ' ' + params.row.arrTime)
+          }
+        }
+      ],
+      dataOrder: [],
+      dataPassengers: [],
+      columnsContacts: [
+        {
+          title: '联系人姓名',
+          key: 'contact'
+        },
+        {
+          title: '联系人手机号',
+          key: 'contactNumber'
+        },
+        {
+          title: '联系人邮箱',
+          key: 'contactEML'
+        },
+        {
+          title: '下单渠道',
+          key: 'ticketObject'
+        },
+        {
+          title: '舱位备注',
+          key: 'remarks'
+        }
+      ],
+      dataContacts: [],
+      columnsPassengers: [
+        {
+          title: '乘客姓名',
+          key: 'name'
+        },
+        {
+          title: '乘客类型',
+          render: (h, params) => {
+            let type = params.row.ageType
+            switch (type) {
+              case '1':
+                return h('span', '成人')
+                break
+              case '2':
+                return h('span', '儿童')
+                break
+              case '3':
+                return h('span', '婴儿')
+                break
+              default:
+                return h('span', '外星人')
+            }
+          }
+        },
+        {
+          title: '证件号',
+          key: 'cardNum'
+        },
+        {
+          title: '出生日期',
+          key: 'birthday'
+        },
+        {
+          title: 'rt编码票号',
+          key: 'ticketNo',
+          render: (h, params) => {
+            if (params.row.ticketNo == '' || params.row.ticketNo == null) {
+              return h('div', [
+                h('Input', {
+                  props: {
+                    type: 'text',
+                    // size: 'small',
+                    placeholder: '票号',
+                  },
+                  style: {
+                    width: '80px'
+                  },
+                  on: {
+                    'on-enter': (tVal) => {
+                      var result = [tVal]
+                      // for (var i in dataPassengers.length) {
+                      //   console.log('rt编码票号222222222222>>>>>', dataPassengers[i].ticketNo)
+                      //
+                      // }
+
+                      console.log('tVal.target.value>>>', tVal.target.value)
+                      let pa = dataPassenger
+                      for (var item in pa) {
+                        dataPassenger[item].ticketNo2 = tVal.target.value
+                      }
+                      passengersList = pa
+                      // console.log('rt编码票号222222222222>>>>>', dataPassengers[i].ticketNo)
+                      // for (var item in result) {
+                      //   console.log('rt编码票号>>>>>', result[item])
+                      // }
+
+                    }
+                  }
+                })
+              ])
+            } else {
+              return h('span', params.row.ticketNo)
+            }
+          }
+        },
+        {
+          title: '票面价',
+          key: 'viewPrice'
+        }
+        ,
+        {
+          title: '机建/燃油费',
+          key:
+            'tax'
+        }
+        ,
+        {
+          title: '收款金额',
+          key:
+            'price'
+        }
+        ,
+        {
+          title: '支付金额',
+          render: (h, params) => {
+            if (params.row.cash == '' || params.row.cash == null) {
+              let ins = null
+              if (params.index === 0) {
+                ins = [
+                  {
+                    name: 'cell',
+                    arg: 'rowSpan', //合并类型
+                    value: params.length, //合并行数
+                  }
+                ]
+              }
+              return h('Input', {
+                props: {
+                  type: 'text',
+                  placeholder: '支付金额',
+                  // value: params.row.cash
+                },
+                style: {
+                  width: '80px',
+                  display: (params.index === 0) ? 'inline-block' : 'none'
+                },
+                directives: ins,
+                on: {
+                  input: (tVal) => {
+                    cashVal = tVal
+                    console.log('this.cashVal input111>>>>>', cashVal)
+                  }
+                },
+
+              })
+            } else {
+              let dir = null
+              if (params.index === 0) {
+                dir = [
+                  {
+                    name: 'cell',
+                    arg: 'rowSpan', //合并类型
+                    value: params.length, //合并行数
+                  }
+                ]
+              } else {
+                dir = [
+                  {
+                    name: 'rmcell',
+                    arg: 'rowSpan',
+                  }
+                ]
+              }
+              return h('span', {
+                style: {
+                  display: (params.index === 0) ? 'inline-block' : 'none'
+                },
+                directives: dir,
+              }, cashVal = params.row.cash)
+            }
+          }
+        }
+      ],
+      arr: [],
+      orderMsg: null
+    },
+    watch: {}
+    ,
+    methods: {
+      save () {
+
+        // for (var item in this.dataPassengers) {
+        //   // this.dataPassengers[item].ticketNo = '11'
+        //   console.log(this.dataPassengers.ticketNo)
+        //   this.dataPassengers[item].cash = this.cashValNews
+        // }
+        console.log('cashValsssssssssssss>>>', this.cashVal)
+        if (this.cashVal == null || this.cashVal == '') {
+          this.$Message.error({
+            content: '请输入支付金额',
+            duration: 2
+          })
+          return false
+        }
+        let datap
+        for (var item in this.dataPassengers) {
+          // this.dataPassengers[item].ticketNo = '11'
+          datap = this.dataPassengers[item].ticketNo
+        }
+        console.log('save dataPassengers>>>', JSON.stringify(this.dataPassengers))
+
+        if (datap == null || datap == '') {
+          this.$Message.error({
+            content: '请输入票号',
+            duration: 2
+          })
+          return false
+        }
+        axios({
+          url: '../bingo/ticketIntl.php',
+          method: 'post',
+          data: {
+            action: 'save',
+            'orderid': this.loca,
+            'cash': this.cashVal,
+            'passengers': this.dataPassengers
+          }
+        }).then((response) => {
+          if (response.data.success === true) {
+            this.$Message.success(response.data.msg)
+            setTimeout(function () {
+              window.location.href = '../template/iso_ticket.html'
+            }, 1500)
+          } else {
+            this.$Message.error({
+              content: response.data.msg,
+              duration: 3
+            })
+          }
+        })
+      },
+      saveTicket () {
+        if (this.cashVal == null || this.cashVal == '') {
+          this.$Message.error({
+            content: '请输入支付金额',
+            duration: 2
+          })
+          return false
+        }
+        let datap
+        for (var item in this.dataPassengers) {
+          // this.dataPassengers[item].ticketNo = '11'
+          datap = this.dataPassengers[item].ticketNo
+        }
+        console.log('save dataPassengers>>>', JSON.stringify(this.dataPassengers))
+
+        if (datap == null || datap == '') {
+          this.$Message.error({
+            content: '请输入票号',
+            duration: 2
+          })
+          return false
+        }
+        // if (cashVal == null || cashVal == '') {
+        //   this.$Message.error({
+        //     content: '请输入支付金额',
+        //     duration: 2
+        //   })
+        //   return false
+        // }
+
+        // if (ticketNo == null || ticketNo == '') {
+        //   this.$Message.error({
+        //     content: '请输入票号',
+        //     duration: 2
+        //   })
+        //   return false
+        // }
+        axios({
+          url: '../bingo/ticketIntl.php',
+          method: 'post',
+          data: {
+            'orderid': this.loca,
+            'cash': this.cashVal,
+            'passengers': this.dataPassengers,
+            action: 'saveTicket',
+          }
+        }).then((response) => {
+          if (response.data.success === true) {
+            this.$Message.success(response.data.msg)
+            setTimeout(function () {
+              window.location.href = '../template/iso_ticket.html'
+            }, 1500)
+          } else {
+            this.$Message.error({
+              content: response.data.msg,
+              duration: 3
+            })
+          }
+        })
+      }
+      ,
+      surerefuse (text) {
+        let _this = this
+        if (!_this.refusetext || text == null || text == '') {
+          _this.$Message.warning('请输入拒绝出票原因')
+          return
+        }
+        _this.manualselectobj = {}
+        _this.manualselectobj.orderid = _this.loca
+        axios({
+          url: '../bingo/ticketIntl.php',
+          method: 'post',
+          data: {
+            'action': 'refuse',
+            manualselectobj: _this.manualselectobj,
+            'orderid': _this.loca,
+            'refuseRemark': text,
+            all: _this.all
+          }
+        }).then((response) => {
+          if (response.data != null) {
+            if (response.data.success === true) {
+              _this.$Message.success(response.data.msg)
+              _this.jModal = false
+              setTimeout(function () {
+                window.location.href = '../template/iso_ticket.html'
+              }, 1500)
+            } else {
+              _this.$Message.error({
+                content: response.data.msg,
+                duration: 3
+              })
+            }
+          } else {
+            _this.$Message.error({
+              content: '拒绝出票数据异常,请联系技术人员!',
+              duration: 6
+            })
+          }
+        })
+      }
+      ,
+      //获取操作员
+      changelock () {
+        let _this = this
+        axios({
+          url: '../bingo/ticketIntl.php?action=getOperatorList',
+          method: 'get'
+        }).then((respon) => {
+          // this.namelistflag = true
+          _this.workerlist = respon.data.namelist
+        }).catch((error) => {
+          console.log(error)
+        })
+        // this.namelistflag02 = !this.namelistflag02
+        // this.namelistflag = false
+        // if (this.namelistflag02) {
+        //
+        // }
+      }
+      ,
+      //确定转单
+      transferOrder () {
+        let nameva = document.getElementsByClassName('workerlist')[0].value
+        axios({
+          url: '../bingo/ticketIntl.php',
+          method: 'post',
+          data: {
+            'action': 'transferOrder',
+            'orderid': this.loca,
+            'name': nameva
+          }
+        }).then((response) => {
+          if (response.data != null) {
+            if (response.data.success === true) {
+              this.namelistflag02 = !this.namelistflag02
+              this.namelistflag = false
+              this.$Message.success(response.data.msg)
+              setTimeout(function () {
+                window.location.href = '../template/iso_ticket.html'
+              }, 1500)
+
+            } else {
+              this.$Message.error({
+                content: response.data.msg,
+                duration: 3
+              })
+            }
+          } else {
+            this.$Message.error({
+              content: '解锁数据异常,请联系技术人员!',
+              duration: 6
+            })
+          }
+        })
+      }
+      ,
+      //回填
+      constraint () {
+        // alert(this.orderNo)
+        axios({
+          url: '../bingo/ticketIntl.php',
+          method: 'post',
+          data: {
+            'action': 'constraint',
+            'orderid': this.loca,
+            'ticketNo': this.orderNo
+          }
+        }).then((response) => {
+          if (response.data != null) {
+            if (response.data.success === true) {
+              this.$Message.success(response.data.msg)
+              setTimeout(function () {
+                window.location.href = '../template/iso_ticket.html'
+              }, 1500)
+            } else {
+              this.$Message.error({
+                content: response.data.msg,
+                duration: 8
+              })
+            }
+          } else {
+            this.$Message.error({
+              content: '强制回填数据异常,请联系技术人员!',
+              duration: 6
+            })
+          }
+        })
+      }
+      ,
+      //解锁
+      relieve () {
+        let orderId = []
+        orderId.push(this.loca)
+        axios({
+          url: '../bingo/ticketIntl.php',
+          method: 'post',
+          data: {
+            'action': 'unLock',
+            'orderid': orderId
+          }
+        }).then((response) => {
+          if (response.data != null) {
+            if (response.data.success === true) {
+              this.$Message.success(response.data.msg)
+              setTimeout(function () {
+                window.location.href = '../template/iso_ticket.html'
+              }, 1500)
+            } else {
+              this.$Message.error({
+                content: response.data.msg,
+                duration: 3
+              })
+            }
+          } else {
+            this.$Message.error({
+              content: '解锁数据异常,请联系技术人员!',
+              duration: 6
+            })
+          }
+        })
+      }
+      ,
+      fanHui () {
+        window.location.href = '../template/iso_ticket.html'
+      }
+    },
+    filters: {
+      typeAge (type) {
+        console.log('asdasdasdsadsadsadsadasssssssssssss>>>>>>>>>>>>>>>>>>>>>>>>>>>>', type)
+        if (type) {
+          switch (type) {
+            case '1':
+              return '成人'
+              break
+            case '2':
+              return '儿童'
+              break
+            case '3':
+              return '婴儿'
+              break
+            default:
+              return '外星人'
+          }
+        }
+      }
+    },
+    created () {
+      let l1 = location.href
+      let see = l1.match(/see/g)
+      let server = l1.match(/server/g)
+      let all = l1.match(/all/g)
+
+      if (see) {
+        this.clickshow = true
+        console.log(see)
+      } else if (server) {
+        this.serverDom = true
+      } else if (all) {
+        this.all = true
+      }
+    }
+    ,
+    beforeCreate () {
+      let hr = location.href
+      let a = hr.match(/\=/g)
+      if (a.length > 1) {
+        let b = hr.indexOf('=')
+        let b1 = hr.indexOf('=') + 1
+        let d = hr.lastIndexOf('&')
+        this.loca = hr.substr(b1, d - b - 1)
+      } else {
+        let b1 = hr.indexOf('=') + 1
+        this.loca = hr.slice(b1)
+      }
+      axios({
+        url: '../bingo/ticketIntl.php',
+        method: 'post',
+        data: {
+          'action': 'edit',
+          'orderid': this.loca
+        }
+      }).then((response) => {
+        // console.log('orderinfo:----', JSON.stringify(response.data))
+        // console.log('flights--------', JSON.stringify(response.data.flights))
+        this.orderMsg = response.data.orderinfo.orderMarkes
+        this.cashInfo = response.data.orderinfo.cash
+        // console.log('this.cashInfo>>>>', this.cashInfo)
+        let flightsInfo = response.data.flights
+        flightsInfo[0].orderNo = response.data.orderinfo.orderNo
+        flightsInfo[0].policyCode = response.data.orderinfo.policyCode
+        flightsInfo[0].orderid = response.data.orderinfo.orderid
+        flightsInfo[0].ticketTable = response.data.orderinfo.ticketTable
+
+        let obj = response.data.orderinfo
+        let arr = []
+        arr.push(obj)
+        // console.log(JSON.stringify(arr))
+        this.dataContacts = arr
+
+        // flightsInfo[0].contact = response.data.orderinfo.contact
+        // flightsInfo[0].contactNumber = response.data.orderinfo.contactNumber
+        // flightsInfo[0].contactEML = response.data.orderinfo.contactEML
+        // flightsInfo[0].ticketObject = response.data.orderinfo.ticketObject
+        // flightsInfo[0].remarks = response.data.orderinfo.remarks
+
+        this.dataOrder = flightsInfo
+        let passengers = response.data.passengers
+        for (let item in passengers) {
+          response.data.passengers[item].cash = response.data.orderinfo.cash
+          response.data.passengers[item].rowspanle = response.data.passengers.length
+        }
+        this.dataPassengers = passengers
+        // dataPassenger = passengers
+        console.log(JSON.stringify(this.dataPassengers))
+        this.orderNo = response.data.orderinfo.orderNo
+        this.LoadingFlag = false
+      })
+    }
+  })
+</script>
+
+</body>
+</html>
+
+
+

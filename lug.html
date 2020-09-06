@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>行李管理</title>
+    <link href="../bingo/css/bootstrap.min14ed.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="../resource/iview-2.0/dist/styles/iview.css">
+    <style type="text/css">
+        .searchwindow{
+            height: 215px;
+            z-index: 3;
+        }
+        .sertchchild{
+			max-width:1200px;
+            position: absolute;
+            top: 40px;
+            left: 25px;
+        }
+        .searchwindow .input-group{
+            /*display: inline-block;*/
+            float: left;
+            margin-left: 5px;
+            margin-top: 5px;
+        }
+        .sele{
+            padding: 7px 11px;
+            border: 1px #CCCCCC solid;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+        .icon{
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            top: -40px;
+            border:0.5px silver solid;
+            border-radius: 50%;
+            z-index: 1;
+            cursor: pointer;
+        }
+        .icon01{
+            left: 110px;
+            /*background-color: #00b7ee;*/
+            background-image: url('../images/font/gouwuche01.png');
+            background-repeat:no-repeat;
+            background-position: 48% 99%;
+            background-size: 40% 40%;
+        }
+        .icon01:hover{
+            background-image: url('../images/font/gouwu02.png');
+            border:0.5px #AB82FF solid;
+        }
+        .icon02{
+            left: 260px;
+            /*background-color: #C3C3D6;*/
+            background-image: url('../images/font/search02.png');
+            background-repeat:no-repeat;
+            background-position: 48% 94%;
+            background-size: 30% 30%;
+        }
+        .icon02:hover{
+            background-image: url('../images/font/search03.png');
+            border:0.5px #1296db solid;
+        }
+		.icon03{
+            left: 360px;
+            background-position: 48% 94%;
+            background-size: 30% 30%;
+        }
+        /*table主体样式*/
+		.table{
+			border-bottom:1px solid #ddd;
+			text-align:center; font-size: 12px;
+		
+		}
+        .table th,.table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+        .theadA{
+            border: 0.1px solid;
+            border-color:#E7EAEC;;
+            background: linear-gradient(white,#E4E4E4);
+        }
+        .lugtable{
+            position: absolute;
+        }
+        .lugtable tbody tr:nth-child(odd){
+            background-color: #f1f1f1;
+        }
+        .lugtable tbody tr:hover{
+            background-color:#dee5ff;
+        }
+        .curspointertwo:hover{
+            box-shadow: 1px 1px 2px 1px gray;
+            cursor:pointer;
+        }
+        .inputime{
+            text-align: center;
+            border: none;
+            background-color: inherit;
+        }
+        /*收款弹窗*/
+        #collection{
+            position: fixed;
+            width: 45%;
+            height: auto;
+            background-color: white;
+            border: 1px solid #7e7777;
+            border-radius: 5px;
+            box-shadow: 0px 1px 10px;
+            top: 200px;
+            left: 20%;
+        }
+        #collection>div:not(:first-child){
+            margin: 8px 0px 0px 8px;
+        }
+        .collcha{
+            float: right;
+            width: 15px;
+            height: 15px;
+            margin: 8px 20px 0px 0px;
+            background-image: url("../images/font/huicha02.png");
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            cursor: pointer;
+        }
+        .collcha:hover{
+            /*width: 20px;*/
+            /*height: 20px;*/
+            background-color: #dee5ff;
+        }
+        #collection>div:nth-of-type(2){
+            display: inline-block;
+            width: 90%;
+        }
+        #collection>div:nth-of-type(2)>:nth-child(odd){
+            display: inline-block;
+            width: 50px;
+            font-weight: bold;
+        }
+        #collection>div:nth-of-type(2)>:nth-child(even){
+            display: inline-block;
+            width: auto;
+            margin-right: 20px;
+        }
+        #collection>div:nth-child(3){
+            border-top: 1px silver solid;
+            /*border-bottom: 1px silver solid;*/
+            width: 98%;
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+        #collection>div:nth-child(3):after{
+            clear:both;
+            content:'';
+            display:block;
+            width:0;
+            height:0;
+            visibility:hidden;
+        }
+        #collection>div:nth-child(3)>div{
+            margin: 8px 0px 0px 10px;
+            float: left;
+        }
+        #collection>div:nth-child(4){
+            /*display: inline-block;*/
+            width: 96%;
+            margin-left: 16px;
+            border-bottom: 1px silver solid;
+            padding-bottom: 15px;
+        }
+        #collection>div:nth-child(4)>textarea{
+            width: 250px;
+            border: 1px #CCCCCC solid;
+        }
+        #collection>div:nth-child(5){
+            float: right;
+            margin-right: 15px;
+            margin-bottom: 10px;
+        }
+        #collection>div:nth-child(5)>button{
+            padding: 0px 20px;
+            border: 1px solid #CCCCCC;
+
+        }
+        #collection>div:nth-child(5)>button:nth-of-type(1){
+            background-color: white;
+        }
+        #collection>div:nth-child(5)>button:nth-of-type(2){
+            background-color: white;
+        }
+        #collection>div:nth-child(5)>button:nth-of-type(1):hover{
+            background-color: #dee5ff;
+        }
+        #collection>div:nth-child(5)>button:nth-of-type(2):hover{
+            background-color: #dee5ff;
+        }
+        /*购买弹窗*/
+		.alertbox{
+			position: fixed;
+			background-color: white;
+            border: 1px solid #7e7777;
+            border-radius: 5px;
+            box-shadow: 0px 1px 10px;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom:0;
+            margin: auto;
+            max-width: 100%;
+            z-index: 1;
+            padding:10px;
+		}
+        #add{          
+            width: 400px;
+            height: 575px;         
+        }
+        .text-gray{
+            background-color:#dfdfdf;
+            text-indent:2em;
+        }
+		.text-gray>span{margin-left:6px;}
+        .m-b{
+            margin-bottom: 10px;
+            border-radius:4px;
+        }
+		#sendmsg{
+			width: 450px;
+            height: 450px;
+		}
+		#report{		
+            width: 1000px;
+            height: 280px;        
+		}
+		#outform{
+			width: 450px;
+            height: 260px;
+		}
+        /*获取链接弹窗*/
+        #specific{
+            position: fixed;
+            top: 160px;
+            left: 10%;
+            width: 75%;
+            height: auto;
+            background-color: white;
+            z-index: 99;
+            border: 1px silver solid;
+            border-radius: 5px;
+            box-shadow: 0px 1px 10px;;
+        }
+        .specifictable{
+            border: 0.1px solid;
+            border-color:#E7EAEC;;
+            background: linear-gradient(#E4F1F8,white);
+            /*width: 300px;*/
+        }
+        .specifictable01{
+            background-image: url('../images/font/close.png');
+        }
+        #specific>div:first-child{
+            background: linear-gradient(#EECBAD,#FFEFDB);
+            width: 30px;
+            height: 30px;
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 0.5px silver solid;
+            /*z-index: -1;*/
+            /*background-image: url('../images/font/close.png');*/
+        }
+        .specbutt{
+            width: 10%;
+            float: right;
+            margin-right: 10px;
+            display: inline-block;
+            cursor: pointer;
+            border: 0.5px white solid;
+            padding: 2px 16px;
+            border-radius: 3px;
+            background: radial-gradient(#C5EEFC,white);
+            text-align: center;
+        }
+        .specbutt:hover{
+            border: 0.5px silver solid;
+        }
+        /*获取链接弹窗的日志*/
+        .log{
+            position: absolute;
+            width: 60%;
+            bottom: -100px;
+            left: 20%;
+            border:1px silver solid;
+            box-shadow:0px 0px 9px;
+            background-color: white;
+        }
+        /*分页样式*/
+        .classpage{
+            padding: 0px 3px;
+            color: black;
+            cursor: pointer;
+            display: inline-block;
+            border: 1px white solid;
+        }
+        .classpage:active{
+            border: 1px silver solid;
+        }
+        .searchanima-enter,.searchanima-leave-to{
+            transition:all 2s;
+            /*background-color: red;*/
+            transform: translate(0px,-200px);
+        }
+        .searchanima-leave-active,.searchanima-enter-to{
+            transition:all 1.5s;
+            transform: translate(0px,0px);
+            /*background-color: red;*/
+        }
+        .san{
+            display: inline-block;
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            border-style: solid;
+            border-width: 30px 0px 0px 40px;
+            border-color: #CBE3FB transparent transparent transparent;
+            cursor: pointer;
+        }
+        .san:hover{
+            display: inline-block;
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            border-style: solid;
+            border-width: 30px 0px 0px 40px;
+            border-color: #EECBAD transparent transparent transparent;
+            cursor: pointer;
+        }
+		.sendbtn{
+			margin-left:500px;
+		}
+		
+		td{
+			word-wrap:break-word;word-break:break-all;
+			max-width:250px;
+		}
+    </style>
+</head>
+<body>
+
+<div id="lug">
+	<div>
+		<button @click="msgfun()" class="btn btn-default btn-sm sendbtn">发短信</button>
+	</div>
+        <div class="searchwindow" v-show="searchflag">
+            <div class="sertchchild">
+			<hr/>
+				<div class="col-sm-12">
+					<div class="input-group m-b  col-xs-3" >
+						<span class="input-group-addon">时间：</span><date-picker type="datetime" placeholder="yyyy-MM-dd HH:mm:ss" style="width: 200px"  @on-change="getStartTime" ></date-picker>
+					</div>
+					<div class="input-group m-b  col-xs-3" >
+						<span class="input-group-addon">至</span><date-picker type="datetime" placeholder="yyyy-MM-dd HH:mm:ss" style="width: 200px"  @on-change="getEndTime" ></date-picker>
+					</div>
+				</div>
+				<div class="col-sm-12">
+				<div class="input-group col-xs-3" >
+						<span class="input-group-addon">订单号：</span><input type="text"  class="form-control" v-model="searchObj.orderId">
+					</div>
+					<div class="input-group col-xs-3" >
+						<span class="input-group-addon">机票订单id：</span><input type="text"  class="form-control" v-model="searchObj.oid">
+					</div>
+                </div>
+				<div class="col-sm-12">
+					<div class="input-group col-xs-2 sear" >
+						<span class="">商品名</span>
+						<select class="sele " v-model="searchObj.goodsName">
+							<option value="">所有</option>
+							<option value="行李">行李</option>
+							<option value="变更费" >变更费</option>
+							<option value="快递费" >快递费</option>
+							<option value="机票款" >机票款</option>
+							<option value="其他费用" >其他费用</option>
+						</select>
+					</div>				
+					<div class="input-group col-xs-2 sear">
+						<span>状态</span>
+						<select class="sele" v-model="searchObj.status">
+							<option value="" >所有</option>
+							<option value="0">待支付</option>
+							<option value="1">已收款</option>
+							<option value="2">已超时</option>
+							<option value="4">已完成</option>
+						</select>
+					</div>
+					
+					<div class="input-group col-xs-2 sear">
+						<span>处理人</span>
+						<select class="sele" v-model="searchObj.dealpeople">
+							<template v-for="dealpeople in dealpeoples">
+								<option :value="dealpeople.dealpeople">{{dealpeople.dealpeople}}</option>
+							</template>                     
+						</select>
+					</div>
+				</div>
+				<div class="col-sm-12">
+					<div class="input-group col-xs-2 sear">
+						<span class="">短信：</span>
+						<input type="radio" v-model="searchObj.msgStatus" value="1">已发送
+						<input type="radio" v-model="searchObj.msgStatus" value="0" >未发送
+					</div>
+					<div class="input-group col-xs-2 sear" >
+						<span class="">锁单：</span>
+						<input type="radio" v-model="searchObj.islock" value="1">已锁单
+						<input type="radio" v-model="searchObj.islock" value="0" >未锁单
+					</div>
+                </div>
+				
+				<div class="col-sm-12">		
+				<hr/>
+					<div class="col-xs-2"></div>
+					<div class="input-group col-xs-2 sear">				
+						<button @click="searfun" class="btn btn-default  btn-sm">查找</button>
+					</div>
+					<div class="input-group col-xs-2 sear">		
+						<button @click="outsub()" class="btn btn-default btn-sm ">导出</button>
+					</div>
+					<div class="input-group col-xs-2 sear">
+						<a href="export.html?table=luggage" >跳转到导出页</a>
+					</div>
+				</div>
+            </div>
+        </div>
+
+    <div class="icon icon01" @click="addopen()"></div>
+    <div class="icon icon02" @click="searanimation"></div>
+    
+
+     <div class="col-sm-12 lugtable" style="padding:5px;height: 40px;">
+            <div class="">
+                <div class="" >
+                    <!--主体展示dom-->
+                    <table class="table">
+                        <colgroup  style="width:6%"></colgroup><!--订单号-->
+                        <colgroup  style="width:7%"></colgroup><!--订单id-->
+                        <colgroup  style="width:4%"></colgroup><!--商品名-->
+                        <colgroup  style="width:5%"></colgroup><!--姓名-->
+                        <colgroup  style="width:7%"></colgroup><!--电话-->
+                        <colgroup  style="width:4%"></colgroup><!--订单价格-->
+                        <colgroup  style="width:5%"></colgroup> <!--链接-->
+                        <colgroup  style="width:8%"></colgroup><!--请求时间-->
+                        <colgroup  style="width:5%"></colgroup><!--采购金额-->
+                        <colgroup  style="width:10%"></colgroup><!--订单备注-->
+                        <colgroup  style="width:6%"></colgroup><!--状态-->
+                        <colgroup  style="width:6%"></colgroup><!--短信-->
+                        <colgroup  style="width:5%"></colgroup><!--处理人-->
+                        <colgroup  style="width:5%"></colgroup><!--锁单-->
+                        <colgroup  style="width:5%"></colgroup><!--操作-->
+                        <thead class="theadA">
+                        <tr>
+                            <th>
+                                <span>订单号</span>
+                            </th>
+                            <th>
+                                <span>机票订单id</span>
+                            </th>
+                            <th>商品名</th>
+                            <th>姓名</th>
+                            <th>电话</th>
+                            <th>订单价格</th>
+                            <th>链接</th>
+                            <th>请求时间</th>
+                            <th>采购金额</th>
+                            <th>订单备注</th>
+                            <th>状态</th>
+                            <th>短信</th>
+                            <th>处理人</th>
+                            <th>锁单</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(orr,index) in lugtable" :key="index">
+                            <td>
+                                <div v-if="!orr.orderId">
+                                    <button @click="getinfo(index,orr.id)"  class="btn btn-default btn-xs">获取链接</button>
+                                </div>
+                                <div v-else class="curspointertwo" @click="specificfun(orr.id)">{{orr.orderId}}</div>
+                            </td><!--订单号-->
+                            <td>
+								<div v-if="orr.status=='已完成'">
+									<div class="curspointertwo" @click="reportfun(orr.id)">{{orr.oid}}</div>
+                                </div>
+								<div v-else >{{orr.oid}}</div>
+							</td><!--机票订单id-->
+                            <td>{{orr.goodsName}}</td><!--商品名-->
+                            <td>{{orr.orderName}}</td><!--姓名-->
+                            <td>{{orr.orderPhone}}</td> <!--电话-->
+                            <td>{{orr.orderPrice}}</td><!--订单价格-->
+                            <td>
+								<div v-if="orr.payUrl!=''">
+									<a :href="orr.payUrl" target="_blank">链接地址</a>
+								</div>
+							</td><!--链接-->
+                            <td>
+								{{orr.getUrlTime}}
+                            </td><!--请求时间-->
+                            <td>{{orr.payPrice}}</td><!--钱-->
+                            <td>
+                                <div  style="overflow: hidden;height: 18px;cursor: pointer" :title="orr.remark">
+                                    {{orr.remark}}
+                                </div>
+                            </td><!--订单备注-->
+                            <td>
+                                <div v-if="orr.status=='已收款'">
+                                    <button @click="colleclog(orr.id,orr.orderId,orr.orderPrice)" class="btn btn-success btn-xs">已收款</button>
+                                </div>
+                                <div v-else>{{orr.status}}</div>
+                            </td><!--状态-->
+                            <td>
+                                <div v-if="orr.msgStatus=='重新获取'">
+                                    <button @click="addopen(orr.id)" class="btn btn-warning btn-xs">重取</button>
+                                </div>
+                                <div v-else-if="orr.msgStatus=='发短信'">
+                                    <button @click="message(index,orr.orderId)" class="btn btn-info btn-xs">发送</button>
+                                </div>
+                                <div v-else>{{orr.msgStatus}}</div>
+                            </td><!--短信-->
+                            <td>{{orr.dealpeople}}</td><!--处理人-->
+                            <td><!--锁单-->
+                                <div v-if="orr.islock==0">未锁单</div>
+                                <div v-else-if="orr.islock==1">
+                                    <button @click="unlock(index,orr.id)" class="btn btn-default btn-xs" >解锁</button>
+                                </div>
+                            </td>
+							<td>
+                                <div v-if="orr.islock==0&&orr.payPrice==0.00"><button @click="deleteone(index,orr.id)" class="btn btn-danger btn-xs" >删除</button></div>
+                                <div v-if="orr.status=='待支付'||orr.status=='已超时'"><button @click="changestatus(index,orr.id)" class="btn btn-default btn-xs" >收款</button></div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <!--分页逻辑-->
+                    <div  class="form-group form-inline" style="padding-bottom: 35px;margin-right: 20px">
+                        <div class="col-sm-12" >
+                            <div style="float: right">
+                                <a class="classpage" @click="firstpage"><span class="glyphicon glyphicon-step-backward"></span></a>
+                                <a class="classpage" @click="uppage"><span class="glyphicon glyphicon-backward"></span></a>
+                                共<span>{{pages}}</span>页&nbsp;&nbsp;
+								 <span>{{count}}</span>条数据&nbsp;&nbsp;
+                                第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" id="apage" :value="num">&nbsp;页&nbsp;&nbsp;
+                                <button type="button" title="确定"  @click="gotopage">转到</button>
+                                <a class="classpage" @click="downpage"><span class="glyphicon glyphicon-forward"></span></a>
+                                <a class="classpage" @click="llastpage"><span class="glyphicon glyphicon-fast-forward"></span></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <div id="collection" v-if="collflag">
+        <div class="san" @click="colleclog"></div>
+        <div>
+            <span>订单号:</span>
+            <span>{{input.oid}}</span>
+            <span>收款:</span>
+            <span>{{input.price}}</span>
+        </div>
+        <div>
+            <div class="input-group col-xs-5">
+                <span class="input-group-addon">原票号</span>
+                <input type="text" v-model="input.oldNumber" class="form-control">
+            </div>
+            <div class="input-group col-xs-5">
+                <span class="input-group-addon">原票回款</span>
+                <input class="form-control" type="text" v-model="input.oldpayPrice">
+            </div>
+            <div class="input-group col-xs-5">
+                <span class="input-group-addon">新票号</span>
+                <input class="form-control" type="text" v-model="input.newNumber">
+            </div>
+            <div class="input-group col-xs-5">
+                <span class="input-group-addon">新票采购金额</span>
+                <input class="form-control" type="text" v-model="input.newpayPrice">
+            </div>
+            <div class="input-group col-xs-5">
+                <span class="input-group-addon">采购金额</span>
+                <input class="form-control" type="text" v-model="input.payPrice" placeholder="必填">
+            </div>
+        </div>
+        <div>
+            <textarea v-model="input.remark" placeholder="备注"></textarea>
+        </div>
+        <div >
+			<input  type="hidden" v-model="input.id">
+            <button @click="colleclog">取消</button>
+            <button @click="colleclogsure">提交</button>
+        </div>
+    </div>
+    <div id="add" v-if="addflag" class="alertbox">
+        <button type="button" class="close m-b"  @click="addopen"><span aria-hidden="true">x</span><span class="sr-only">关闭</span></button>
+        <div class="form-group">
+            <div class="m-b" >
+                <label>增值服务</label>
+                <select class="form-control" name="goodsName" v-model="addInfo.goodsName" >
+                    <option value="行李" selected="selected">行李</option>
+                    <option value="变更费" >变更费</option>
+                    <option value="快递费" >快递费</option>
+                    <option value="机票款" >机票款</option>
+                    <option value="其他费用" >其他费用</option>
+                </select>
+            </div>
+            <div class="text-gray  m-b">
+                <span>{{luggage.code}} </span>
+				<span>{{luggage.dpt}} </span>
+				<span>{{luggage.arr}} </span>			
+				<span>{{luggage.cabinYPrice}} </span>
+				<span>{{luggage.saleCabinCode}} </span>       
+				<span>[ Y*0.015 = {{lugprice}}]</span>      
+            </div>
+            <div class="input-group m-b" >
+                <span class="input-group-addon">机票订单：</span><input type="text" name="oid"  v-model="addInfo.oid" placeholder="机票平台订单号不能为空" @blur="getluginfo" class="form-control">
+            </div>
+            <div class="input-group m-b" >
+                <span class="input-group-addon">客户姓名：</span><input type="text" name="orderName" v-model="addInfo.orderName"  placeholder="" class="form-control">
+            </div>
+            <div class="input-group m-b" >
+                <span class="input-group-addon">客户手机：</span><input type="text" name="orderPhone"  v-model="addInfo.orderPhone"   placeholder="" class="form-control">
+            </div>
+			<div class="input-group m-b" >
+                <span class="input-group-addon">机票行程：</span><input type="text" name="trip"  v-model="addInfo.trip"   placeholder="例：沈阳-三亚" class="form-control">
+            </div>
+			<div class="input-group m-b" >
+                <span class="input-group-addon">行程时间：</span><date-picker type="datetime" placeholder="yyyy-MM-dd HH:mm:ss" style="width: 200px"  @on-change="getdateTime" ></date-picker>
+            </div>
+            <div class="input-group m-b" >
+                <span class="input-group-addon">订单价格：</span><input type="text" name="orderPrice" v-model="addInfo.orderPrice" placeholder="0.00" class="form-control">
+            </div>
+            <div class="input-group m-b" >
+                <span class="input-group-addon">过期时间：</span><input type="number" class="form-control"  v-model="addInfo.expiryTime"  name="expiryTime" required >
+            </div>
+            <div class="input-group m-b" >
+                <span class="input-group-addon">订单说明：</span><textarea class="form-control"  name="orderRemarks"   v-model="addInfo.orderRemarks" rows="2"></textarea>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="type" value="1" v-model="addInfo.type" ><span>同时发送短信</span>
+                </label>
+				<label>
+                    <input type="checkbox" name="outer" value="1" v-model="addInfo.outer" ><span>小象外已支付</span>
+                </label>
+            </div>
+            <div>
+                <input type="hidden" name="id" id="id" v-model="addInfo.id" >
+            </div>
+            <button type="button" @click="addsubmint" class="btn btn-default btn-block">提交</button>
+        </div>
+    </div>
+    <div id="specific" v-show="specific">
+        <div @click="specificfun"></div>
+			<table class="table" >
+                <colgroup  style="width:auto"></colgroup><!--商品名-->
+                <colgroup  style="width:auto"></colgroup><!--请求时间-->
+                <colgroup  style="width:auto"></colgroup><!--状态-->
+                <colgroup  style="width:auto"></colgroup><!--收款金额-->
+                <colgroup  style="width:auto"></colgroup><!--收款时间-->
+                <colgroup  style="width:auto"></colgroup><!--采购金额-->
+                <colgroup  style="width:auto"></colgroup> <!--采购时间-->
+                <colgroup  style="width:auto"></colgroup><!--行李利润-->
+                <thead class="specifictable">
+                <tr>
+                    <th>
+                        <span>商品名</span>
+                    </th>
+                    <th>
+                        <span>请求时间</span>
+                    </th>
+                    <th>状态</th>
+                    <th>收款金额</th>
+                    <th>收款时间</th>
+                    <th>采购金额</th>
+                    <th>采购时间</th>
+                    <th>行李利润</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>{{details.goodsName}}</td><!--商品名-->
+                    <td>{{details.getUrlTime}}</td><!--请求时间-->
+                    <td>{{details.status}}</td><!--状态-->
+                    <td>{{details.orderPrice}}</td><!--收款金额-->
+                    <td>{{details.payTime}}</td> <!--收款时间-->
+                    <td><input v-model="details.payPrice" ></td><!--采购金额-->
+                    <td>{{details.purchaseTime}}</td><!--采购时间-->
+                    <td>{{lugprofit}}</td><!--行李利润-->
+                </tr>
+                </tbody>
+            </table>
+			<table class="table"  v-if="details.oldNumber">
+                <colgroup  style="width:auto"></colgroup><!--商品名-->
+                <colgroup  style="width:auto"></colgroup><!--请求时间-->
+                <colgroup  style="width:auto"></colgroup><!--状态-->
+                <colgroup  style="width:auto"></colgroup><!--收款金额-->
+                <colgroup  style="width:auto"></colgroup><!--收款时间-->
+                <colgroup  style="width:auto"></colgroup><!--采购金额-->
+                <colgroup  style="width:auto"></colgroup> <!--采购时间-->
+                <thead class="specifictable specifictable01">
+                <tr>
+                    <th>
+                        <span>原票号</span>
+                    </th>
+                    <th>
+                        <span>原票回款</span>
+                    </th>
+                    <th>新票号</th>
+                    <th>新票采购金额</th>
+                    <th>利润</th>
+                    <th>实际利润</th>
+                    <th>处理人</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr >
+                    <td><input v-model="details.oldNumber" ></td><!--原票号-->
+                    <td><input v-model="details.oldpayPrice" ></td><!--原票回款-->
+                    <td><input v-model="details.newNumber" ></td><!--新票号-->
+                    <td><input v-model="details.newpayPrice"></td><!--新票采购金额-->
+                    <td>{{profit}}</td> <!--利润-->
+                    <td>{{realprofit}}</td><!--实际利润-->
+                    <td>{{details.dealpeople}}</td><!--处理人-->
+
+                </tr>
+				<tr>
+					<td colspan="7">
+						<div class="input-group" >
+							<span>订单说明：</span><textarea class="form-control"  name="orderRemarks"   v-model="details.remark" rows="2"></textarea>
+						</div>
+					</td>
+				</tr>
+                </tbody>
+            </table>
+        <div>
+            <div class="specbutt" @click="savelogfun(details.id)">保存</div>
+        </div>
+        <div>
+            <div class="specbutt" @click="logfun(details.id)">日志</div>
+        </div>
+        <div class="log" v-if="logflag">
+            <table class="table">
+                <colgroup  style="width:10%"></colgroup><!--动作-->
+                <colgroup  style="width:auto"></colgroup><!--内容-->
+                <colgroup  style="width:10%"></colgroup><!--操作人-->
+                <colgroup  style="width:20%"></colgroup><!--操作时间-->
+                <thead class="specifictable specifictable01">
+                <tr>
+                    <th>
+                        <span>动作</span>
+                    </th>
+                    <th>
+                        <span>内容</span>
+                    </th>
+                    <th>操作人</th>
+                    <th>操作时间</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(log,index) in logs">
+                    <td>{{log.function}}</td><!--动作-->
+                    <td>{{log.content}}</td><!--内容-->
+                    <td>{{log.dealpeople}}</td><!--操作人-->
+                    <td>{{log.dealtime}}</td><!--操作时间-->
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+	<!-- 报表 -->
+	<div id="report" v-show="report" class="alertbox">
+		<button type="button" class="close m-b"  @click="reportclo"><span aria-hidden="true">x</span><span class="sr-only">关闭</span></button>
+		<table class="table table-hover">
+		  <thead>
+			<tr>
+				<th>日期</th>
+				<th>订单号</th>
+				<th>旅客姓名</th>
+				<th>人数</th>
+				<th>票号</th>
+				
+				<th>收款</th>
+				<th>支付价</th>
+				<th>利润</th>
+			</tr>
+		  </thead>
+		  <tbody>
+			<tr>
+			  <td>{{reportinfo.time}}</td>
+			  <td>{{reportinfo.oid}}</td>
+			  <td>{{reportinfo.orderName}}</td>
+			  <td><input v-model="reportinfo.manNum"></td>
+			  <td>{{reportinfo.number}}</td>
+			  
+			  <td>{{reportinfo.orderPrice}}</td>
+			  <td>{{reportinfo.payPrice}}</td>
+			  <td>{{reportinfo.profit}}</td>
+			</tr>
+		  </tbody>
+		</table>
+		<table class="table table-hover">
+		  <thead>
+			<tr>
+				<th>订票账号</th>
+				<th>备注</th>
+				<th>支付方式</th>
+				<th>收款方式</th>
+				<th>加购行李</th>
+			</tr>
+		  </thead>
+		  <tbody>
+			<tr>
+			  <td><input v-model="reportinfo.account"></td>
+			  <td><input v-model="reportinfo.reportRemark"></td>
+			  <td><input v-model="reportinfo.payWay"></td>
+			  <td><input v-model="reportinfo.receiptWay"></td>
+			  <td><input v-model="reportinfo.kg"></td>			
+			</tr>
+		  </tbody>
+		</table>
+        <div>   
+			<div class="specbutt" @click="reportsub(reportinfo.id)">保存</div>		
+        </div>      
+    </div>
+	<!-- 发短信 -->
+	<div id="sendmsg" v-show="msg" class="alertbox" >
+        <button type="button" class="close m-b" @click="msgclo" ><span aria-hidden="true">x</span><span class="sr-only">关闭</span></button>
+		<hr/>
+		<ul id="myTab" class="nav nav-tabs">
+			<li class="active">
+				<a href="#msg-after" data-toggle="tab">
+					购买成功通知
+				</a>
+			</li>
+			<li>
+				<a href="#msg-before" data-toggle="tab">
+					客户支付短信
+				</a>
+			</li>
+		</ul>
+		<div id="myTabContent" class="tab-content">
+			<div class="tab-pane fade in active" id="msg-after">
+				<div class="form-group">
+					<div class="input-group m-b" >
+						<span class="input-group-addon">手机号：</span><input type="text"  v-model="msginfo.phone"  placeholder="" class="form-control">
+					</div>
+					<div class="input-group m-b" >
+						<span class="input-group-addon">name：</span><input type="text"  v-model="msginfo.name"  placeholder="" class="form-control">
+					</div>
+					<div class="input-group m-b" >
+						<span class="input-group-addon">flightinfo：</span><input type="text"  v-model="msginfo.flightinfo"   placeholder="" class="form-control">
+					</div>
+					<div class="input-group m-b" >
+						<span class="input-group-addon">product：</span><input type="text" v-model="msginfo.product"  class="form-control">
+					</div>
+					<div>
+						<textarea readonly class="form-control">模板：{{msginfo.tempafter}}</textarea>
+					</div>            
+				</div>
+				<button type="button" @click="msgsub(msginfo.oid,1)" class="btn btn-default btn-block">发送</button>
+			</div>
+			<div class="tab-pane fade" id="msg-before">
+			   <div class="form-group">
+					<div class="input-group m-b" >
+						<span class="input-group-addon">手机号：</span><input type="text"  v-model="msginfo.phone"  placeholder="" class="form-control">
+					</div>
+					<div class="input-group m-b" >
+						<span class="input-group-addon">name：</span><input type="text"  v-model="msginfo.name"  placeholder="" class="form-control">
+					</div>
+					<div class="input-group m-b" >
+						<span class="input-group-addon">code：</span><input type="text"  v-model="msginfo.code"   placeholder="" class="form-control">
+					</div>
+					<div class="input-group m-b" >
+						<span class="input-group-addon">pathCode：</span><input type="text" v-model="msginfo.pathCode"  class="form-control">
+					</div>
+					<div>
+						<textarea readonly class="form-control">模板：{{msginfo.tempbefore}}</textarea>
+					</div>            
+				</div>
+				<button type="button" @click="msgsub(msginfo.oid,2)" class="btn btn-default btn-block">发送</button>
+			</div>
+		</div>
+    </div>
+
+</div>
+
+<script src="../bingo/js/jquery.min.js"></script>
+<script src="../bingo/js/bootstrap.min.js"></script>
+<script src="../vue/vue.js"></script>
+<script src="../vue/axios.min.js"></script>
+<script src="../bingo/js/calc.min.js"></script>
+<script type="text/javascript" src="../resource/iview-2.0/dist/iview.min.js"></script>
+<script type="text/javascript">
+	
+   // var mobilevalid = /^(0|86|17951)?(13[0-9]|15[0-9]|17[0-9]|18[0-9]|14[0-9]|19[0-9])[0-9]{8}$/;
+	let refNum = window.location.href.indexOf('=')+1
+	let status;
+	if(refNum){
+		status = window.location.href.slice(refNum)
+	}
+    Vue.config.devtools = true;
+    new Vue({
+        el:'#lug',
+        data:{
+            //搜索窗的开关
+            searchflag:false,
+            searchObj:{},
+            //收款弹窗开关
+            collflag:false,
+			//报表
+			report:false,
+            reportinfo:{},
+			//短信
+			msg:false,
+			msginfo:{},
+            //获取链接弹窗
+            specific:false,          
+            details:'',//获取链接的数据          
+            logflag:false,//获取链接弹窗的日志开关
+            logs:null,//日志数据的存储
+            //主体table的数据组
+            lugtable:'',
+            //收款input
+            input:{payPrice:''},
+            //行李框购买的开关
+            addflag:false,
+            addInfo:{},			
+            dealpeoples :{},			
+            //行李框失焦后获取的行李金额数据
+            luggage:{},
+            //分页逻辑数据
+            pages:'',     //共多少页
+            count:'',     //共多少条数据
+            num: 1,       //页面第一次的时候给后台的页数是第一页
+            nnum:'',  //num在值改变后 赋值给nnum 比如翻页到第二 nnum=2 然后通过nnum传给后台 再把num改变
+        },
+        computed:{
+            profit:function(){
+                return calc.sub(this.details.oldpayPrice, this.details.newpayPrice)
+            },
+            lugprofit:function(){
+                return calc.sub(this.details.orderPrice, this.details.payPrice)
+            },
+            realprofit:function(){
+                return calc.add(this.lugprofit,this.profit)
+            },
+			lugprice:function(){
+				return calc.mul(this.luggage.cabinYPrice,0.015)
+			}
+        },
+        methods:{
+			getStartTime: function (starTime) {
+				this.searchObj.starttime=starTime
+			},
+			getEndTime: function (endTime) {
+				this.searchObj.stoptime=endTime
+			},
+			getdateTime: function (datetime) {
+				this.addInfo.datetime=datetime
+			},
+			outsub:function() {
+				if(window.confirm('确定导出吗？')==true){
+					axios({
+					  method: 'post',
+					  url: '../bingo/luggage.php?action=out',
+					  responseType: 'blob',
+					  data: this.searchObj
+					}).then(response => {
+					 if(response.data.size>0){
+						  var filename = '行李报表';
+						  let url = window.URL.createObjectURL(response.data)
+						  let link = document.createElement('a')
+						  link.style.display = 'none'
+						  link.href = url
+						  link.setAttribute('download', filename + '.xls')
+						  document.body.appendChild(link)
+						  link.click()
+					  }else{
+						alert('日期错误或暂无数据');
+					  }
+					})
+				}
+			},
+			changestatus:function (index,id){
+				if(window.confirm('确定已收款改变支付状态吗？')==true){
+					axios({
+						url:'../bingo/luggage.php?action=changestatus',
+						method:'get',
+						params:{id}
+					}).then(response=>{
+						if(response.data){
+							this.lugtable[index].status = '已收款';
+						}else{
+							alert('操作失败');
+						}
+					}).catch(error=>console.log(error))
+				}
+			},
+			deleteone:function (index,id){
+				if(window.confirm('确定删除吗？')==true){
+					axios({
+						url:'../bingo/luggage.php?action=delete',
+						method:'get',
+						params:{id}
+					}).then(response=>{
+						if(response.data){
+							this.lugtable.splice(index, 1);
+							//Vue.set(this.lugtable,inde,response.data.data)
+						}else{
+							alert('操作失败');
+						}
+					}).catch(error=>console.log(error))
+				}
+			},
+			//获取短信
+			msgfun:function(id){
+				this.msg=!this.msg
+				axios({
+					url:'../bingo/luggage.php?action=sendDetails',
+					method:'get',
+					params:{id}
+				}).then(response=>{
+					this.msginfo=response.data			
+				}).catch(error=>console.log(error))
+			},
+			msgclo:function() {
+				this.msg=false;
+			},
+			msgsub:function(oid,t){
+				if(t==1){
+					var sendurl='../bingo/luggage.php?action=sendAfter';
+					if(this.msginfo.product==''){
+						alert('产品必填');
+						return false;
+					}
+				}
+				if(t==2){
+					var sendurl='../bingo/luggage.php?action=sendBefore';
+				}
+				if(window.confirm('确定发送吗？')==true){
+					axios({
+						url:sendurl,
+						method:'post',
+						data:this.msginfo,
+					}).then(response=>{
+						if(response.data.state){
+							this.msg=false;
+							alert(response.data.msg);
+						}else{
+							alert(response.data.msg);
+						}
+					}).catch(error=>console.log(error))
+				}
+			},
+			//获取报表
+			reportfun:function(id){
+				this.report=!this.report
+				axios({
+					url:'../bingo/luggage.php?action=report',
+					method:'get',
+					params:{id}
+				}).then(response=>{
+					this.reportinfo=response.data			
+				}).catch(error=>console.log(error))
+			},
+			//关闭报表
+			reportclo:function(){
+				this.report=false;
+			},
+            //查找函数
+            searfun:function(){
+				/*
+				if(this.searchObj.starttime==''&&
+				this.searchObj.stoptime==''&&
+				this.searchObj.goodsName==''&&
+				this.searchObj.oid==''&&
+				this.searchObj.islock==''&&
+				this.searchObj.msgStatus==''&&
+				this.searchObj.status==''
+				){
+					alert('请选择搜索条件');
+				}
+				*/
+                axios({
+                    url:'../bingo/luggage.php?action=query',
+                    method:'post',
+                    data:this.searchObj
+                }).then(response=>{
+                    this.lugtable = response.data.row;
+					this.pages = response.data.pageCount;					
+					this.count = response.data.count;					
+					if(JSON.stringify(this.searchObj)=="{}"){
+						this.searchflag = true;
+					}
+                }).catch(error=>{console.log(error)})
+            },
+            //获取链接函数
+            getinfo:function(inde,id){
+				if(window.confirm('确定获取链接吗？')==true){
+					axios({
+						url:'../bingo/luggage.php?action=getOrderInfo',
+						method:'get',
+						params:{id}
+					}).then(response=>{
+						if(response.data.code){
+							console.log(this.lugtable[inde])
+							Vue.set(this.lugtable,inde,response.data.data)
+						}else if(response.data.code){
+							alert(response.data.data)
+						}
+					}).catch(error=>console.log(error))
+				}
+			},
+            //收款弹窗显示函数
+            colleclog:function (id,oid,price) {
+                this.collflag = !this.collflag;
+                if(!!id||!!price){
+                    this.input.id = id
+                    this.input.oid = oid
+                    this.input.price = price
+                }
+            },
+			//收款弹窗提交
+            colleclogsure:function () {
+				if(this.input.payPrice==''){
+					alert('收款金额必填');
+					return false;
+				}
+                axios({
+                    url:'../bingo/luggage.php?action=deal',
+                    method:'post',
+                    data:this.input,
+                }).then(response=>{
+					if(response.data.code){
+						this.collflag = false;
+						window.location.reload(true)
+					}else{
+						alert(response.data.data);
+					}
+				}).catch(error=>console.log(error))
+            },
+			reportsub:function() {
+				if(this.reportinfo.payPrice==''){
+					alert('收款金额必填');
+					return false;
+				}
+                axios({
+                    url:'../bingo/luggage.php?action=reportDeal',
+                    method:'post',
+                    data:this.reportinfo,
+                }).then(response=>{
+					if(response.data.code){
+						this.report = false;
+						window.location.reload(true)
+					}else{
+						alert(response.data.data);
+					}
+				}).catch(error=>console.log(error))
+			},
+            //行李框购买弹窗
+            addopen:function(id) {
+				this.addInfo={
+					'id':'',
+					'goodsName':'行李',
+					'oid':'',
+					'orderName':'',
+					'orderPhone':'',
+					'trip':'',
+					'datetime':'',
+					'orderPrice':'',
+					'expiryTime':30,
+					'orderRemarks':'',
+					'type':false
+				},
+                this.addflag = !this.addflag;
+                if(!!id&&!!this.addflag){
+                    axios.get('../bingo/luggage.php?action=reget', {
+                        params: {
+                            id:id
+                        }
+                    }).then((response)=>{
+                        this.addInfo=response.data;
+                    }).catch((error)=>{
+                        console.log(error);
+                    });
+                }
+            },
+            //行李购买框的确认按钮
+            addsubmint:function () {
+                if(this.addInfo.oid==''){
+                    $("input[name=oid]").focus();
+                    return false;
+                }
+                if(this.addInfo.orderName==''){
+                    $("input[name=orderName]").focus();
+                    $("input[name=orderName]").attr('placeholder','请填写客户姓名');
+                    return false;
+                }
+				if(this.addInfo.orderPhone==''){
+                    $("input[name=orderPhone]").focus();
+                    $("input[name=orderPhone]").attr('placeholder','请填写客户手机号');
+                    return false;
+                }
+                /*
+				if(!mobilevalid.test(this.addInfo.orderPhone)){
+                    this.addInfo.orderPhone='';
+                    $("input[name=orderPhone]").focus();
+                    $("input[name=orderPhone]").attr('placeholder','请填写正确的手机号');
+                    return false;
+                }
+				*/
+                if(this.addInfo.orderPrice==''){
+                    $("input[name=orderPrice]").focus();
+                    $("input[name=orderPrice]").attr('placeholder','价格不能为空');
+                    return false;
+                }
+				if(this.addInfo.trip!=''&&this.addInfo.datetime==''){
+                    alert('手工输入行程时请输入行程时间');
+                    return false;
+                }
+				if(this.addInfo.trip==''&&this.addInfo.datetime!=''){
+                    $("input[name=trip]").focus();
+                    $("input[name=trip]").attr('placeholder','手工输入行程时必填');
+                    return false;
+                }
+                axios({
+                    url:'../bingo/luggage.php?action=placeOrder',
+                    method:'post',
+                    data:this.addInfo
+                }).then((response)=>{
+                    console.log(response.data);
+                    if(response.data.code){
+                        //成功
+                        alert(response.data.data);
+						this.addflag = false;
+						location.reload();
+                    }else{
+                        //失败
+                        alert(response.data.data);
+                    }
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            },
+            //机票平台订单号输入框失焦函数
+            getluginfo:function () {
+                axios.get('../bingo/luggage.php?action=getLugPrice', {
+                    params: {
+                        oid:this.addInfo.oid
+                    }
+                }).then((response)=>{
+					this.luggage=response.data;
+                }).catch((error)=>{
+                    console.log(error);
+                });
+            },
+            //搜索弹窗开关
+            searanimation:function () {
+                this.searchflag = !this.searchflag
+            },
+            //获取链接弹窗开关
+            specificfun:function (id) {
+                this.specific = !this.specific;
+                this.logflag = false;
+                if(!!id&&!!this.specific){
+                    axios({
+                        url:'../bingo/luggage.php?action=getDetails',
+                        method:'get',
+                        params:{id}
+                    }).then(response=>{
+                        this.details = response.data
+                    }).catch(error=>console.log(error))
+                }
+            },
+            //链接弹窗的日志开关
+            logfun:function(id){
+                this.logflag = !this.logflag;
+                if(!!id&&!!this.logflag){
+                    axios({
+                        url:'../bingo/luggage.php?action=getLog',
+                        method:'get',
+                        params:{id}
+                    }).then(response=>{
+                        this.logs = response.data
+                    }).catch(error=>{console.log(error)})
+                }
+            },
+            //查看详情的保存按钮功能
+            savelogfun:function(){
+				axios({
+                    url:'../bingo/luggage.php?action=deal',
+                    method:'post',
+                    data:this.details
+                }).then((response)=>{
+                    console.log(response.data);
+                    if(response.data.code){
+                        //成功
+                       // alert(response.data.data);
+						this.addflag = false;
+						location.reload();
+                    }else{
+                        //失败
+                        alert(response.data.data);
+                    }
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            },
+            //发短信
+            message:function (ind,orderId) {
+                if(window.confirm('确定发短信吗？')==true){
+					axios({
+						url:'../bingo/luggage.php?action=send',
+						method:'get',
+						params:{orderId}
+					}).then(response=>{
+						if(response.data.code){
+							this.lugtable[ind].msgStatus = '已发送';
+						}else{
+							alert('发送失败');
+						}
+					}).catch(error=>console.log(error))
+				}
+            },
+            //解锁按钮函数
+            unlock:function (ind,id) {
+                axios({
+                    url:'../bingo/luggage.php?action=unlock',
+                    method:'get',
+                    params:{id}
+                }).then(response=>{
+                    if(response.data){
+                        this.lugtable[ind].islock = 0;
+                    }
+                }).catch(error=>console.log(error))
+            },
+            //分页函数
+            //向后转页面 —
+            uppage:function(){
+                if(this.num>1){
+                    this.num -= 1;
+                }else{
+                    return
+                }
+                this.nnum = this.num;
+                this.axfun(this.nnum)
+            },
+            //向前转页面 +
+            downpage:function(){
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if(this.num<this.pages){
+                    this.num = this.num + 1;
+                }else{
+                    return
+                }
+                this.nnum = this.num;
+                this.axfun(this.nnum)
+            },
+            //直接去某页面
+            gotopage:function () {
+                var apage = document.getElementById('apage');
+                if(apage.value > this.pages){
+                    alert('没有该页码');
+                    apage.value = this.num
+                }else{
+                    this.num = apage.value;
+                    this.nnum = this.num;
+                    this.axfun(this.nnum)
+                }
+            },
+            //直接去首页
+            firstpage:function () {
+                this.num = 1;
+                this.nnum = this.num;
+                this.axfun(this.nnum)
+            },
+            //直接去末尾页
+            llastpage:function () {
+                this.num = this.pages;
+                this.nnum = this.num;
+                this.axfun(this.nnum)
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun:function(nnum){
+                axios({
+                    method: 'get',
+                    url:'../bingo/luggage.php?action=query',
+                    params:{
+                        page:nnum
+                    }
+                }).then((response)=>{
+                   console.log(response)
+                    this.lugtable = response.data.row;
+                    this.searchObj = response.data.search;
+					this.pages = response.data.pageCount;
+					this.count = response.data.count;	
+					if(JSON.stringify(this.searchObj)=="{}"){
+						this.searchflag = true;
+					}
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            },
+        },
+        beforeCreate(){
+        },
+        created(){
+            axios({
+                url:'../bingo/luggage.php?action=query',
+                method:'get',
+				params:{
+                    status:status
+                }
+            }).then((response)=>{
+                console.log(response);
+                this.lugtable = response.data.row;
+                this.pages = response.data.pageCount;
+				this.count = response.data.count;
+				this.searchObj = response.data.search;
+				this.dealpeoples = response.data.dealpeoples;
+            }).catch((error)=>{
+                console.log(error)
+            })
+        }
+    })
+</script>
+</body>
+</html>

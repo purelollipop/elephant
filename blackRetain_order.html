@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>黑屏留单管理</title>
+    <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+    <link rel="stylesheet" href="../resource/css/tableCustom.css" >
+    <style rel="stylesheet">
+        .ivu-tabs-bar{
+            margin-bottom: 2px;
+        }
+        .retainTable{
+            border: 1px silver solid;
+        }
+        .retainTable>thead>tr>th{
+            border: 1px #E7E7E7 solid;
+        }
+        .retainTable>tbody>tr>td{
+            border: 1px #E7E7E7 solid;
+        }
+        .allSearch{
+            display: flex;
+            flex-wrap:wrap;
+            margin-bottom: 5px;
+            /*width: 300px;*/
+            /*position: absolute;*/
+            /*top: -200px;*/
+            /*display: none;*/
+            /*visibility: hidden;*/
+        }
+        .allSearch>div{
+            width: 200px;
+            margin: 3px 3px;
+        }
+        .divshow{
+            /*display: block;*/
+            top: 1px;
+            position: relative;
+            visibility: visible;
+            transition: top 2s,position 2s,visibility 2s;
+        }
+        /*航班信息的样式*/
+        .td_message{
+            display: flex;
+            /*width: 120px;*/
+            margin: 0 auto;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            width: 130px;
+        }
+        .td_message>div{
+            margin-left: 2px;
+        }
+        td[data-color='1']{
+            background-color: red;
+        }
+        /*涨舱*/
+        div[data-dropFlag='1']{
+            background-color: red;
+        }
+        /*降舱*/
+        div[data-dropFlag='0']{
+            background-color: #0e9aef;
+        }
+        /*备注表格样式*/
+        .remaksClass:hover{
+            cursor: pointer;
+            background-color: #0e9aef;
+            opacity: 0.1;
+        }
+    </style>
+</head>
+<body>
+<div id="retainOrder">
+    <Tabs v-model="name"
+          :animated="false"
+          style="min-height: 1000px">
+        <Tab-pane label="统计" name="name1">
+            <all_order_table v-if="name=='name1'" :name.sync="name"></all_order_table>
+        </Tab-pane>
+        <Tab-pane label="详情" name="name2">
+            <alone_order_table v-if="name=='name2'"></alone_order_table>
+        </Tab-pane>
+    </Tabs>
+</div>
+<!--统计组件 显示所有单，后台已将所有单分类好，形成不同政策-->
+<template id="allOrderTable">
+    <div>
+        <div class="allSearch" v-if="searchFlag">
+            <!--大PNR-->
+            <i-input class="chooseChild" v-model="searchObj.code">
+                <span slot="prepend">航班号</span>
+            </i-input>
+            <!--大PNR-->
+            <i-input class="chooseChild" v-model="searchObj.dpt">
+                <span slot="prepend">出发</span>
+            </i-input>
+            <!--大PNR-->
+            <i-input class="chooseChild" v-model="searchObj.arr">
+                <span slot="prepend">到达</span>
+            </i-input>
+            <!--政策代码-->
+            <i-input class="chooseChild" v-model="searchObj.policyCode">
+                <span slot="prepend">政策代码</span>
+            </i-input>
+            <!--航司-->
+            <i-input class="chooseChild" v-model="searchObj.carrier">
+                <span slot="prepend">航司</span>
+            </i-input>
+            <!--航班日期-->
+            <Date-picker type="daterange"
+                         placement="bottom-end"
+                         placeholder="航班日期"
+                         @on-change="flyTimeFun">
+            </Date-picker>
+            <!--进单平台-->
+            <i-select v-model="searchObj.ticketTable" placeholder="平台选择">
+                <i-option value="携程">携程</i-option>
+                <i-option value="同程">同程</i-option>
+                <i-option value="XSS">XSS</i-option>
+                <i-option value="PAI">PAI</i-option>
+                <i-option value="TTR">TTR</i-option>
+                <i-option value="XSG">XSG</i-option>
+                <i-option value="平安航旅">平安航旅</i-option>
+                <i-option value="向上商旅">向上商旅</i-option>
+                <i-option value="酷讯">酷讯</i-option>
+            </i-select>
+            <div>
+                <i-button type="success" icon="ios-search" size="small" @click="sureSearch">开始搜索</i-button>
+            </div>
+        </div>
+        <i-button type="primary" icon="ios-search" size="small" @click="allSearchFun">搜索</i-button>
+        <i-button type="primary" size="small" @click="allOrder">批量出票</i-button>
+        <table class="retainTable" style="font-size: 12px;width: 100%">
+            <colgroup>
+                <col style="width:50px"><!--全选-->
+                <col style="width:auto"><!--航班号-->
+                <col style="width:auto"><!--航班日期-->
+                <col style="width:auto"><!--起飞时间-->
+                <col style="width:auto"><!--出发-->
+                <col style="width:auto"><!--到达-->
+                <col style="width:auto"><!--已收-->
+                <col style="width:400px"><!--已收实时余位/舱位-->
+                <col style="width:auto"><!--更新时间-->
+                <col style="width:auto"><!--政策代码-->
+                <col style="width:120px"><!--备注-->
+            </colgroup>
+            <thead >
+            <tr style="text-align:center;height: 40px" class="headBorder">
+                <th>
+                    <input type="checkbox" @click="allInput" id="retain_all_input">
+                    <span>全选</span>
+                </th>
+                <!--航班信息-->
+                <th>航班号</th>
+                <th style="text-align:center">航班日期</th>
+                <th>起飞时间</th>
+                <th>出发</th>
+                <th>到达</th>
+                <th>已收</th>
+                <th style="text-align:center">实时舱位 / 实时余位</th>
+                <th>更新时间</th>
+                <th>政策代码</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody class="" >
+            <tr v-for="(ord,index) in allOrderObj" :key="ord.index" style="height: 60px">
+                <!--全选-->
+                <td>
+                    <input type="checkbox" class="inputClick" @click="aloneInput(ord.code,ord.date,ord.dpt,ord.arr,ord.id)">{{index+1+(20*(num - 1))}}
+                </td>
+                <!--航班号-->
+                <td>
+                    <div>{{ord.code}}</div>
+                </td>
+                <!--航班日期-->
+                <td>
+                    <div>{{ord.date}}</div>
+                </td>
+                <!--起飞时间-->
+                <td>
+                    <div>{{ord.dpttime}}</div>
+                </td>
+                <!--出发-->
+                <td>
+                    <div>{{ord.dpt}}</div>
+                </td>
+                <!--到达-->
+                <td>
+                    <div>{{ord.arr}}</div>
+                </td>
+                <!--已收-->
+                <td>
+                    <div>{{ord.population}}</div>
+                </td>
+
+                <!--实时舱位/实时余位-->
+                <td>
+                    <ul>
+                        <li v-for="(cabin,index) in strReplace(ord.cabin_real_time)" :key="index" style="display: inline-block">
+                            <span v-if="cabin.b != '0'" style="color: blue">{{cabin.a}}{{cabin.b}}&nbsp;&nbsp;</span>
+                            <span v-else>{{cabin.a}}{{cabin.b}}&nbsp;&nbsp;</span>
+    <!--                        <span v-if="index === 10 || index === 20"><br/></span>-->
+                        </li>
+                    </ul>
+                    <!--<div>{{ord.seats_real_time}}</div>-->
+                </td>
+                <!--更新时间-->
+                <td>
+                    <div>{{ord.data_time}}</div>
+                </td>
+                <!--政策代码-->
+                <td>
+                    <div>{{ord.policyCode}}</div>
+                </td>
+                <!--处理按钮-->
+                <td>
+                    <button class="butt"  @click="action_details_deal(ord.id)">出票</button>
+                    <button class="butt"  @click="details(ord.code,ord.date,ord.dpt,ord.arr)">详情</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <!--分页逻辑-->
+        <div style="float: right;margin-top: 20px">
+            <span>总计{{count}}条</span>
+            <button type="button"  class=""  @click="firstpage">第一页</button>
+            <button type="button"  class=""  @click="uppage">前一页</button>
+            共<span>{{pages}}</span>页&nbsp;&nbsp;
+            第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" :value="num" ref="num">&nbsp;页&nbsp;&nbsp;
+            <button  class=""  @click="gotopage">转到</button>
+            <button  class=""  @click="downpage">后一页</button>
+            <button  class=""  @click="llastpage">最后一页</button>
+        </div>
+    </div>
+</template>
+
+<template id="aloneOrderTable">
+    <div>
+        <div class="allSearch" v-if="searchAloneFlag">
+            <!--航班号-->
+            <i-input class="chooseChild" v-model="searchObj.code">
+                <span slot="prepend">航班号</span>
+            </i-input>
+            <!--出发-->
+            <i-input class="chooseChild" v-model="searchObj.dpt">
+                <span slot="prepend">出发</span>
+            </i-input>
+            <!--到达-->
+            <i-input class="chooseChild" v-model="searchObj.arr">
+                <span slot="prepend">到达</span>
+            </i-input>
+            <!--平台订单号-->
+            <i-input class="chooseChild" v-model="searchObj.orderNo">
+                <span slot="prepend">平台订单号</span>
+            </i-input>
+            <!--小编-->
+            <i-input class="chooseChild" v-model="searchObj.pnr">
+                <span slot="prepend">小编</span>
+            </i-input>
+            <!--航司-->
+            <i-input class="chooseChild" v-model="searchObj.carrier">
+                <span slot="prepend">航司</span>
+            </i-input>
+            <!--航班日期-->
+            <Date-picker type="daterange"
+                         placement="bottom-end"
+                         placeholder="航班日期"
+                         @on-change="flyTimeFun">
+            </Date-picker>
+            <!--乘机人-->
+            <i-input class="chooseChild" v-model="searchObj.passengerinfo">
+                <span slot="prepend">乘机人</span>
+            </i-input>
+            <!--进单日期-->
+            <Date-picker type="daterange"
+                         placement="bottom-end"
+                         placeholder="进单日期"
+                         @on-change="intoTimeFun">
+            </Date-picker>
+            <!--进单平台-->
+            <i-select v-model="searchObj.ticketTable" placeholder="平台选择">
+                <i-option value="携程">携程</i-option>
+                <i-option value="同程">同程</i-option>
+                <i-option value="XSS">XSS</i-option>
+                <i-option value="PAI">PAI</i-option>
+                <i-option value="TTR">TTR</i-option>
+                <i-option value="XSG">XSG</i-option>
+                <i-option value="平安航旅">平安航旅</i-option>
+                <i-option value="向上商旅">向上商旅</i-option>
+                <i-option value="酷讯">酷讯</i-option>
+            </i-select>
+            <!--平台状态-->
+            <i-select v-model="searchObj.platformstatus" placeholder="平台状态">
+                <i-option value=""></i-option>
+                <i-option value="未出票">未出票</i-option>
+                <i-option value="出票中">出票中</i-option>
+                <i-option value="已付款，待出票">已付款，待出票</i-option>
+                <i-option value="已取消">已取消</i-option>
+                <i-option value="退款完成">退款完成</i-option>
+                <i-option value="订单已驳回">订单已驳回</i-option>
+                <i-option value="出票完成">出票完成</i-option>
+                <i-option value="已出票">已出票</i-option>
+            </i-select>
+            <div>
+                <i-button type="primary" icon="ios-search" size="small" @click="sureAloneSearch">开始搜索</i-button>
+            </div>
+        </div>
+        <remarks-wind :remarks-obj.sync="remarksObj" v-if="remarksObj.remarksId"></remarks-wind>
+        <i-button type="primary" icon="ios-search" size="small" @click="aloneSearch">搜索</i-button>
+        <i-button type="primary" size="small" @click="alontLotSize">批量出票</i-button>
+        <i-button type="primary" size="small" @click="exportFun">导出</i-button>
+        <table class="retainTable" style="font-size: 12px;width: 100%">
+            <colgroup>
+                <col style="width:50px"><!--全选-->
+                <col style="width:auto"><!--航班号-->
+                <col style="width:auto"><!--进单日期-->
+                <col style="width:auto"><!--航班日期-->
+                <col style="width:auto"><!--小编/订单号-->
+                <col style="width:60px"><!--进单舱位/进单余位-->
+                <col style="width:300px"><!--实时舱位/实时余位-->
+                <col style="width:80px"><!--实时数据时间-->
+                <col style="width:120px"><!--乘机人-->
+                <col style="width:70px"><!--平台-->
+                <col style="width:60px"><!--平台状态-->
+                <col style="width:70px"><!--备注-->
+                <col style="width:auto"><!--操作-->
+            </colgroup>
+            <thead >
+            <tr style="text-align:center;height: 40px" class="headBorder">
+                <th>
+                    <input type="checkbox" @click="alontAllInput" class="aloneLotSize" id="retain_alone_input">
+                    <span>全选</span>
+                </th>
+                <th>航班号</th>
+                <th>进单日期</th>
+                <th style="text-align:center">航班日期</th>
+                <th>小编/订单号</th>
+                <th style="text-align:center">
+                    <p>进单舱位</p>
+                    <p>进单余位</p>
+                </th>
+                <th style="text-align:center">实时舱位/实时余位</th>
+                <th>实时数据时间</th>
+                <th>乘机人</th>
+                <th>平台</th>
+                <th>平台状态</th>
+                <th>备注</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody class="" >
+            <tr v-for="(ord,index) in allOrderObj" :key="index" style="height: 60px">
+                <!--全选-->
+                <td>
+                    <input type="checkbox" class="aloneInput" @click="detailsAloneInput(ord.id)">{{index+1+(20*(num-1))}}
+                </td>
+                <td>
+                    <div>
+                        <!--航班号-->
+                        <div :data-dropFlag="ord.dropFlag">
+                            {{ord.code}}
+                        </div>
+                        <!-- 出发-到达 -->
+                        <div>
+                            <div>{{ord.dpt}}-{{ord.arr}}</div>
+                        </div>
+                    </div>
+                </td>
+                <!--进单日期-->
+                <td><div>{{ord.orderTime | orderTimeFilter}}</div></td>
+                <!--航班日期--><!--起飞时间-->
+                <td :data-color="ord.colour+''">
+                    <div>{{ord.date}}</div>
+                    <div>{{ord.dpttime}}</div>
+                </td>
+                <!--订单号--><!--小编-->
+                <td>
+                    <div v-if="ord.pnr === ''">——</div>
+                    <div v-else>{{ord.pnr}}</div>
+                    <div>{{ord.orderNo}}</div>
+                </td>
+                <!--进单舱位/进单余位-->
+                <td>
+                    <div>{{ord.cabin}}{{ord.seats}}</div>
+                </td>
+                <!--实时舱位/实时余位-->
+                <td>
+                    <ul>
+                        <li v-for="(cabin,index) in strReplace(ord.cabin_real_time)" :key="index" style="display: inline-block">
+                            <!--余位不为0 蓝色提醒-->
+                            <span v-if="cabin.b != '0'" style="color: blue">{{cabin.a}}{{cabin.b}}&nbsp;&nbsp;</span>
+                            <span v-else>{{cabin.a}}{{cabin.b}}&nbsp;&nbsp;</span>
+                        </li>
+                    </ul>
+                    <div>{{ord.seats_real_time}}</div>
+                </td>
+                <!--实时数据时间-->
+                <td>
+                    <div>{{ord.data_time}}</div>
+                </td>
+                <!--乘机人-->
+                <td>
+                    <div
+                            style="height: 60px;
+                            overflow: hidden;
+                            text-align: center;
+                            width: 120px;
+                            line-height: 60px;
+                            white-space: nowrap;
+                            text-overflow: ellipsis"
+                            :title="ord.passengerinfo | passengerinfoFlite"
+                    >{{ord.passengerinfo | passengerinfoFlite}}</div>
+                </td>
+                <!--平台-->
+                <td>
+                    <div>{{ord.ticketTable}}</div>
+                </td>
+                <!--平台状态-->
+                <td>
+                    <div v-if="ord.platformstatus === '已取消' || ord.platformstatus === '退票申请中' || ord.platformstatus === '订单已驳回' || ord.platformstatus === '退款完成'" style="color: red">
+                        {{ord.platformstatus}}
+                    </div>
+                    <div v-else-if="ord.platformstatus === '出票完成' || ord.platformstatus === '已出票'" style="color: blue">
+                        {{ord.platformstatus}}
+                    </div>
+                    <div v-else>
+                        {{ord.platformstatus}}
+                    </div>
+                </td>
+                <!--备注-->
+                <td
+                        @click="remarksFun(ord.id,ord.remark)"
+                        class="remaksClass"
+                        title="点击填入备注"
+                >{{ord.remark}}</td>
+                <!--处理按钮-->
+                <td>
+                    <button class="butt"  @click="aloneCheckOrder(ord.id)">出票</button>
+                    <button class="butt"  @click="searchlist(ord.id)">查询</button>
+                    <button class="butt"  @click="deleteOrder(ord.id)">删除</button>
+                    <!--<button class="butt" v-if="ord.platformstatus==='改期申请中'||ord.platformstatus==='未出票申请退款'||ord.platformstatus==='退款完成'" @click="deleteOrder(ord.id)">删除</button>-->
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <!--分页逻辑-->
+        <div style="float: right;margin-top: 20px">
+            <span>总计{{count2}}条</span>
+            <button type="button"  class=""  @click="firstpage">第一页</button>
+            <button type="button"  class=""  @click="uppage">前一页</button>
+            共<span>{{pages}}</span>页&nbsp;&nbsp;
+            第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" :value="num" ref="num">&nbsp;页&nbsp;&nbsp;
+            <button  class=""  @click="gotopage">转到</button>
+            <button  class=""  @click="downpage">后一页</button>
+            <button  class=""  @click="llastpage">最后一页</button>
+        </div>
+    </div>
+</template>
+
+<template id="remarWind">
+    <div>
+        <Modal
+                v-model="!!remarksObj.remarksId" draggable scrollable title="填写备注"
+                footer-hide
+                :closable="false"
+        >
+            <i-input type="textarea" v-model="text"></i-input>
+            <div>
+                <i-button size="small" @click="sureMarksFun">确定</i-button>
+                <i-button size="small" @click="cancelMarksFun">取消</i-button>
+            </div>
+        </Modal>
+    </div>
+</template>
+
+<script src="../vue/vue.js"></script>
+<script src="../resource/iview-2.0/dist/iview.js"></script>
+<script src="../vue/axios.min.js"></script>
+<script src="../vue/vuex.js"></script>
+
+<script type="text/javascript">
+    const busData = Vue.observable({
+        detailedObj:{
+            code:null,date:null,dpt:null,arr:null,detailedFlag:null,carrier:null
+        },
+        rememberObj:{
+            all:{
+                num:undefined,
+                searchFlag:undefined,
+                searchObj:{
+                    id:null,
+                    code:null,
+                    date:null,
+                    dpttime:null,
+                    dpt:null,
+                    arr:null,
+                    cabin_real_time:undefined,
+                    seats_real_time:undefined,
+                    data_time:null,
+                    ticketTable:null,
+                    policyCode:null,
+                },
+            },
+            alone:{
+                num:undefined,
+                searchAloneFlag:undefined,
+                searchObj:{
+                    //飞行起始时间
+                    flyStartTime: '',
+                    //飞行结束时间
+                    flyEndTime: '',
+                    //进单起始时间
+                    intoStartTime: '',
+                    //进单结束时间
+                    intoEndTime: '',
+                    //航班号
+                    code:null,
+                    //出发
+                    dpt:null,
+                    //到达
+                    arr:null,
+                    //平台状态
+                    platformstatus:null,
+                    //平台
+                    ticketTable:null,
+                    //平台订单号
+                    orderNo:'',
+                    //小编
+                    pnr:'',
+                    //航司
+                    carrier:'',
+                },
+            },
+        },
+    });
+
+    //统计
+    Vue.component('all_order_table',{
+        template:'#allOrderTable',
+        data(){
+            return{
+                allOrderObj:null,
+                num:1,
+                pages:undefined,
+                count:undefined,
+                //搜索开关
+                searchFlag:false,
+                //搜索对象
+                searchObj:{
+                    id:null,
+                    code:null,
+                    date:null,
+                    dpttime:null,
+                    dpt:null,
+                    arr:null,
+                    cabin_real_time:undefined,
+                    seats_real_time:undefined,
+                    data_time:null,
+                    ticketTable:null,
+                    policyCode:null,
+                },
+                inputObject:[],
+            }
+        },
+        computed:{},
+        props:['name'],
+        methods:{
+            //初始化函数
+            objDataFun(pages=this.num,search=this.searchObj){
+                search = JSON.parse(JSON.stringify(search));
+                search.pages = pages;
+                axios({
+                    url:'../bingo/retain_order_black.php?action=statistics',
+                    method:'post',
+                    data:search,
+                }).then(res=>{
+                    this.allOrderObj = res.data.data;
+                    let leng1 = this.allOrderObj.length;
+                    //前端自己构造一个id，方便后面input按钮操作
+                    for(let a=0;a<leng1;a++){
+                        this.allOrderObj[a].id = a;
+                    };
+                    this.num = res.data.pages;
+                    this.pages = res.data.max_page;
+                    this.count = res.data.count;
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //字符串替换
+            strReplace(data){
+                if (data){
+                    let dataArray = [];
+                    let oneData = null;
+                    data = data.split(';');
+                    let dataLength = data.length;
+                    for (let i=0;i<dataLength;i++){
+                        if(!data[i].length){
+                            continue
+                        }
+                        if(data[i].length>2){
+                            let a = data[i].slice(0,2);
+                            let b = data[i].slice(2);
+                            oneData = {a,b};
+                        }else{
+                            let a = data[i].slice(0,1);
+                            let b = data[i].slice(1);
+                            oneData = {a,b};
+                        }
+                        dataArray.push(oneData);
+                    }
+                    return dataArray;
+                }
+            },
+            //统计页面搜索框开启关闭功能
+            allSearchFun(){
+                this.searchFlag = !this.searchFlag
+            },
+            //进单日期格式更改方法
+            intoTimeFun(data){
+                this.searchObj.intoStartTime = data[0];
+                this.searchObj.intoEndTime = data[1];
+            },
+            //航班日期格式更改方法
+            flyTimeFun(data){
+                this.searchObj.flyStartTime = data[0];
+                this.searchObj.flyEndTime = data[1];
+            },
+            //确定搜索
+            sureSearch(){
+                this.objDataFun(1);
+            },
+            //批量确定按钮
+            allOrder(){
+                if(confirm('是否确定出票')){
+                    if(this.inputObject.length){
+                        axios({
+                            url:'../bingo/retain_order.php?action=statistics_deal',
+                            method:"post",
+                            data:this.inputObject
+                        }).then(res=>{
+                            if(res.data.code == 100){
+                                alert('出票操作完成');
+                                this.objDataFun()
+                            }else{
+                                alert('出票操作失败');
+                            }
+                        }).catch(err=>{
+                            console.log(err)
+                        })
+                    }else{
+                        alert('请至少选一条政策')
+                    }
+                }
+            },
+            //统计页面单独出票按钮
+            action_details_deal(id){
+                if(confirm('是否确定出票')){
+                    let obj = [];
+                    for(let a=0;a<this.allOrderObj.length;a++){
+                        if(this.allOrderObj[a].id == id){
+                            obj.push(this.allOrderObj[a]);
+                        }
+                    };
+                    axios({
+                        url:'../bingo/retain_order_black.php?action=details',
+                        method:"post",
+                        data:obj
+                    }).then(res=>{
+                        if(res.data.code == 100){
+                            alert('出票操作完成');
+                            this.objDataFun()
+                        }else{
+                            alert('出票操作失败');
+                        }
+                    }).catch(err=>{
+                        console.log(err)
+                    })
+                }
+            },
+            //全选按钮
+            allInput(){
+                let all_input = document.getElementsByClassName('inputClick');
+                let leng = all_input.length;
+                //防止勾选单个Input时，造成数据重复
+                this.inputObject = [];
+                //全选按钮是否被勾选判断，触发添加子元素
+                if(event.target.checked){
+                    for(let a=0;a<leng;a++){
+                        all_input[a].checked = true;
+                        this.inputObject.push({
+                            code:this.allOrderObj[a].code,
+                            date:this.allOrderObj[a].date,
+                            dpt:this.allOrderObj[a].dpt,
+                            arr:this.allOrderObj[a].arr,
+                            id:this.allOrderObj[a].id,
+                        })
+                    }
+                }else{
+                    for(let a=0;a<leng;a++){
+                        all_input[a].checked = false;
+                    }
+                    this.inputObject = [];
+                }
+            },
+            //单独input按钮
+            aloneInput(code,date,dpt,arr,id){
+                let all_input = document.getElementById('retain_all_input');
+                //此处直接传入，不使用for循环来保证数据正确对应性，前提在于删除的时候，保证删除正确性
+                if(event.target.checked){
+                    this.inputObject.push({
+                        code,date,dpt,arr,id
+                    });
+                    //判断单独点击input按钮后，是否触发全选按钮
+                    if(this.inputObject.length==this.allOrderObj.length){
+                        all_input.checked = true;
+                    }
+                }else{
+                    for(let a=0;a<this.inputObject.length;a++){
+                        if(this.inputObject[a].id == id){
+                            this.inputObject.splice(a,1);
+                        }
+                    };
+                    //全选置为false
+                    all_input.checked = false;
+                };
+            },
+            //跳转明细页面按钮
+            details(code,date,dpt,arr){
+                busData.detailedObj.code = code;
+                busData.detailedObj.date = date;
+                busData.detailedObj.dpt = dpt;
+                busData.detailedObj.arr = arr;
+                busData.detailedObj.detailedFlag = true;
+
+                this.$emit('update:name','name2');
+            },
+            //分页函数
+            //向后转页面 —
+            uppage:function(){
+                if(this.num>1){
+                    this.num -= 1;
+                }else if(this.num<1){
+                    alert('没有该页码')
+                }else{
+                    return
+                }
+                this.axfun(this.num);
+            },
+            //向前转页面 +
+            downpage:function(){
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if(this.num<this.pages){
+                    this.num = this.num + 1;
+                }else{
+                    return
+                };
+                this.axfun(this.num)
+            },
+            //直接去某页面
+            gotopage:function () {
+                let val = this.$refs.num.value;
+                if(val > this.pages||val<1){
+                    //页数框页码重置
+                    this.$refs.num.value = this.num;
+                    alert('没有该页码');
+                }else{
+                    this.num = Math.round(this.num);
+                    this.num = val;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去首页
+            firstpage:function () {
+                //如果num已经是第一页了，就不再请求了
+                if(this.num == 1){
+                    return
+                }
+                this.num = 1;
+                this.axfun(this.num)
+            },
+            //直接去末尾页
+            llastpage:function () {
+                //如果已经等于最后已页，就不再请求
+                if(this.num == this.pages){
+                    return
+                }
+                this.num = this.pages;
+                this.axfun(this.num)
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun:function(page){
+                this.objDataFun(page)
+            },
+        },
+        created(){
+            busData.detailedObj = {
+                code:null,date:null,dpt:null,arr:null,detailedFlag:null,carrier:null
+            };
+            this.num = busData.rememberObj.all.num;
+            this.searchObj = busData.rememberObj.all.searchObj;
+            this.searchFlag = busData.rememberObj.all.searchFlag;
+
+            this.objDataFun()
+        },
+        beforeDestroy(){
+            busData.rememberObj.all.num = this.num;
+            busData.rememberObj.all.searchObj = this.searchObj;
+            busData.rememberObj.all.searchFlag = this.searchFlag;
+        }
+    });
+    //详情
+    Vue.component('alone_order_table',{
+        template:'#aloneOrderTable',
+        data(){
+            return{
+                //table数据载体
+                allOrderObj:null,
+                //当前页
+                num:1,
+                //共多少页
+                pages:undefined,
+                count2:undefined,
+                //全选按钮出票需要传给后台的数组
+                aloneInputCheckedArray:[],
+                //搜索开关
+                searchAloneFlag:false,
+                //搜索对象
+                searchObj:{
+                    //飞行起始时间
+                    flyStartTime: '',
+                    //飞行结束时间
+                    flyEndTime: '',
+                    //进单起始时间
+                    intoStartTime: '',
+                    //进单结束时间
+                    intoEndTime: '',
+                    //航班号
+                    code:null,
+                    //出发
+                    dpt:null,
+                    //到达
+                    arr:null,
+                    //平台状态
+                    platformstatus:null,
+                    //平台
+                    ticketTable:null,
+                    //平台订单号
+                    orderNo:'',
+                    //小编
+                    pnr:'',
+                    //航司
+                    carrier:'',
+                //    乘机人
+                    passengerinfo:null
+                },
+            //    避免某一个查询按钮重复点击
+                repeat:[],
+            //    备注对象的id，同时也是备注开关
+                remarksObj:{
+                    remarksId:null,
+                    remarksText:undefined
+                },
+
+            }
+        },
+        watch:{
+            remarksObj:{
+                handler(data){
+                    if(typeof(data.remarksId) == 'undefined'){
+                        this.dataFun();
+                    }
+                },
+                deep:true,
+            }
+        },
+        filters:{
+            orderTimeFilter(data){
+                let a = data.split(' ');
+                return a[0];
+            },
+            passengerinfoFlite(data){
+                let a = JSON.parse(data);
+                let b = '';
+                for (let i = 0; i < a.length; i++) {
+                    b+= a[i].man + a[i].type +';'
+                }
+                return b
+            }
+        },
+        methods:{
+            //数据初始化函数
+            dataFun(pages=this.num,searchAlone=this.searchObj){
+                searchAlone = JSON.parse(JSON.stringify(searchAlone));
+                searchAlone.pages = pages;
+                axios({
+                    url:'../bingo/retain_order_black.php?action=details',
+                    method:"post",
+                    data:searchAlone,
+                }).then(res=>{
+                    this.dropRiseFun(res.data.data)
+                    this.allOrderObj = res.data.data;
+                    this.pages = res.data.max_page;
+                    this.num = res.data.pages;
+                    this.count2 = res.data.count;
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //降舱升舱提醒函数  （通过修改数据 添加新属性 做提醒）
+            dropRiseFun(data){
+                //不同航司不同规则 排除舱位（排除各个航司的舱位） 映射表
+                let rule = {
+                    //common为默认排除舱位 航司（TV QW）
+                    common:[],
+                    TV:['Z','P','S','X'],
+                    QW:['S','T','M','X']
+                };
+                //修改rule 转成类数组
+                setObject(rule);
+                function setObject(data){
+                    let count = 0;
+                    for(let ee in data){
+                        count+=1;
+                    };
+                    data.length = count
+                };
+                //寻找对应规则
+                for (let i = 0; i < data.length; i++) {
+                    let count = 0;
+                    for(let e in rule){
+                        count += 1;
+                        if(data[i].carrier == e){
+                            data[i].dropFlag = ruleParse(rule[e],data[i]);
+                            break
+                        }
+                        else if(count==rule.length){
+                            data[i].dropFlag = ruleParse(rule.common,data[i])
+                        }
+                    }
+                };
+                //解析规则
+                function ruleParse(rule,data){
+                    //先默认为undfined，0 降舱；1 升舱;
+                    let dropFlag = undefined;
+                    //子舱开关 判断是否有子舱而单独查询
+                    let childFlag = false;
+                    //舱位正则规则
+                    let cabinReg = undefined;
+                    //判断是否是子舱位
+                    if(data.cabin.length>2){
+                        //构建一个正则对象 赋值给cabinReg
+                        cabinReg = new RegExp(data.cabin.slice(0,2) + '([0-9]|[A-Z]){0,1}');
+                    }else{
+                        //构建一个正则对象 赋值给cabinReg
+                        cabinReg = new RegExp(data.cabin.split('') + '([0-9]|[A-Z]){0,1}');
+                    }
+                    //实时舱位余位数组
+                    let position = null;
+                    //当前舱位和余位
+                    let cabinSeats = null;
+                    //当实时舱位存在
+                    if(data.cabin_real_time){
+                        position = data.cabin_real_time.split(';');
+                        //根据舱位正则，获取实时中的当前舱位情况 返回值为数组
+                        cabinSeats = data.cabin_real_time.match(cabinReg);
+                        //当舱位不存在 (此判断是用来判断子舱位不存在 取父舱位为参考值)
+                        //0.当仓位余位不存在，则降舱的仓位余位一定为0 直接判断升舱
+                        //1.当子舱位不存在，则判断是否有其他子舱位，如果其他子舱位数字比他小，（N22 N32 N2>N3；）则是升舱
+                        //2.如果子舱位自己本身余位没有了或自己不存在了，一般情况下，比他等级小的子舱位也会不存在
+                        //3.如果子舱位自己不存在了，则代表余位为0，及子舱位存在，其余位一定存在
+                        //4.如果进单时候是子舱位，实时时子舱位不存在了，代表一定升舱了
+                        if(!cabinSeats){
+                            dropFlag = 1;
+                            return  dropFlag
+                            // //则以父舱作为标准 来构建新的正则规则对象
+                            // cabinReg = new RegExp(data.cabin.split('')[0] + '([0-9]|[A-Z]){0,1}');
+                            // //新的子舱位余位
+                            // cabinSeats = data.cabin_real_time.match(cabinReg)[0];
+                        }else{
+                            //将当前舱位的情况赋值
+                            cabinSeats = cabinSeats[0];
+                        }
+                    }
+                    //实时舱位没有 则不判断
+                    else{
+                        return dropFlag
+                    }
+                    //进单舱位
+                    let cabin = cabinSeats.split('')[0];
+                    //进单舱位的余位
+                    let seats = cabinSeats.split('')[1];
+                    //当此时进单舱位的余位不存在，在一定升舱
+                    if(!seats){
+                        dropFlag = 1;
+                        return dropFlag
+                    }
+                    //先判断是否有降舱 有则为降舱 再判断当前舱位是否有余位 有则不管 没有 则升舱
+                    //循环实时舱位和实时余位数据
+                    let flag = false;
+
+                    //整体逻辑：先让设定为既不降舱也不升舱，undefind。再判断是否降舱，如果降舱不存在
+                    //则看进单舱位的实时余位是否有值，有，则返回 undefind，没有，则直接判断为升舱或全航变无票 即 1
+                    for (let i = 0; i < position.length; i++) {
+                        //split 切割 ; 会导致多出一位空格 无关业务逻辑
+                        if(!position[i]){
+                            continue
+                        };
+                        //舱位
+                        let poCabin = undefined;
+                        //余位
+                        let poSeats = undefined;
+                        //当舱位是有子舱位组合情况下
+                        if(position[i].length>2){
+                            poCabin = position[i].slice(0,2);
+                            poSeats = position[i].slice(2);
+                        }
+                        //普通舱位
+                        else{
+                            poCabin = position[i].split('')[0];
+                            poSeats = position[i].split('')[1];
+                        }
+                        //当到了进单舱位时候 才进行下面是否降舱判断
+                        if( poCabin == (cabin+'') && !flag){
+                            flag = true;
+                            //此处跳过循环 因为进单舱位余位此时先不判断 先判断进单舱位后面的舱位
+                            continue
+                        }
+                        //先判断是否降舱
+                        if(flag){
+                            let leng = rule.length;
+                            if(leng){
+                                //循环排除规则
+                                for (let j = 0; j < leng; j++) {
+                                    if(rule[j] == poCabin){
+                                        break;
+                                    }
+                                    //排除舱位规则 当实时舱位不等于任何一个排除舱位的时候 进入判断
+                                    if(rule[j] != poCabin&&(j == rule.length-1)){
+                                        //余位。只要有一个不为0 则肯定是降序 开关设为0。
+                                        if(poSeats.match(/[1-9]|A/)){
+                                            return dropFlag = '0';
+                                        };
+                                    }
+                                }
+                            }
+                            //如果没有排除规则 直接判断进单舱位后面的舱位是否有余位
+                            else{
+                                //当有余位
+                                if(poSeats.match(/[1-9]|A/)){
+                                    return dropFlag = '0';
+                                }
+                            }
+                        }
+                    }
+                    return dropFlag
+                    // if(dropFlag!='0'){
+                    //     //当前实时舱位的余位存在 则 dropFlag 为undefiend继续不动 意味不升不降
+                    //     //当实时余位为0 才进入判断 直接升舱
+                    //     if(!(seats*1)&&!(isNaN(seats*1))){
+                    //         dropFlag = 1
+                    //     }
+                    // }
+
+                }
+            },
+            //搜索开关函数
+            aloneSearch(){
+                this.searchAloneFlag = !this.searchAloneFlag
+            },
+            //进单日期格式更改方法
+            intoTimeFun(data){
+                this.searchObj.intoStartTime = data[0];
+                this.searchObj.intoEndTime = data[1];
+            },
+            //航班日期格式更改方法
+            flyTimeFun(data){
+                this.searchObj.flyStartTime = data[0];
+                this.searchObj.flyEndTime = data[1];
+            },
+            //确定搜索函数
+            sureAloneSearch(){
+                this.dataFun(1)
+            },
+            //字符串替换
+            strReplace(data){
+                if (data){
+                    let dataArray = [];
+                    let oneData = null;
+                    data = data.split(';');
+                    let dataLength = data.length;
+                    for (let i=0;i<dataLength;i++){
+                        if(!data[i].length){
+                            continue
+                        }
+                        if(data[i].length>2){
+                            let a = data[i].slice(0,2);
+                            let b = data[i].slice(2);
+                            oneData = {a,b};
+                        }else{
+                            let a = data[i].slice(0,1);
+                            let b = data[i].slice(1);
+                            oneData = {a,b};
+                        }
+                        dataArray.push(oneData);
+                    }
+                    return dataArray;
+                }
+            },
+            //单独出票按钮
+            aloneCheckOrder(id){
+                let aloneArray = [];
+                aloneArray.push(id);
+                axios({
+                    url:'../bingo/retain_order_black.php?action=details_deal',
+                    method:"post",
+                    data:aloneArray
+                }).then(res=>{
+                    if(res.data.code == 100){
+                        alert('出票操作完成');
+                        this.dataFun();
+                    }else{
+                        alert('出票操作失败')
+                    }
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //查询按钮
+            searchlist(id){
+                let orderid=[id];
+                for (let i = 0; i < this.repeat.length; i++) {
+                    if(this.repeat[i].id == id){
+                        if((new Date()).valueOf() - this.repeat[i].time <=60000){
+                            this.$Message.info({
+                                content:'id为' + id +'一分钟内已经查询过，请一分钟后查询',
+                                closable:true,
+                                duration:10,
+                            })
+                            return
+                        }else{
+                            this.repeat.splice(i,1);
+                            i--
+                        }
+                    }
+                }
+                this.repeat.push({id,time:(new Date()).valueOf()})
+                axios({
+                    url:'../bingo/retain_order_black.php?action=quire',
+                    method:'post',
+                    data:{
+                        orderid,
+                    }
+                }).then((res)=>{
+                    if(res.data.code == 100){
+                        this.dataFun()
+                    }else if(res.data.code == 101){
+                        alert("业务错误")
+                    }
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            },
+            //
+            //导出功能
+            exportFun(){
+                axios({
+                    url:"../bingo/retain_order_black.php?action=out",
+                    method:'post',
+                    responseType: 'blob',
+                    data:this.searchObj
+                }).then(response=>{
+                    if(response.data.size>0){
+                        let filename = '黑屏留单管理';
+                        let url = window.URL.createObjectURL(response.data);
+                        let link = document.createElement('a');
+                        link.style.display = 'none';
+                        link.href = url;
+                        link.setAttribute('download', filename + '.xls');
+                        document.body.appendChild(link);
+                        link.click();
+                    }else{
+                        alert('暂无数据');
+                    }
+                }).catch(err=>{
+                    console.log(err);
+                });
+            },
+            //备注功能
+            remarksFun(id,text){
+                this.remarksObj.remarksId = id;
+                if(text){
+                    this.remarksObj.remarksText = text;
+                }else{
+                    this.remarksObj.remarksText = '';
+                }
+            },
+            //删除按钮
+            deleteOrder(id){
+                if(confirm("确实要删除吗？")){
+                    axios({
+                        url:'../bingo/retain_order_black.php?action=delete_order',
+                        method:"post",
+                        data:{id}
+                    }).then(res=>{
+                        if(res.data.code == 100){
+                            alert('删除完成');
+                            this.dataFun();
+                        }else{
+                            alert('出票操作失败')
+                        }
+                    }).catch(err=>{
+                        console.log(err)
+                    })
+                }else {
+                    alert("已经取消了删除操作");
+                }
+
+            },
+            //全选按钮
+            alontAllInput(event){
+                let allAloneInput = document.getElementsByClassName('aloneInput');
+                let leng = allAloneInput.length;
+                //此处重置为空，在于单独input勾选后，已经加入数组，再勾选会造成数据重复
+                this.aloneInputCheckedArray = [];
+                if(event.target.checked){
+                    for(let a=0;a<leng;a++){
+                        allAloneInput[a].checked = true;
+                        //此出正确做法应用Input的data-id,而不是用数据内的id
+                        this.aloneInputCheckedArray.push(this.allOrderObj[a].id);
+                    }
+                }else{
+                    for(let a=0;a<leng;a++){
+                        allAloneInput[a].checked = false;
+                    }
+                    this.aloneInputCheckedArray = [];
+                }
+            },
+            //批量出票
+            alontLotSize(){
+                if(!this.aloneInputCheckedArray.length){
+                    alert('请至少选择一条出票');
+                    return
+                }
+                axios({
+                    url:'../bingo/retain_order_black.php?action=details_deal',
+                    method:'post',
+                    data:this.aloneInputCheckedArray,
+                }).then(res=>{
+                    if(res.data.code == 100){
+                        alert('出票操作完成');
+                        this.dataFun();
+                    }else{
+                        alert('出票操作失败')
+                    }
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //单独input
+            detailsAloneInput(id){
+                let leng = this.aloneInputCheckedArray.length;
+                //获取全选按钮
+                let retain_alone_input = document.getElementById('retain_alone_input');
+                if(event.target.checked){
+                    this.aloneInputCheckedArray.push(id);
+                    //当选定的input数量与当前页面单的数量一致时候，改变全选的勾选状态
+                    if(this.aloneInputCheckedArray.length == this.allOrderObj.length){
+                        retain_alone_input.checked = true;
+                    }
+                }else{
+                    for(let a=0;a<leng;a++){
+                        if(this.aloneInputCheckedArray[a] == id){
+                            this.aloneInputCheckedArray.splice(a,1)
+                        }
+                    };
+                    retain_alone_input.checked = false;
+                }
+            },
+            //分页函数
+            //向后转页面 —
+            uppage:function(){
+                if(this.num>1){
+                    this.num -= 1;
+                }else if(this.num<1){
+                    alert('没有该页码')
+                }else{
+                    return
+                }
+                this.axfun(this.num);
+            },
+            //向前转页面 +
+            downpage:function(){
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if(this.num<this.pages){
+                    this.num = this.num + 1;
+                }else{
+                    return
+                };
+                this.axfun(this.num)
+            },
+            //直接去某页面
+            gotopage:function () {
+                let val = this.$refs.num.value;
+                if(val > this.pages||val<1){
+                    //页数框页码重置
+                    this.$refs.num.value = this.num;
+                    alert('没有该页码');
+                }else{
+                    this.num = Math.round(this.num);
+                    this.num = val;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去首页
+            firstpage:function () {
+                //如果num已经是第一页了，就不再请求了
+                if(this.num == 1){
+                    return
+                }
+                this.num = 1;
+                this.axfun(this.num)
+            },
+            //直接去末尾页
+            llastpage:function () {
+                //如果已经等于最后已页，就不再请求
+                if(this.num == this.pages){
+                    return
+                }
+                this.num = this.pages;
+                this.axfun(this.num)
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun:function(page){
+                //根据不同的值 来做ajax不同请求 当choose为true;则搜索是开启状态，否则是关闭状态
+                //若搜索为真，则直接调用搜索函数，把之前保存的搜索条件传过去；请求搜索后的结果;
+                //若搜索为假，则直接调用请求函数，直接拿值；
+                this.dataFun(page)
+            },
+        },
+        created(){
+            this.num = busData.rememberObj.alone.num;
+            this.searchObj = busData.rememberObj.alone.searchObj;
+            this.searchAloneFlag = busData.rememberObj.alone.searchAloneFlag;
+            if(busData.detailedObj.detailedFlag){
+                this.searchObj = Object.assign(this.searchObj,busData.detailedObj);
+            };
+            this.dataFun();
+        },
+        beforeDestroy(){
+            busData.rememberObj.alone.num = this.num;
+            busData.rememberObj.alone.searchObj = this.searchObj;
+            busData.rememberObj.alone.searchAloneFlag = this.searchAloneFlag;
+        }
+    });
+
+
+    //备注
+    Vue.component('remarksWind',{
+        template:'#remarWind',
+        data(){
+            return{
+                //备注框填入的备注
+                text:'',
+            }
+        },
+        props:['remarksObj'],
+        methods:{
+            sureMarksFun(){
+                // this.$emit('update:remarksId',undefined);
+                axios({
+                    url:'/bingo/retain_order_black.php?action=remark',
+                    method:'post',
+                    data:{
+                        id:this.remarksObj.remarksId,
+                        remark:this.text,
+                    }
+                }).then(res=>{
+                    if(res.data.code == 100){
+
+                    }
+                }).catch(err=>{
+                    console.log(err)
+                })
+                this.remarksObj.remarksId = undefined;
+            },
+            cancelMarksFun(){
+                this.remarksObj.remarksId = null;
+            }
+        },
+        beforeMount(){
+            this.text =  this.remarksObj.remarksText;
+        },
+    })
+
+    new Vue({
+        el:'#retainOrder',
+        data:{
+            name:'name1',
+        },
+        methods:{
+            changeName(){
+                // console.log(123)
+            }
+        },
+        created(){
+
+        },
+        mounted(){
+
+        }
+    })
+</script>
+
+
+</body>
+</html>

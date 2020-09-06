@@ -1,0 +1,225 @@
+{extends file='main.base.html'}
+
+{block name=headjs}
+<link type="text/css" rel="stylesheet" media="screen" href="/resource/css/lib_page.css">
+<script type="text/javascript" src="/resource/javascripts/lib_page.js"></script>
+<script type="text/javascript" src="/resource/javascripts/date.selector.js"></script>
+<style>
+    .btn.btn-primary{
+        width: auto;
+        height: auto;
+        background: #f3d8d8;
+        border: solid thin #f1a417;
+        border-radius: 5px;
+        padding: 2px 8px;
+    }
+
+    .ibox-content h1,.ibox-content h2,.ibox-content h3,.ibox-content h4,.ibox-content h5,.ibox-title h1,.ibox-title h2,.ibox-title h3,.ibox-title h4,.ibox-title h5 {
+        margin-top: 5px
+    }
+
+    .table-hover{
+        width: 100%;
+    }
+
+    .table-bordered {
+        border: 1px solid #EBEBEB
+    }
+
+    .table-bordered>thead>tr>td,.table-bordered>thead>tr>th {
+        background-color: #F5F5F6
+    }
+
+    .table-bordered>tbody>tr>td,.table-bordered>tbody>tr>th,.table-bordered>tfoot>tr>td,.table-bordered>tfoot>tr>th,.table-bordered>thead>tr>td,.table-bordered>thead>tr>th {
+        border: 1px solid #e7e7e7
+    }
+
+    .table>thead>tr>th {
+        border-bottom: 1px solid #DDD
+    }
+
+    .table>tbody>tr>td,.table>tbody>tr>th,.table>tfoot>tr>td,.table>tfoot>tr>th,.table>thead>tr>td,.table>thead>tr>th {
+        border-top: 1px solid #e7eaec;
+        line-height: 1.42857;
+        padding: 8px;
+        vertical-align: middle;
+        text-align: center;
+    }
+    
+    .col1{
+		background:#c8e5bc;
+    }
+    
+	.col2{
+		background:#f8efc0;
+    }
+    
+	.col3{
+		background:#fee4ff;
+    }
+</style>
+{/block}
+
+{block name=body}
+<div class="right_title">
+	<h2>
+    {$show.name}管理
+    </h2>
+</div>
+<div class="r_bg">
+	<div class="list_top">
+		<ul>
+        	{if $use_do.add}
+			<li class="list_a1">
+            <a href="{$cur_url}?t={$table}&action=add{$other_sp}">
+            添加{$show.name}
+            </a>
+            </li>
+            {/if}
+            {if $use_do.out}
+            <li class="list_a4">
+                <a href="{$cur_url}?t={$table}&action=query&us=1&do=out{$other_sp}">
+                    导出excel
+                </a>
+            </li>
+            {/if}
+            {if $use_do.top}
+            <li class="list_a1">
+            	{$top_more}
+            </li>
+            {/if}
+		</ul>
+    </div>
+    {if $use_do.find}
+	<div class="search" >
+    <h1>搜索范围:</h1>
+        <div class="sea_pad">
+            <form id="find_form" action="{$cur_url}">
+            <input type="hidden" value="{$table}" name="t" />
+            <input type="hidden" value="0" name="us" />
+            {if $other_sp}
+                {parse_str($other_sp, $osplist)}
+                {foreach $osplist as $key => $one}
+                	<input type="hidden" value="{$one}" name="{$key}" />
+                {/foreach}
+            {/if}
+            <ul>
+            {foreach $show.find as $find}
+            	{if $find.type == -1}
+					{foreach $find.elements as $ele}
+                    	<input type="hidden"  value="{$ele.val}" name="{$ele.id}"/>
+                    {/foreach}
+                {else}
+                	<li>
+                	{if $find.type == 0}
+                    	<span>{$find.name} 为:</span>
+                    {elseif $find.type == 1}
+                    	<span>{$find.name} 中包含有:</span>
+                    {elseif $find.type == 2}
+                    	<span>{$find.name} 的范围为:</span>
+                    {else}
+                    	<span>{$find.name}:</span>
+                    {/if}
+                    {foreach $find.elements as $ele}
+                    	{if $find.type == 2 && $ele@index == 0}
+                        	大于
+                        {/if}
+                        {if $find.type == 2 && $ele@index == 1}
+                        	小于
+                        {/if}
+                        {if $ele.is_sel}
+                            <select name="{$ele.id}" style="width:128px;">
+                                <option value>=全部=</option>
+                                {foreach $ele.data as $data}
+                                <option value="{$data.id}" {if $data.set} selected="selected" {/if} >{$data.name}</option>
+                                {/foreach}
+                            </select>
+                        {else}
+                        
+                        	<input 
+                            {if $ele.date} 
+                            class="dateselect" readonly="readonly" 
+                            {/if} 
+                            type="text" value="{$ele.val}" name="{$ele.id}"/>
+                        {/if}
+                    {/foreach}
+                    </li>
+                {/if}
+            {/foreach}
+            </ul>
+            <input type="submit" value="搜索">
+            <input type="button" onclick="window.location.href='{$cur_url}?t={$table}{$other_sp}'" value="搜索全部">
+            </form>
+        </div>
+	</div>
+    {/if}
+    
+	<table class="aa02_table windowtwo" widtd="100%" border="0" align="center" cellpadding="0" cellspacing="0">
+		<tbody>
+			<tr class="list_th">
+            	<td>序号</td>
+            	{foreach $show.col as $col}
+				<td>
+                {if $col.ord !== false}
+                    {if $col.ord > 0}
+                    <a href="{$cur_url}?t={$table}{$other_sp}&us=1&o=-{$col@iteration}">{$col.name}▲</a>
+                    {elseif $col.ord < 0}
+                    <a href="{$cur_url}?t={$table}{$other_sp}&us=1&o=0">{$col.name}▼</a>
+                    {else}
+                    <a href="{$cur_url}?t={$table}{$other_sp}&us=1&o={$col@iteration}">{$col.name}</a>
+                    {/if}
+                {else}
+                	{$col.name}
+                {/if}
+                </td>
+                {/foreach}
+				<td>操作</td>
+			</tr>
+			{foreach $show.row as $row}
+			<tr>
+            	<td>{$begin_index + $row@iteration}</td>
+            	{foreach $row.val as $val}
+            	{if $val@iteration > 5 && $val@iteration <= 10}
+				<td class="col1">
+				{elseif $val@iteration > 10 && $val@iteration <= 15}
+				<td class="col2">
+				{elseif $val@iteration > 15 && $val@iteration <= 20}
+				<td class="col3">
+				{else}
+				<td>
+				{/if}
+				{$val}</td>
+                {/foreach}
+				<td width="130px">
+					{if $use_do.showprice}
+                    <button class="btn btn-primary btn-outline" @click="shown" data-id="{$row.id}">
+                        查看比价数据
+                    </button>
+					{/if}
+                	{if $use_do.delete}
+					<a conf href="{$cur_url}?t={$table}&action=delete&id={$row.id}{$other_sp}">删除</a>
+                    {/if}
+                    {if $use_do.edit}
+					<a href="{$cur_url}?t={$table}&action=edit&id={$row.id}{$other_sp}">修改</a>
+                    {/if}
+                    {if $use_do.move}
+                    <a href="{$cur_url}?t={$table}&action=move&move=1&id={$row.id}{$other_sp}">上移</a>
+                    <a href="{$cur_url}?t={$table}&action=move&move=-1&id={$row.id}{$other_sp}">下移</a>
+                    {/if}
+                    {if $use_do.more}
+                    {$row.more_do}
+                    {/if}
+				</td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+    {$page_html}
+</div>
+{/block}
+
+{block name=footjscode}
+<script type="text/javascript" src="/vue/vue.js"></script>
+<script type="text/javascript" src="/vue/axios.min.js"></script>
+<script type="text/javascript" src="/vue/pl/window02.js"></script>
+{/block}

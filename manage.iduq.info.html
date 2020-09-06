@@ -1,0 +1,87 @@
+{extends file='main.base.html'}
+
+{block name=headjs}
+<link type="text/css" rel="stylesheet" media="screen" href="/resource/css/base.iduq.info.css">
+<script type="text/javascript" src="/resource/javascripts/Validform_v5.3.2_min.js"></script>
+<script type="text/javascript" src="/resource/javascripts/base.iduq.info.js"></script>
+<script type="text/javascript" src="/resource/javascripts/date.selector.js"></script>
+{/block}
+
+{block name=body}
+<form class="reg "  role="form" method="POST" enctype="multipart/form-data" action="manage.php">
+	<div class="right_title">
+		<h2>{if $doaction == 'insert'}新建{elseif $doaction == 'update'}编辑{/if}用户</h2>
+    </div>
+    <div class="r_bg">
+    	<table class="aa02_table" widtd="100%" border="0" align="center" cellpadding="0" cellspacing="0">
+    		<tbody>
+           		<tr>
+                	<td width="33%" align="right">用户名：</td>
+                    <td width="67%">
+                   		<input type="text" name="name" value="{$items.name}">
+                    </td>
+                 </td>
+                 
+                 <tr>
+                	<td width="33%" align="right">状态：</td>
+                    <td width="67%">
+                   		<select name="state" style="width:128px;" >
+                            <option value="0" {if !$items.state } selected="selected" {/if} >禁用</option>
+                            <option value="1" {if $items.state } selected="selected" {/if} >启用</option>
+                        </select>
+                    </td>
+                 </td>
+                 
+                 <tr>
+                	<td width="33%" align="right">所属部门：</td>
+                    <td width="67%">
+                   		<input type="text" name="department" value="{$items.department}">
+                    </td>
+                 </td>
+                 
+                 <tr>
+                	<td width="33%" align="right">电话：</td>
+                    <td width="67%">
+                   		<input type="text" name="phone" value="{$items.phone}">
+                    </td>
+                 </td>
+                 
+                 <tr>
+                	<td width="33%" align="right">工号：</td>
+                    <td width="67%">
+                   		<input type="text" name="jobNumber" value="{$items.jobNumber}">
+                    </td>
+                 </td>
+            	
+                 <tr>
+                	<td width="33%" align="right">角色：</td>
+                    <td width="67%">
+                    {if $doaction == 'insert'}
+                    	{foreach $chars as $val}
+	                    <input type="checkbox" name="charid[]" value="{$val.id}"  >{$val.name}<br>
+                    	{/foreach}
+                    {else $doaction == 'update'}
+                    	{foreach $chars as $val}
+	                    <input type="checkbox" name="charid[]" value="{$val.id}"  {$val.checked} >{$val.name}<br>
+                    	{/foreach}
+                    {/if}
+                    </td>
+                  </tr>
+    		</tbody>
+    	</table>
+    </div>
+    <div class="r_bot">
+    	<button conf type="submit" class="aa02_menu_butt" style="width: 100px; background-size: 100% 100%;">
+        {if $doaction == 'insert'}添加{elseif $doaction == 'update'}修改{/if}用户
+        </button>
+    	<button type="button" class="aa02_menu_butt" onclick="location.href='manage.php?t=manage'">返回</button>
+    </div>
+    <input type="hidden" name="t" value="manage"/>
+    <input type="hidden" name="action" value="{$doaction}"/>
+    {if $doaction == 'update'}
+        <input type="hidden" name="id" value="{$id}"/>
+    {/if}
+    
+    
+</form>
+{/block}

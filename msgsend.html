@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>短信发送管理</title>
+    <link href="../bingo/css/bootstrap.min14ed.css" rel="stylesheet">
+	<style>
+		#chuser{
+			padding:40px 20px 20px;
+		}
+		 /*分页样式*/
+        .classpage{
+            padding: 0px 3px;
+            color: black;
+            cursor: pointer;
+            display: inline-block;
+            border: 1px white solid;
+        }
+        .classpage:active{
+            border: 1px silver solid;
+        }
+        .searchanima-enter,.searchanima-leave-to{
+            transition:all 2s;
+            /*background-color: red;*/
+            transform: translate(0px,-200px);
+        }
+        .searchanima-leave-active,.searchanima-enter-to{
+            transition:all 1.5s;
+            transform: translate(0px,0px);
+            /*background-color: red;*/
+        }
+        .san{
+            display: inline-block;
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            border-style: solid;
+            border-width: 30px 0px 0px 40px;
+            border-color: #CBE3FB transparent transparent transparent;
+            cursor: pointer;
+        }
+        .san:hover{
+            display: inline-block;
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            border-style: solid;
+            border-width: 30px 0px 0px 40px;
+            border-color: #EECBAD transparent transparent transparent;
+            cursor: pointer;
+        }
+		.mb-t{
+			margin-top:20px;
+		}
+		.pg-b{
+			padding-bottom:10px;
+		}
+		.mb-l{
+			margin-left:50px;
+		}
+		label.form-control>input{
+			border:none;
+		}
+		label.form-control>a{
+			cursor:pointer;
+		}
+		.sele{
+            padding: 7px 11px;
+            border: 1px #CCCCCC solid;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+	</style>
+</head>
+<body>
+<div id="msg">
+	<div id="loading"></div>
+    <ul class="nav nav-tabs mb-t pg-b">
+		<li class="mb-l ">
+			<select class="form-control" v-model="searchItem.status">
+				<option value="" >状态</option>
+				<option value="0">未发送</option>
+				<option value="1">已发送</option>
+			</select>
+		</li>
+		<li class="mb-l "><input type="text" class="form-control" v-model="searchItem.order_id" placeholder="账号"  ></li>
+		<li class="mb-l "><input type="text" class="form-control" v-model="searchItem.phone" placeholder="手机号"  ></li>
+		<li class="mb-l "><button class="btn btn-sm btn-default" @click="search()">查找</button></li>
+		<li class="mb-l " v-show="resend"><button type="button"  @click="resendfun()" class="btn btn-warning btn-sm">重发</button></li>
+		<li class="mb-l "><button type="button"  @click="del()" class="btn btn-danger btn-sm">删除</button></li>
+	</ul>
+	<div class="tab-content">
+		<table class="table table-condensed">
+		  <thead>
+			<tr>
+			  <th><input type="checkbox" id="checkbox" v-model="checked" @change="changeAllChecked()"></th>
+			  <th>平台订单号</th>
+			  <th>手机号</th>
+			  <th>内容</th>
+			  <th>时间</th>
+			  <th>状态</th>
+			</tr>
+		  </thead>
+		  <tbody>
+			<tr v-for="(row,index) in list" :key="index">
+			  <td><input type="checkbox" :value="row.id" v-model="ids"></td>
+			  <td>{{row.order_id}}</td>
+			  <td>{{row.phone}}</td>
+			  <td>{{row.content}}</td>
+			  <td>{{row.sendtime}}</td>
+			  <td>
+				<template v-if="row.status==1">
+				   已发送
+				</template>
+				<template v-else-if="row.status==0">
+					未发送
+				</template>
+				<template v-else>{{row.status}}</template>
+			  </td>
+			</tr>
+		  </tbody>
+		</table>
+		 <!--分页逻辑-->
+		<div  class="form-group form-inline" style="padding-bottom: 35px;margin-right: 20px">
+			<div class="col-sm-12" >
+				<div style="float: right">
+					<a class="classpage" @click="firstpage"><span class="glyphicon glyphicon-step-backward"></span></a>
+					<a class="classpage" @click="uppage"><span class="glyphicon glyphicon-backward"></span></a>
+					共<span>{{pages}}</span>页&nbsp;&nbsp;
+					 <span>{{count}}</span>条数据&nbsp;&nbsp;
+					第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" id="apage" :value="num">&nbsp;页&nbsp;&nbsp;
+					<button type="button" title="确定"  @click="gotopage">转到</button>
+					<a class="classpage" @click="downpage"><span class="glyphicon glyphicon-forward"></span></a>
+					<a class="classpage" @click="llastpage"><span class="glyphicon glyphicon-fast-forward"></span></a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="../bingo/js/jquery.min.js"></script>
+<script src="../bingo/js/bootstrap.min.js"></script>
+<script src="../vue/vue.js"></script>
+<script src="../vue/axios.min.js"></script>
+<script type="text/javascript">
+    new Vue({
+        el:'#msg',
+        data:{
+			resend:false,
+			searchItem:{status:'',order_id:'',phone:''}, //搜索
+			checked: false, //默认不全选
+			ids: [], //勾选的 id
+			checkedArr: [],
+            //分页逻辑数据
+			list:'', //数据列表
+            pages:'',     //共多少页
+            count:'',     //共多少条数据
+            num: 1,       //页面第一次的时候给后台的页数是第一页
+            nnum:'',  //num在值改变后 赋值给nnum 比如翻页到第二 nnum=2 然后通过nnum传给后台 再把num改变
+        },	
+        methods:{
+			del: function() {
+				if(this.ids.length<1){
+					alert('请先勾选数据');
+					return false;
+				}
+				if(this.searchItem.status==1){
+					alert('目前不支持删除发送成功的数据');
+					return false;
+				}
+				if(window.confirm('确定要删除选择的数据吗？')==true){
+					axios({
+						method: 'post',
+						url:'../bingo/msgSend.php?t=msg_send&action=delete',
+						data:this.ids
+					}).then((response)=>{
+						if(response.data.state){
+							alert(response.data.msg);
+							window.location.reload(true);
+						}else{
+							alert(response.data.msg);
+						}
+						
+					}).catch((error)=>{
+						console.log(error)
+					})
+				}
+			},
+			resendfun: function() {
+				if(this.ids.length<1){
+					alert('请先勾选数据');
+					return false;
+				}
+				if(window.confirm('确定将选择的数据重新发送吗？')==true){
+					axios({
+						method: 'post',
+						url:'../bingo/msgSend.php?t=msg_send&action=resend',
+						data:this.ids
+					}).then((response)=>{
+						if(response.data.state){
+							alert(response.data.msg);
+							window.location.reload(true);
+						}else{
+							alert(response.data.msg);
+						}
+						
+					}).catch((error)=>{
+						console.log(error)
+					})
+				}
+			},
+			search: function() {
+				this.num=1;
+				this.ids=[];
+				if(this.searchItem.status==0){
+					this.resend=true
+				}else{
+					this.resend=false
+				}
+				axios({
+                    method: 'get',
+                    url:'../bingo/msgSend.php?t=msg_send&action=query',
+                    params:{
+						order_id:this.searchItem.order_id,
+						status:this.searchItem.status,
+						phone:this.searchItem.phone,
+                    }
+                }).then((response)=>{
+					this.checkedArr = response.data.ids;
+                    this.list = response.data.row;
+					this.pages = response.data.pageCount;
+					this.count = response.data.count;	
+                }).catch((error)=>{
+                    console.log(error)
+                })
+			},
+			changeAllChecked: function() {
+				if (this.checked) {
+					this.ids = this.checkedArr
+				} else {
+					this.ids = []
+				}
+
+			},
+			/*watch: {
+				"ids": function() {
+					if (this.ids.length == this.checkedArr.length) {
+						this.checked = true
+					} else {
+						this.checked = false
+					}
+				}
+			},*/
+            //分页函数
+            //向后转页面 —
+            uppage:function(){
+                if(this.num>1){
+                    this.num -= 1;
+                }else{
+                    return
+                }
+                this.nnum = this.num;
+                this.axfun(this.nnum)
+            },
+            //向前转页面 +
+            downpage:function(){
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if(this.num<this.pages){
+                    this.num = this.num + 1;
+                }else{
+                    return
+                }
+                this.nnum = this.num;
+                this.axfun(this.nnum)
+            },
+            //直接去某页面
+            gotopage:function () {
+                var apage = document.getElementById('apage');
+                if(apage.value > this.pages){
+                    alert('没有该页码');
+                    apage.value = this.num
+                }else{
+                    this.num = apage.value;
+                    this.nnum = this.num;
+                    this.axfun(this.nnum)
+                }
+            },
+            //直接去首页
+            firstpage:function () {
+                this.num = 1;
+                this.nnum = this.num;
+                this.axfun(this.nnum)
+            },
+            //直接去末尾页
+            llastpage:function () {
+                this.num = this.pages;
+                this.nnum = this.num;
+                this.axfun(this.nnum)
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun:function(nnum){
+                axios({
+                    method: 'get',
+                    url:'../bingo/msgSend.php?t=msg_send&action=query',
+                    params:{
+						status:this.searchItem.status,
+                        page:nnum
+                    }
+
+                }).then((response)=>{
+					this.checkedArr = response.data.ids;
+                    this.list = response.data.row;
+					this.pages = response.data.pageCount;
+					this.count = response.data.count;	
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            },
+        },
+        beforeCreate(){
+        },
+        created(){
+			this.nowAccount=true;
+            axios({
+                url:'../bingo/msgSend.php?t=msg_send&action=query',
+                method:'get'
+            }).then((response)=>{
+                this.checkedArr = response.data.ids;
+                this.list = response.data.row;
+                this.pages = response.data.pageCount;
+				this.count = response.data.count;
+            }).catch((error)=>{
+                console.log(error)
+            })
+        }
+		
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<head lang="en">
+    <meta charset="UTF-8">
+    <script src="./js/jquery.min.js"></script>
+    <link href="css/bootstrap.min14ed.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
+    <link href="./css/animate.min.css" rel="stylesheet">
+    <link href="css/style.min862f.css?v=4.1.0" rel="stylesheet">
+    <script src="./js/bootstrap.min.js"></script>
+    <link href="css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="css/plugins/iCheck/custom.css" rel="stylesheet">
+</head>
+<body>
+
+<form  method="POST" enctype="multipart/form-data" class="form-horizontal" action="blacklist.php" name="blacklist_form" autocomplete='off'>
+    {if $ways == 'insert'}
+    <input type="hidden" name="action" value="myinsert">
+    {elseif $ways == 'edit'}
+    <input type="hidden" name="action" value="myedit">
+    <input type="hidden" name="t_id" value="{$id}">
+    {/if}
+    <div class="hr-line-dashed"></div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label ">编号</label>
+        <div class="col-sm-10 form-inline">
+            <input type="text" class="form-control " placeholder="" name="id" value="" readonly="readonly" style="width:400px"/>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label ">订单号</label>
+        <div class="col-sm-10 form-inline">
+            <input type="text" class="form-control" name="orderno" value="" style="width:400px" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label ">平台</label>
+        <div class="col-sm-10 form-inline">
+            <input type="text" class="form-control" name="platform" value="" style="width:400px" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label ">来源</label>
+        <div class="col-sm-10 form-inline">
+            <input type="text" class="form-control" name="src" value="" style="width:400px" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label ">航司</label>
+        <div class="col-sm-10 form-inline">
+            <input type="text" class="form-control" name="carrier" value="" style="width:400px" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label ">乘机人</label>
+        <div class="col-sm-10 form-inline">
+            <input type="text" class="form-control" name="passengers" value="" style="width:400px" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label ">证件类型</label>
+        <div class="col-sm-10 form-inline">
+            <input type="text" class="form-control" name="cardtype" value="" style="width:400px" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label ">证件号</label>
+        <div class="col-sm-10 form-inline">
+            <input type="text" class="form-control" name="cards" value="" style="width:400px" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label ">乘客电话</label>
+        <div class="col-sm-10 form-inline">
+            <input type="text" class="form-control" name="tel" value="" style="width:400px" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label ">联系电话</label>
+        <div class="col-sm-10 form-inline">
+            <input type="text" class="form-control" name="contacttel" value="" style="width:400px" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label ">支付账号</label>
+        <div class="col-sm-10 form-inline">
+            <input type="text" class="form-control" name="account" value="" style="width:400px" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label ">下单账号</label>
+        <div class="col-sm-10 form-inline">
+            <input type="text" class="form-control" name="mapuser" value="" style="width:400px" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">订单分类</label>
+        <div class="col-sm-10 form-inline ">
+            <select class="form-control" name="ordertype" style="width:400px">
+                <option value="1">同行普通</option>
+                <option value="2">同行恶意</option>
+                <option value="3">专业用户</option>
+                <option value="4">航司钓鱼</option>
+                <option value="5">平台反采</option>
+                <option value="6">恶意诈骗</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label"><span class="col_red">*</span>标记项</label>
+        <div class="col-sm-10   form-inline">
+            <label class="checkbox-inline i-checks">
+                <input type="checkbox"  name="orderitem[]" value="订单来源">订单来源
+            </label>
+            <label class="checkbox-inline i-checks">
+                <input type="checkbox"   name="orderitem[]" value="乘机人">乘机人
+            </label>
+            <label class="checkbox-inline i-checks">
+                <input type="checkbox"   name="orderitem[]" value="证件号码">证件号码
+            </label>
+            <label class="checkbox-inline i-checks">
+                <input type="checkbox"   name="orderitem[]" value="乘客电话">乘客电话
+            </label>
+            <label class="checkbox-inline i-checks">
+                <input type="checkbox"   name="orderitem[]" value="联系电话">联系电话
+            </label>
+            <label class="checkbox-inline i-checks">
+                <input type="checkbox"   name="orderitem[]" value="支付账号">支付账号
+            </label>
+            <label class="checkbox-inline i-checks">
+                <input type="checkbox"   name="orderitem[]" value="下单账号">下单账号
+            </label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label ">问题详情</label>
+        <div class="col-sm-10 form-inline">
+            <input type="text" class="form-control" name="remark" value="" style="width:400px" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label"><span class="col_red"></span> </label>
+        <div class="col-sm-10 form-inline">
+            <button class="btn btn-primary" id="btn-submit" type="button" > {if $doaction == 'insert'}提交{elseif $doaction == 'update'}修改{/if}</button>
+        </div>
+    </div>
+
+</form>
+
+
+{literal}
+<script type="text/javascript" src="http://tajs.qq.com/stats?sId=9051096" charset="UTF-8"></script>
+<script src="js/plugins/layer/laydate/laydate.js"></script>
+<script src="js/jquery.min.js?v=2.1.4"></script>
+<script src="js/bootstrap.min.js?v=3.3.6"></script>
+<script src="js/content.min.js?v=1.0.0"></script>
+<script src="js/plugins/iCheck/icheck.min.js"></script>
+
+<script type="text/javascript">
+    $(":input[name='id']").prop("value","{/literal}{$id}{literal}");					            //id
+    $(":input[name='orderno']").prop("value","{/literal}{$orderno}{literal}");					            //订单号
+    $(":input[name='platform']").prop("value","{/literal}{$platform}{literal}");					        //平台
+    $(":input[name='src']").prop("value","{/literal}{$src}{literal}");				                	    //来源
+    $(":input[name='carrier']").prop("value","{/literal}{$carrier}{literal}");			                	//航司
+    $(":input[name='passengers']").prop("value","{/literal}{$passengers}{literal}");			            //乘机人
+    $(":input[name='cards']").prop("value","{/literal}{$cards}{literal}");			                	    //证件号
+    $(":input[name='tel']").prop("value","{/literal}{$tel}{literal}");					                    //电话
+    $(":input[name='contacttel']").prop("value","{/literal}{$contacttel}{literal}");			            //联系电话
+    $(":input[name='account']").prop("value","{/literal}{$account}{literal}");			                    //支付账号
+    $("select[name='ordertype']").val('{/literal}{$ordertype}{literal}');		                    //分类
+    $(":input[name='cardtype']").prop("value","{/literal}{$cardtype}{literal}");			                //证件类型
+    $(":input[name='mapuser']").prop("value","{/literal}{$mapuser}{literal}");			                    //下单账号
+    $(":input[name='remark']").prop("value","{/literal}{$remark}{literal}");			                    //支付账号
+
+    //标记项
+    $(document).ready(function(){
+        var r = '{/literal}{$orderitem}{literal}';
+        var result = r.split(",");
+        for(var i=0;i<result.length;i++){
+            $(":input[name='orderitem[]'][value='"+result[i]+"']").iCheck("check");
+        }
+    });
+
+    $('#btn-submit').click(function () {
+        var result = confirm("确定要提交吗");
+        if (result) {
+            var ordertype=$("select[name='ordertype']").val();
+            if(ordertype==''){
+                alert('请选择分类');
+                $("select[name='ordertype']").focus()
+                return false;
+            }
+            $("form[name='blacklist_form']").submit()
+        }
+    });
+</script>
+{/literal}
+
+</body>
+</html>
+
+
+

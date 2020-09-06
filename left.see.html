@@ -1,0 +1,25 @@
+{extends file='left.base.html'}
+
+{block name=menu}
+<div id="divMenu">
+<span class="a2">进出列表</span>
+<div class="menu show">
+            <ul>
+				<li><a href="paper.php?t=paper" target="main">订单记录</a></li>
+				<li><a href="io.php?t=pnrlist" target="main">自动出票记录</a></li>
+				<li><a href="fince.php?t=pay_fince" target="main">出票财务</a></li>
+			</ul>
+		</div>
+</div>
+<span class="a3">数据采集</span>
+<div class="menu show">
+            <ul>
+				<li><a href="anrace.php?t=qnracess" target="main">春秋数据</a></li>
+				<li><a href="ttrsee.php?t=ttr_check" target="main">直连订单</a></li>
+			</ul>
+		</div>
+</div>
+{/block}
+
+{block name=foot}
+{/block}

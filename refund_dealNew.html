@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../vue/vue.js"></script>
+    <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+    <style>
+        .tablemain{
+            /*width: 60%;*/
+            /*display: flex;*/
+            /*justify-content:center;*/
+        }
+        /*头部名称*/
+        .title{
+            /*position: relative;*/
+            display: flex;
+            font-size: 30px;
+            justify-content:center;
+            color: black;
+        }
+        /*table样式  E0F1F8*/
+        .tableflex{
+            display: flex;
+            justify-content:center;
+            margin-top: 10px;
+        }
+        .table>tbody>tr>td{
+            text-align: center;
+            vertical-align: middle;
+        }
+        .theadA>tr>th{
+            text-align: center;
+            vertical-align: middle;
+            border-bottom-width: 1px;
+        }
+        /*按钮dom节点*/
+        .butdom{
+            /*position: absolute;*/
+            /*top: 220px;*/
+            /*left: 35%;*/
+            /*display: flex;*/
+            /*justify-content: center;*/
+        }
+        /*详情*/
+        .details{
+            /*position: absolute;*/
+            width: 90%;
+            top: 280px;
+            left: 5%;
+        }
+        .details>table{
+            width: 80%;
+        }
+        .details>table>tbody>tr>td{
+            border: 1px silver solid;
+            text-align:center;
+            vertical-align:middle;
+            /*width: 550px;*/
+        }
+        .details>div:nth-of-type(2){
+
+        }
+        /*报表*/
+        .statement{
+            position: absolute;
+            margin-top: 50px;
+            left: 20%;
+            width: 65%;
+            height: auto;
+            /*background-color: silver;*/
+            /*border: 1px silver solid;*/
+        }
+        .statement select{
+            width: 147px;
+            height: 22px;
+        }
+        #statementChild{
+            padding: 5px;
+        }
+        #statementChild>div{
+            margin-top: 5px;
+            box-shadow: 0px 0px 1px 0px grey;
+            padding: 4px;
+        }
+        .childOne{
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+        .childOne>div{
+            width: 29%;
+            margin-top: 5px;
+        }
+        .SizeBlue{
+            color: #4084BF;
+        }
+        /*优化展示属性*/
+        [v-cloak]{
+            display: none;
+        }
+        .orange{
+            color: orangered;
+        }
+        .yell{
+            background-color: #F2E4D9;
+        }
+        /*缓冲动画的主体样式*/
+        .anima{
+            position: absolute;
+            top: 0px;
+            /*left: 25%;*/
+            width: 100%;
+            height: 500px;
+            /*border: 1px silver solid;*/
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .refundDealButtonClass{
+            font-size: 18px;
+            padding: 3px;
+        }
+    </style>
+    <style>
+        .demo-spin-col{
+            height: 100px;
+            position: relative;
+            border: 1px solid #eee;
+        }
+        @keyframes circular {
+            from { transform: rotate(0deg);}
+            50%  { transform: rotate(180deg);}
+            to   { transform: rotate(360deg);}
+        }
+        .loader {
+            width: 30px;
+            height: 30px;
+            position: relative;
+            margin: 0 auto;
+        }
+        .loader{
+            animation: ani-demo-spin 2s linear infinite;
+        }
+        .path {
+            stroke-dasharray: 1,200;
+            stroke-dashoffset: 0;
+            -webkit-animation: dash 1.5s ease-in-out infinite,color 6s ease-in-out infinite;
+            animation: dash 1.5s ease-in-out infinite,color 6s ease-in-out infinite;
+            stroke-linecap: round;
+        }
+        @keyframes ani-demo-spin {
+            from { transform: rotate(0deg);}
+            50%  { transform: rotate(180deg);}
+            to   { transform: rotate(360deg);}
+        }
+        @keyframes dash{
+            0%{stroke-dasharray:1,200;stroke-dashoffset:0}
+            50%{stroke-dasharray:89,200;stroke-dashoffset:-35}
+            to{stroke-dasharray:89,200;stroke-dashoffset:-124}
+        }
+       /* @-webkit-keyframes color{
+            0%,to{stroke:#d62d20}
+            40%{stroke:#0057e7}
+            66%{stroke:#008744}
+            80%,90%{stroke:#ffa700}
+        }*/
+        @keyframes color{
+            0%,to{stroke:#d62d20}
+            40%{stroke:#0057e7}
+            66%{stroke:#008744}
+            80%,90%{stroke:#ffa700}
+        }
+    </style>
+    <style>
+        /*.tablemain{*/
+            /*border: 1px silver solid;*/
+            /*border-collapse: collapse;*/
+        /*}*/
+        /*.theadA>tr>th{*/
+            /*border: 1px silver solid;*/
+        /*}*/
+        /*.tablemain>tbody>tr>td{*/
+            /*border: 1px silver solid;*/
+        /*}*/
+        body, h1, h2, h3, h4, h5, h6, hr, p, blockquote, /* structural elements 结构元素 */
+        dl, dt, dd, ul, ol, li, /* list elements 列表元素 */
+        pre, /* text formatting elements 文本格式元素 */
+        form, fieldset, legend, button, input, textarea, /* form elements 表单元素 */
+        th, td /* table elements 表格元素 */ {
+            margin: 0;
+            padding: 0;
+        }
+        body,
+        button, input, select, textarea /* for ie */ {
+            font: 12px/1.5 tahoma, arial, \5b8b\4f53, sans-serif;
+        }
+        ul, ol { list-style: none; }
+        button, input, select, textarea { font-size: 100%; }
+        table { border-collapse: collapse; border-spacing: 0; }
+        #tableDiv{
+            /*margin-top: 50px;*/
+        }
+        table{
+            width: 100%;
+            border: 1px silver solid;
+        }
+        tbody>tr{
+            height: 40px;
+        }
+        table tr>th{
+            margin-left: 5px;
+            border: 1px #DCDEE2 solid;
+        }
+        table tr>td{
+            border: 1px #DCDEE2 solid;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div id="dealvue" v-cloak>
+    <div class="title">
+        <p>申请退票操作</p>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <!--<button @click="changeDealFun">转单</button>-->
+    </div>
+
+    <div class="title">
+        <p v-once v-if="anomaly==1" style="color: red">{{reason}}，请手工退票</p>
+    </div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <span>账号：</span>
+        <span>{{info.username}}&nbsp;&nbsp;</span>
+        <span>密码：</span>
+        <span>{{info.password}}</span>
+    </div>
+    <!--table展示-->
+    <div class="tablemain">
+        <div>
+            <table>
+                <!--状态-->
+                <colgroup  style="width:auto"></colgroup>
+                <!--航班类型-->
+                <colgroup  style="width:auto"></colgroup>
+                <!--乘机人-->
+                <colgroup  style="width:auto"></colgroup>
+                <!--航班号-->
+                <colgroup  style="width:auto"></colgroup>
+                <!--行程-->
+                <colgroup  style="width:auto"></colgroup>
+                <!--出发时间-->
+                <colgroup  style="width:240px"></colgroup>
+                <!--价格-->
+                <colgroup  style="width:auto"></colgroup>
+                <!--退票状态-->
+                <colgroup  style="width:auto"></colgroup>
+                <!--操作-->
+                <colgroup  style="width:280px"></colgroup>
+                <!--<colgroup  style="width:auto"></colgroup> &lt;!&ndash;result&ndash;&gt;-->
+                <thead class="theadA">
+                <tr>
+                    <th>状态</th>
+                    <th>航班类型</th>
+                    <th>乘机人</th>
+                    <th>航班号</th>
+                    <th>行程</th>
+                    <th>出发时间</th>
+                    <th>价格</th>
+                    <th>退票状态</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(ele,index) in cloneobj" :key="index" :class="ele.status==1?'orange':ele.status==2?'yell':ele.status==10?'colororange':''">
+                    <td>
+                        <!--input 要做到默认勾选，在得到状态为1的情况下，所以我只做了只要有input 就是勾选，
+                             当点击手工退票按钮的时候，-->
+                        <input @click="inputfun(index)" style="margin: 0px" type="checkbox" v-if="ele.status==1?true:ele.status==10?true:false" :checked="ele.status==1?true:false" :disabled="ele.status==1?disabledobj.a:disabledobj.b" :data-man="ele.man" ref="inpu">
+                    </td>
+                    <!--航班类型-->
+                    <td>单程</td>
+                    <!--乘机人-->
+                    <td>{{ele.man}}</td>
+                    <!--航班号-->
+                    <td>{{refundmess.flight}}</td>
+                    <!--行程-->
+                    <td>{{refundmess.journey}}</td>
+                    <!--出发时间-->
+                    <td>
+                        <span>{{refundmess.flytime}}</span>
+                    </td>
+                    <!--价格-->
+                    <td>{{ele.price}}</td>
+                    <!--退票状态 -->
+                    <td v-once>
+                        <div v-if="ele.status==0">不退</div>
+                        <div v-else-if="ele.status==1">要退票</div>
+                        <div v-else-if="ele.status==2">已退</div>
+                    </td>
+                    <!--反踩退票操作-->
+                    <!--当只有订单是AQ 且需是 要退票 的状态 才展示该退票操作-->
+                    <td>
+                        <div v-if="ele.status==1">  
+                            <input type="text" v-model="ele.orderNo">
+                            <button @click="fancaiFun(ele.orderNo,index)">反踩退票</button>
+                            <button v-if="(willType*1) == 1" @click="fancaiFinFun(ele.orderNo,index)">反踩查询</button>
+                        </div>
+                        <div><span>{{ele.message}}</span></div>
+                    </td>
+                    <!--<td>{{ele.bk_result.result}}</td>&lt;!&ndash;result&ndash;&gt;-->
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!--处理按钮-->
+    <div class="tableflex">
+        <div class="butdom">
+            <button @click="artificial_flag_fun(1)" :disabled="artificial_work_flag">手工退票</button>
+            <button @click="detailsflagfun(1,flightTable)" :disabled="artificial_flag?true:(artificial_work_flag?true:false)" :style="artificial_flag?colorobj:''" v-if="!anomaly==1">机器人退票</button>
+            <button @click="xieChengFun()" :disabled="artificial_flag?true:(artificial_work_flag?true:false)" :style="artificial_flag?colorobj:''" v-if="!anomaly==1">携程退票</button>
+            <button @click="cancelrefund" :disabled="artificial_work_flag">拒绝退票</button>
+            <button @click="cancelreturn">返回</button>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <button class="refundDealButtonClass" @click="nineCchangeFlightold">取位</button>
+        </div>
+    </div>
+    <!--退票详情-->
+    <div class="tableflex" v-if="detailsflag">
+        <div class="details">
+            <!--<span>退票详情</span>-->
+            <div class="col-xs-9">
+                <table class="table table-bordered col-xs-offset-2">
+                    <tbody>
+                    <tr>
+                        <td rowspan="2">
+                            <div>单位:<span>元 ￥</span></div>
+                            <div>金额:<span>{{detailsObj.totalMoney}}</span></div>
+                        </td>
+                        <td colspan="2">票价:{{detailsObj.fares}}</td><!--票价-->
+                        <td>燃油:{{detailsObj.oilrax}}</td><!--燃油-->
+                        <td rowspan="2">实退金额:<span>{{detailsObj.refund}}</span></td>
+                    </tr>
+                    <tr>
+                        <td>扣除手续费:<span>{{detailsObj.deductionFee}}</span></td>
+                        <td>酒店其他费:</td>
+                        <td>基建:{{detailsObj.airrax}}</td><!--基建-->
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!--button 人工-->
+    <div class="tableflex" v-if="artificial_flag">
+        <button @click="hand_work" :disabled="artificial_work_flag">确定人工退票</button>
+        <button style="margin-left: 5px" @click="artificial_flag_fun(0)" :disabled="artificial_work_flag">取消人工退票</button>
+    </div>
+    <!--button 机器人-->
+    <div class="tableflex" v-if="detailsflag">
+        <button @click="robotFun(flightTable)" v-if="!(detailsObj.willType==1&&detailsObj.deductionFee>0)" :disabled="artificial_work_flag">确定机器人退票</button><!-- 当非自愿订单有退票费时不显示退票按钮   李帅彪-->
+        <button @click="detailsflagfun(0)" style="margin-left: 5px" :disabled="artificial_work_flag">取消机器人退票</button>
+    </div>
+    <!--报表-->
+    <div class="statement" v-if="statementFlag">
+        <div id="statementChild">
+            <div>
+                <p>订单信息</p>
+                <div class="childOne">
+                    <div class="SizeBlue">
+                        <span>平台订单</span>
+                        <input type="text" v-model="stataObj.platformOrder"/>
+                    </div>
+                    <div class="SizeBlue">
+                        <span>所属平台</span>
+                        <!--<input type="text" v-model="stataObj.ticketTable"/>-->
+                        <select v-model="stataObj.ticketTable">
+                            <option>9C</option>
+                            <option>平安航旅</option>
+                            <option>湘潭平安航服</option>
+                            <option>pai</option>
+                            <option>xss</option>
+                            <option>xsg</option>
+                            <option>ttr</option>
+                            <option>向上航服</option>
+                            <option>淘宝</option>
+                            <option>酷讯</option>
+                            <option>就旅行</option>
+                            <option>同程</option>
+                            <option>携程</option>
+                            <option>途牛</option>
+                            <option>B平台</option>
+                            <option>517</option>
+                            <option>百拓</option>
+                            <option>51BOOK</option>
+                            <option>八千翼</option>
+                            <option>携程分销</option>
+                        </select>
+                    </div>
+                    <div class="SizeBlue">
+                        <span>提交类型</span>
+                        <select v-model="stataObj.willType">
+                            <option value="0">自愿</option>
+                            <option value="1">非自愿</option>
+                        </select>
+                    </div>
+                    <div class="SizeBlue">
+                        <span>乘机日期</span>
+                        <input type="text" id="ToDate" v-model="stataObj.flyTime"/>
+                    </div>
+                    <div>
+                        <span>提交日期</span>
+                        <input type="text" id="SubDate" v-model="stataObj.applytime"/>
+                    </div>
+                    <div class="SizeBlue">
+                        <span>销售合计</span>
+                        <input type="text" v-model="stataObj.saleTotal"/>
+                    </div>
+                    <div>
+                        <span>出发城市</span>
+                        <input type="text" v-model="stataObj.start"/>
+                    </div>
+                    <div>
+                        <span>到达城市</span>
+                        <input type="text" v-model="stataObj.arr"/>
+                    </div>
+                    <div>
+                        <span>航班号&#12288;</span>
+                        <input type="text" v-model="stataObj.flight"/>
+                    </div>
+                    <div>
+                        <span>舱位&#12288;&#12288;</span>
+                        <input type="text" v-model="stataObj.position"/>
+                    </div>
+                    <div class="SizeBlue">
+                        <span>退票费用</span>
+                        <input type="text" v-model="stataObj.refundCost"/>
+                    </div>
+                    <div class="SizeBlue">
+                        <span>平台退款</span>
+                        <input type="text" v-model="platformRefund" readonly/>
+                    </div>
+                    <div  style="margin-right: auto;margin-left: 23px">
+                        <span>退票单号</span>
+                        <input  v-model="stataObj.platformId"/>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <p>旅客信息</p>
+                <div>
+                    <table class="table" style="text-align: center">
+                        <colgroup  style="width:auto"></colgroup><!--选择-->
+                        <colgroup  style="width:auto"></colgroup><!--姓名-->
+                        <colgroup  style="width:auto"></colgroup><!--票号-->
+                        <colgroup  style="width:auto"></colgroup><!--航班证件号号-->
+                        <colgroup  style="width:auto"></colgroup><!--状态-->
+                        <thead class="theadA">
+                        <tr>
+                            <th>添加</th>
+                            <th style="color:#4084BF">姓名</th>
+                            <th style="color:#4084BF">票号</th>
+                            <th>删除</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(obj,inde) in stataObj.passengers" :key="inde">
+                            <td class="">
+                                <button @click="add">添加新旅客</button>
+                            </td>
+                            <td class="SizeBlue">
+                                <input type="text" v-model="obj.man"/>
+                            </td>
+                            <td class="SizeBlue">
+                                <input type="text" v-model="obj.ticketNum"/>
+                            </td>
+                            <td class="">
+                                <button @click="delet(obj.delet,inde)">删除该旅客</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <p>退票信息</p>
+                <div class="childOne">
+                    <div class="SizeBlue">
+                        <span>自创PNR</span>
+                        <input type="text" v-model="stataObj.smartNumber"/>
+                    </div>
+                    <div class="SizeBlue">
+                        <span>出票类型</span>
+                        <select v-model="stataObj.seller">
+                            option>京东</option>
+                            <option>B2B</option>
+                            <option>BSP</option>
+                            <option>航司官网</option>
+                            <option>BOP</option>
+                            <option>返踩</option>
+                            <option>外开</option>
+                            <option>电话订票</option>
+                        </select>
+                    </div>
+                    <div class="SizeBlue">
+                        <span>提交类型</span>
+                        <select  v-model="stataObj.submitAirlineType">
+                            <option value="0">自愿</option>
+                            <option value="1">非自愿</option>
+                            <option value="2">作废</option>
+                        </select>
+                    </div>
+                    <div>
+                        <span>提交日期</span>
+                        <input type="text" id="refundDate" v-model="stataObj.refundtime"/>
+                    </div>
+                    <div class="SizeBlue">
+                        <span>采购总价</span>
+                        <input type="text" v-model="stataObj.totalMoney"/>
+                    </div>
+                    <div class="SizeBlue">
+                        <span>航司退费</span>
+                        <input type="text" v-model="stataObj.deductionFee"/>
+                    </div>
+                    <div class="SizeBlue">
+                        <span>航司退款</span>
+                        <input type="text" v-model="refund" readonly/>
+                    </div>
+
+                    <div>
+                        <span>客票状态</span>
+                        <select v-model="stataObj.ticketType">
+                            <option value="0">已挂起</option>
+                            <option value="1">未挂起</option>
+                            <option value="2">已退票</option>
+                            <option value="3">审核通过</option>
+                        </select>
+                    </div>
+                    <div>
+                        <span>提交人员</span>
+                        <input type="text" v-model="stataObj.submitUser"/>
+                    </div>
+                    <div>
+                        <span>应扣金额</span>
+                        <input type="text" v-model="stataObj.shouldDeducted"/>
+                    </div>
+                    <div>
+                        <span>退票利润合计</span>
+                        <input type="text" v-model="refundProfitTotal" readonly style="width: 124px"/>
+                    </div>
+                    <div>
+                        <span>备注</span>
+                        <textarea style="vertical-align: top;height: 23px;width: 80%" v-model="stataObj.remark"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <p>操作</p>
+                <button @click="saveOrd(stataObj.id)">保存</button>
+                <!--<button @click="deletTheOrd">删除</button>-->
+                <!--<button @click="close">关闭</button>-->
+            </div>
+        </div>
+    </div>
+    <!--缓冲动画-->
+    <!--<Col class="demo-spin-col" span="8">
+    <Spin fix>
+        <Icon type="ios-loading" size=18 class="demo-spin-icon-load"></Icon>
+        <div>Loading</div>
+    </Spin>
+    </Col>-->
+    <div class="anima" v-if="animaflag">
+        <Col class="demo-spin-col" span="8">
+        <Spin fix>
+            <div class="loader">
+                <svg class="circular" viewBox="25 25 50 50">
+                    <circle class="path" cx="50" cy="50" r="20" fill="none" stroke="red" stroke-width="5" stroke-miterlimit="10"></circle>
+                </svg>
+            </div>
+            <div style="margin-top:10px;">Loading</div>
+        </Spin>
+        </Col>
+       <!-- <div class="sk-spinner sk-spinner-three-bounce " >
+            <div class="sk-bounce1"></div>
+            <div class="sk-bounce2"></div>
+            <div class="sk-bounce3"></div>
+        </div>-->
+    </div>
+</div>
+
+<script src="../vue/axios.min.js"></script>
+<script src="../vue/vuex.js"></script>
+<script src="../vue/vue-router.js"></script>
+<script src="../resource/iview-2.0/dist/iview.js"></script>
+<script src="../bingo/js/calc.min.js"></script>
+
+<script type="text/javascript">
+    let dealvue = new Vue({
+        el:'#dealvue',
+        data:{
+            id:'',
+            /*是否允许机器退票*/
+            anomaly:'',
+            /*机器不能退票原因*/
+            reason:null,
+            //字体变色对象
+            colororange:{
+                color: 'red'
+            },
+            colorobj:{
+                color:'gray'
+            },
+            //按钮是否能点击的对象
+            disabledobj:{
+                a:true,
+                b:false
+            },
+            //账号和密码包裹对象
+            info:{},
+            //保留原始数据的对象
+            cloneobj:null,
+            //乘机人length
+            len:null,
+            //退票人信息数组接收载体
+            refundtable:null,
+            //退票表格的主体数据接收载体
+            refundmess:{
+                aqFlag:false,
+            },
+            //退票详情表格开关
+            detailsflag:false,
+            //详情对象接收载体
+            detailsObj:{
+                totalMoney:'',
+                refund:'',
+                deductionFee:''
+            },
+            //手工退票开关
+            artificial_flag:false,
+            //手工退票完成成功时，禁止用取消人工退票按钮按钮的开关
+            artificial_work_flag:false,
+            //手工退票存储最初status为1的乘机人对象
+            artificialStatuObj:[],
+            //手工退票存储最初status为2的乘机人对象
+            artificialStatuObjB:[],
+            //报表出现开关
+            statementFlag:false,
+            stataObj:null,
+            //缓冲动画的开关
+            animaflag:false,
+        //    航司
+            flightTable:undefined,
+        //    是否自愿标识符 0 自愿 1非自愿 2不详
+            willType:undefined,
+        },
+        methods:{
+            //反踩退票
+            fancaiFun(orderNo,index){
+                let a = window.confirm('是否确定退票?')
+                if(a){
+                    axios({
+                        url:'../bingo/order_refund.php?action=return_on',
+                        method:'post',
+                        data:{
+                            orderNo,
+                            id:this.id
+                        }
+                    }).then(res=>{
+                        this.$set(this.cloneobj[index],'message',res.data.data)
+                        /*if(res.data.sus){
+                            this.animaflag = false;
+                            this.stataObj = res.data.data
+                            alert('退票成功')
+                            this.statementFlag = true;
+                            this.artificial_work_flag = true
+                        }else{
+                            this.animaflag = false;
+                            let data = res.data.data
+                            alert(data)
+                        }*/
+                    }).catch(err=>{console.log(err)})
+                }
+            },
+            //反踩查询
+            fancaiFinFun(orderNo,index){
+                axios({
+                    url:'../bingo/order_refund.php?action=return_on_find',
+                    method:'post',
+                    data:{
+                        orderNo,
+                        id:this.id
+                    }
+                }).then(res=>{
+                    this.$set(this.cloneobj[index],'message',res.data.data)
+                }).catch(err=>{console.log(err)})
+            },
+            //机器人退票按钮点击后得到退票详情 X=0 取消机器热退票 x=1确定机器人退票
+            detailsflagfun:function (x,tab) {
+                let url = undefined;
+                let method = undefined;
+                if(tab=="AQ"){
+                    url = '../bingo/order_refund.php?action=refund_detail_aq';
+                    method = 'post'
+                }else{
+                    url = '../bingo/order_refund.php?action=refund_detail';
+                    method = 'get'
+                }
+                this.detailsflag = !this.detailsflag;
+                if(x&&this.detailsflag){
+                    this.animaflag = true;
+                    axios({
+                        url,
+                        method,
+                        params:{
+                            id:this.id
+                        },
+                        data:{
+                            id:this.id
+                        }
+                    }).then(res=>{
+                        if(res.data.sus == true){
+                            this.detailsObj = res.data.data;
+                        }else{
+                            let data = res.data.data;
+                            alert(data)
+                        }
+                        this.animaflag = false;
+                    }).catch(err=>{console.log(err)})
+                }
+            },
+            //携程退票
+            xieChengFun:function(){
+                this.flightTable = 'xc';
+                this.animaflag = true;
+                this.detailsflag = !this.detailsflag;
+                axios({
+                    url:'../bingo/order_refund.php?action=refund_detail_xc',
+                    method:'get',
+                    params:{
+                        id:this.id
+                    },
+                }).then(res=>{
+                    if(res.data.sus == true){
+                        this.detailsObj = res.data.data;
+                    }else{
+                        let data = res.data.data;
+                        alert(data)
+                    }
+                    this.animaflag = false;
+                }).catch(err=>{console.log(err)})
+            },
+            //确认使用机器人退票
+            robotFun:function(tab){
+                let url = undefined;
+                let method = undefined;
+                if(tab =='AQ'){
+                    url = '../bingo/order_refund.php?action=determine_refund_aq';
+                    method = 'post';
+                }else if(tab =='xc'){
+                    url = '../bingo/order_refund.php?action=determine_refund_xc';
+                    method = 'get';
+                }else{
+                    url = '../bingo/order_refund.php?action=determine_refund';
+                    method = 'get';
+                }
+                this.animaflag = true;
+                axios({
+                    url,
+                    method,
+                    params:{
+                        id:this.id
+                    },
+                    data:{
+                        id:this.id
+                    }
+                }).then(res=>{
+                    if(res.data.sus){
+                        this.animaflag = false;
+                        this.stataObj = res.data.data
+                        alert('退票成功')
+                        this.statementFlag = true;
+                        this.artificial_work_flag = true
+                    }else{
+                        this.animaflag = false;
+                        let data = res.data.data
+                        alert(data)
+                    }
+                }).catch(err=>{console.log(err)})
+            },
+            //手工退票点击函数，触发后显示手功功能的两个按钮
+            artificial_flag_fun:function (x) {
+                if(x){
+                    this.artificial_flag = !this.artificial_flag;
+                    if(this.artificial_flag){
+                        this.detailsflag = false;
+                        for(let a=0;a<this.len;a++){
+                            if(this.cloneobj[a].status == 1){/*要退*/
+                                this.artificialStatuObj.push(this.cloneobj[a]);
+                                continue;
+                            }else if(this.cloneobj[a].status == 2){ /*已退*/
+                                this.artificialStatuObj.push(this.cloneobj[a]);
+                                continue;
+                            }else{
+                                this.artificialStatuObj.push(null); /*不退*/
+                                this.cloneobj[a].status = 10;
+                            }
+                        }
+                        this.disabledobj.a = false;
+                    }else{
+                        this.detailsflag = false;
+                        this.cloneobj = JSON.parse(JSON.stringify(this.refundtable))
+                        this.disabledobj.a = true;
+                    }
+                }else{ //取消手工退票按钮点击触发后，隐藏手工功能的两个按钮
+                    this.artificial_flag = !this.artificial_flag;
+                    this.detailsflag = false;
+                    this.cloneobj = JSON.parse(JSON.stringify(this.refundtable))
+                    this.disabledobj.a = true;
+                }
+            },
+            //input打钩后样式的更改
+            inputfun:function (ind) {
+                if(event.target.checked){
+                    for(let a=0;a<this.len;a++){
+                        if(a==ind){
+                            this.cloneobj[a].status = 1;
+                        }
+                    }
+                }else{
+                    for(let a=0;a<this.len;a++){
+                        if(a==ind){
+                            this.cloneobj[a].status = 10;
+                        }
+                    }
+                }
+                // this.artificialStatuObj.statu
+            },
+            //拒绝出票按钮
+            cancelrefund:function(){
+                let a  = window.confirm('确定拒绝退票？')
+                if(a){
+                    axios({
+                        url:'../bingo/order_refund.php?action=cancel_refund',
+                        method:'get',
+                        params:{
+                            id:this.id
+                        }
+                    }).then(res=>{
+                        if(res.data.sus){
+                            location.href = './refundNew.html';
+                        }else{
+                            alert('拒绝出票失败')
+                        }
+                    }).catch(err=>{console.log(err)})
+                }else{
+
+                }
+
+            },
+            //返回按钮
+            cancelreturn:function () {
+                location.href = './refundNew.html';
+                // window.history.back();
+            },
+            //确定人工出票
+            hand_work:function () {
+                let len = this.$refs.inpu.length;
+                let reobj = this.$refs.inpu;
+                let refundPassengers = {};
+                let checkNum = 0;
+                let refundStatus = null;
+                for(let a=0;a<len;a++){
+                    if(reobj[a].checked){
+                        refundPassengers[a] = reobj[a].dataset.man;
+                        checkNum +=1;
+                    }
+                }
+                if(checkNum==len){
+                    //1是已退
+                    refundStatus = 1;
+                }else{
+                    //2是部分退
+                    refundStatus = 2;
+                }
+                if(checkNum){
+                    axios({
+                        url:'../bingo/order_refund.php?action=hand_work',
+                        method:'post',
+                        data:{
+                            id:this.id,
+                            refundPassengers,
+                            refundStatus
+                        }
+                    }).then(res=>{
+                        if(res.data.sus){
+                            this.stataObj = res.data.data;
+                            // console.log(this.stataObj)
+                            alert('退票成功');
+                            this.statementFlag = true;
+                            this.artificial_work_flag = true
+                        }else{
+                            alert('手工退票失败')
+                        }
+                    }).catch(error=>console.log(error))
+                }else{
+                    alert('选项不能为空');
+                }
+            },
+            //递归深拷贝
+            deepclone:function (sourceObj, targetObj) {
+                let cloneObj = targetObj || {};
+                if(!sourceObj || typeof sourceObj !== "object" || sourceObj.length === undefined){
+                    return sourceObj
+                }
+                for(let i in sourceObj){
+                    if (typeof sourceObj[i] === 'object' && sourceObj[i].length !== undefined) {
+                        cloneObj[i] = this.deepclone(sourceObj[i], {});
+                    } else {
+                        cloneObj[i] = sourceObj[i];
+                    }
+                }
+                return cloneObj
+            },
+            add:function () {
+                let a = {delet:1};
+                this.stataObj.passengers.push(a)
+            },
+            delet:function (flag,index) {
+                if(flag==1){
+                    this.stataObj.passengers.splice(index,1)
+                }else{
+                    alert('默认旅客不可删除')
+                }
+            },
+            //保存报表
+            saveOrd(id){
+                let blu = document.getElementsByClassName('SizeBlue')
+                for(let a=0;a<blu.length;a++){
+                    if(blu[a].getElementsByTagName('input')[0]){
+                        if(!blu[a].getElementsByTagName('input')[0].value){
+                            alert('蓝色必填项不能为空')
+                            return
+                        }
+                    }else if(blu[a].getElementsByTagName('select')[0]){
+                        if(!blu[a].getElementsByTagName('select')[0].value){
+                            alert('蓝色必填项不能为空')
+                            return
+                        }
+                    }
+                }
+                axios({
+                    url:'../bingo/order_refund.php?action=update_statement',
+                    method:"post",
+                    data:this.stataObj
+                }).then(res=>{
+                    if(res.data.sus){
+                        // window.history.back();
+                        location.href = './refundNew.html';
+                        this.$Message.info({
+                            content: '保存成功',
+                            duration: 10,
+                            closable: true
+                        })
+                        // window.location.href = 'refund.html';
+                    }else{
+                        alert("保存失败: "+res.data.data)
+                    }
+                }).catch(err=>console.log(err))
+            },
+            //删除报表
+            // deletTheOrd(){
+            //
+            // },
+            //关闭报表
+            close:function () {
+                this.$store.state.statementFlag = false
+            },
+            //    转单功能，改变锁单人
+            changeDealFun(){
+                axios({
+                    url:'../bingo/order_refund.php?action=changeUserName',
+                    method:'post',
+                    data:{
+                        id:this.id
+                    }
+                }).then(res=>{
+                    if(res.data.sus){
+                        location.href = './refundNew.html';
+                        // window.history.back();
+                    }else{
+                        alert('转单失败')
+                    }
+                }).catch(err=>{console.log(err)})
+
+            },
+            //9c取位按钮
+            nineCchangeFlightold(){
+                window.sessionStorage.setItem('nameValue','changeflight')
+                axios({
+                    url:'../bingo/order_refund.php?action=air_change',
+                    method:'post',
+                    data:{
+                        id:this.id,
+                    }
+                }).then(res=>{
+                    if(res.data.sus){
+                        window.location.href='./refundNew.html'
+                    }else{
+                        this.$Message.info({
+                            content:res.data.data,
+                            duration:20,
+                            closable: true,
+                        })
+                    }
+                }).catch(err=>{
+                    this.$Message.error({
+                        content:'操作失败',
+                        duration:10,
+                        closable: true,
+                    })
+                    console.log(err)})
+            },
+
+        },
+        computed:{
+            refundProfitTotal(){
+                if(this.stataObj.submitAirlineType == 1 || this.stataObj.submitAirlineType == 2){
+                    return this.stataObj.refundProfitTotal = calc.sub(this.stataObj.totalMoney, this.platformRefund)
+                }else{
+                    return this.stataObj.refundProfitTotal = calc.sub(this.stataObj.refund, this.stataObj.platformRefund)
+                }
+            },
+            //航司退款
+            refund(){
+                return this.stataObj.refund = calc.sub(this.stataObj.totalMoney, this.stataObj.deductionFee)
+            },
+            //平台退款
+            platformRefund(){
+                return this.stataObj.platformRefund = calc.sub(this.stataObj.saleTotal, this.stataObj.refundCost)
+            }
+        },
+        created(){
+            let sr = location.href;
+            this.id = sr.substr(sr.search('id=')+3);
+            this.willType = sr.indexOf('&');
+            this.willType = sr.slice(this.willType-1,this.willType);
+            axios({
+                url:'../bingo/order_refund.php?action=apply_refund',
+                method:'get',
+                params:{
+                    id:this.id,
+                    // jump:false,
+                }
+            }).then(res=>{
+                if(!res.data.sus){
+                    // this.refundtable = res.data.passengers;
+                    // this.refundtable = this.deepclone(res.data.passengers);
+                    this.len = res.data.passengers.length;
+                    //添加是否是aq的标识
+                    if(res.data.flight.match('AQ')){
+                        res.data.aqFlag = true;
+                    }
+                    this.refundmess = res.data;
+                    this.anomaly = res.data.anomaly;
+                    this.reason = res.data.reason;
+                    this.flightTable = this.refundmess.flight.slice(0,2);
+                    // function deepClone (sourceObj, targetObj) {
+                    //     let cloneObj = targetObj || {};
+                    //     if(!sourceObj || typeof sourceObj !== "object" || sourceObj.length === undefined){
+                    //         return sourceObj
+                    //     }
+                    //     for(let i in sourceObj){
+                    //         if (typeof sourceObj[i] === 'object' && sourceObj[i].length !== undefined) {
+                    //             cloneObj[i] = deepClone(sourceObj[i], {});
+                    //         } else {
+                    //             cloneObj[i] = sourceObj[i];
+                    //         }
+                    //     }
+                    //     return cloneObj
+                    // }
+                    // this.cloneobj = this.deepclone(res.data.passengers);
+                    for(let a=0;a<this.len;a++){
+                        if(res.data.passengers[a].bk_result){
+                            let b = JSON.parse(res.data.passengers[a].bk_result);
+                            res.data.passengers[a].bk_result = b ;
+                        }else{
+                            res.data.passengers[a].bk_result = {};
+                            res.data.passengers[a].bk_result.result = '';
+                        }
+                    }
+                    this.cloneobj = res.data.passengers;
+                    this.refundtable = JSON.parse(JSON.stringify(res.data.passengers));
+                    if(res.data.info){
+                        this.info = res.data.info;
+                    }
+                }else{
+                    // window.history.back();
+                    location.href = './refundNew.html';
+                    this.$Message.error({
+                        content: '没有信息',
+                        duration: 10,
+                        closable: true
+                    });
+                    // alert('没有信息');
+                    // location.href='./refund.html';
+                }
+            }).catch(err=>{console.log(err)})
+        },
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,415 @@
+{extends file='main.base.html'}
+
+{block name=headjs}
+<link rel="stylesheet" href="../bingo/css/bootstrap.min.css">
+<link type="text/css" rel="stylesheet" media="screen" href="/resource/css/lib_page.css">
+<script type="text/javascript" src="/resource/javascripts/lib_page.js"></script>
+<script type="text/javascript" src="/resource/javascripts/date.selector.js"></script>
+<style>
+.search h1{
+	font-size:14px;
+	text-align:left;
+}
+a.btn-success {
+    color: #ffffff;
+    display: block;
+    border: #1ab394 1px solid;
+    width: 50px;
+    padding: 2px;
+    border-radius: 4px;
+    background-color: #19c710;
+}
+.deal-form {
+	padding:10px;
+	display:none;
+}
+.col-sm-3{
+	margin-bottom:5px;
+}
+.ordermsg{
+	width:150px;
+	display:inline-block;
+	color:#949494;
+}
+</style>
+{/block}
+
+{block name=body}
+<div class="right_title">
+	<h2>
+    {$show.name}管理
+    </h2>
+</div>
+<div class="r_bg">
+	<div class="list_top">
+		<ul>
+			<li>
+			<a href="javascript:;" onclick="orderLuggage()" >购买服务</a>
+			</li>
+			<li>
+			<a href="../template/lug.html" >页面</a>
+			</li>
+		</ul>
+	</div>
+	<div class="deal-form ">	
+		<form id="dealForm"  class="form-inline"  >
+			<div class="form-group">
+				<div class="col-sm-10">订单号：<span id="orderId" class="ordermsg"></span>  收款：<span id="orderPrice" class="ordermsg"></span></div>
+				<div class="col-sm-3  form-inline">
+					原票号&nbsp;&nbsp;&nbsp; ：<input type="text" class="form-control"  name="oldNumber" required >
+				</div>
+				<div class="col-sm-3  form-inline">				
+					原票回款：<input type="text" class="form-control"  name="oldpayPrice" placeholder="0.00" required>
+				</div>
+				<div class="col-sm-3 form-inline">				
+					新票号：<input type="text" class="form-control"  name="newNumber" >
+				</div>
+				<div class="col-sm-3  form-inline">				
+					新票采购金额：<input type="text" class="form-control"  name="newpayPrice" placeholder="0.00">	
+				</div>
+				<div class="col-sm-3  form-inline">
+					采购金额：<input type="text" class="form-control" id="payPrice" name="payPrice" placeholder="0.00" required>	
+				</div>
+				<div class="col-sm-3  form-inline">				
+					备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注：<textarea class="form-control"  name="remark"   ></textarea>
+				</div>
+				<div class="col-sm-3  form-inline">
+					<input type="hidden" name="id" id="id" value="" >
+					<button onclick="tijiao()" type='button' class="btn btn-primary">提交</button>	
+				</div>					
+			</div>
+		</form>		
+	</div>
+    {if $use_do.find}
+	<div class="search" >
+    <h1>搜索范围:</h1>
+        <div class="sea_pad">
+            <form id="find_form" action="{$cur_url}">
+            <input type="hidden" value="{$table}" name="t" />
+            <input type="hidden" value="0" name="us" />
+            {if $other_sp}
+                {parse_str($other_sp, $osplist)}
+                {foreach $osplist as $key => $one}
+                	<input type="hidden" value="{$one}" name="{$key}" />
+                {/foreach}
+            {/if}
+            <ul>
+            {foreach $show.find as $find}
+            	{if $find.type == -1}
+					{foreach $find.elements as $ele}
+                    	<input type="hidden"  value="{$ele.val}" name="{$ele.id}"/>
+                    {/foreach}
+                {else}
+                	<li>
+                	{if $find.type == 0}
+                    	<span>{$find.name} 为:</span>
+                    {elseif $find.type == 1}
+                    	<span>{$find.name} 中包含有:</span>
+                    {elseif $find.type == 2}
+                    	<span>{$find.name} 的范围为:</span>
+                    {else}
+                    	<span>{$find.name}:</span>
+                    {/if}
+                    {foreach $find.elements as $ele}
+                    	{if $find.type == 2 && $ele@index == 0}
+                        	大于
+                        {/if}
+                        {if $find.type == 2 && $ele@index == 1}
+                        	小于
+                        {/if}
+                        {if $ele.is_sel}
+                            <select name="{$ele.id}" style="width:128px;">
+                                <option value>=全部=</option>
+                                {foreach $ele.data as $data}
+                                <option value="{$data.id}" {if $data.set} selected="selected" {/if} >{$data.name}</option>
+                                {/foreach}
+                            </select>
+                        {else}
+                        
+                        	<input 
+                            {if $ele.date} 
+                            class="dateselect" readonly="readonly" 
+                            {/if} 
+                            type="text" value="{$ele.val}" name="{$ele.id}"/>
+                        {/if}
+                    {/foreach}
+                    </li>
+                {/if}
+            {/foreach}
+            </ul>
+            <input type="submit" value="搜索">
+            <input type="button" onclick="window.location.href='{$cur_url}?t={$table}{$other_sp}'" value="搜索全部">
+            </form>
+        </div>
+	</div>
+    {/if}
+    
+	<table class="aa02_table" widtd="100%" border="0" align="center" cellpadding="0" cellspacing="0">
+		<tbody>
+			<tr class="list_th">
+            	{foreach $show.col as $col}
+				<td>
+                {if $col.ord !== false}
+                    {if $col.ord > 0}
+                    <a href="{$cur_url}?t={$table}{$other_sp}&us=1&o=-{$col@iteration}">{$col.name}▲</a>
+                    {elseif $col.ord < 0}
+                    <a href="{$cur_url}?t={$table}{$other_sp}&us=1&o=0">{$col.name}▼</a>
+                    {else}
+                    <a href="{$cur_url}?t={$table}{$other_sp}&us=1&o={$col@iteration}">{$col.name}</a>
+                    {/if}
+                {else}
+                	{$col.name}
+                {/if}
+                </td>
+                {/foreach}
+			</tr>
+			{foreach $show.row as $row}
+			<tr>
+            	{foreach $row.val as $val}
+				<td>{$val}</td>
+                {/foreach}				
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+    {$page_html}
+</div>
+<div id='info' style = "display : none">
+{literal}
+    <form method="post" action="luggage.php">
+		<div class="form-group">
+		   <div class="col-sm-10  form-inline">
+				商品价格：<input type="text" class="form-control"  name="goodsPrice"  id="goodsPrice" required  placeholder="0.00" >				
+		   </div>
+		   <!-- <div class="col-sm-10 form-inline">
+				商品详情： <input type="text" class="form-control"  name="goodsGremarks" required>					   
+		   </div> -->
+		   <div class="col-sm-10 form-inline">
+				用户手机号： <input type="number" class="form-control"  name="orderPhone" id="orderPhone" required >
+		   </div>
+		   <div class="col-sm-10 form-inline">
+				订单价格： <input type="tel" class="form-control" name="orderPrice"  id="orderPrice" required  placeholder="0.00">
+		   </div>
+		   <div class="col-sm-10 form-inline">
+				订单数量： <input type="number" class="form-control"  name="orderCount" id="orderCount" value="30" required>
+		   </div>
+		   <div class="col-sm-10 form-inline">
+				订单说明： <input type="text" class="form-control"  name="orderRemarks" id="orderRemarks" required>
+		   </div>
+		   <div class="col-sm-10 form-inline">
+				过期时间： <input type="number" class="form-control"  name="expiryTime" id="expiryTime" required>
+		   </div>
+		   
+			
+		</div>	
+		<div class="form-group">
+			<input type="hidden" name="action" value="placeOrder" />
+			<input type="hidden" name="oid" id="oid" value="" />
+			<input type="hidden" name="type"  value="1" />			
+			<input type="submit"  value="提交" />
+		</div>
+	</form>
+{/literal}
+</div>
+{/block}
+{block name=footjscode}
+<script>
+//获取支付链接
+function getPayLink(obj,id){
+	layer.confirm('确认要请求支付链接？', {
+        btn : [ '确定', '取消' ]//按钮
+    }, function(index) {
+		layer.close(index);
+		bingo_ajax("luggage.php?t=luggage&action=getOrderInfo",
+			{
+				id:id
+			},
+			function(res){
+				layer.msg(res,{
+					icon: 6,time:2000
+				});
+				location.reload();				
+			},
+			true
+		)
+	})
+}
+//重新获取支付链接
+function getPayLinkR(obj,id){
+	/*layer.confirm('确认重新请求支付链接？', {
+        btn : [ '确定', '取消' ]//按钮
+    }, function(index) {
+	layer.close(index);
+	bingo_ajax("luggage.php?t=luggage&action=getOrderInfo",
+        {
+	    	id:id
+        },
+        function(res){
+			layer.msg(res,{
+				icon: 6,time:2000
+			});
+			location.reload();		
+        },
+		true
+    )
+	})*/
+	layer.open({
+	  type: 2,
+	  title: '购买增值服务',
+	  shadeClose: true,
+	  shade: 0.5,
+	  area: ['380px', '500px'],
+	  content: "luggage.php?t=luggage&action=add&id="+id
+	});
+}
+function orderLuggage(){
+	layer.open({
+	  type: 2,
+	  title: '购买增值服务',
+	  shadeClose: true,
+	  shade: 0.5,
+	  area: ['380px', '500px'],
+	  content: "luggage.php?t=luggage&action=add"
+	});
+}
+//再次购买
+function copy(obj,id){
+	layer.confirm('确认再次购买？', {
+        btn : [ '确定', '取消' ]//按钮
+    }, function(index) {
+	layer.close(index);
+	bingo_ajax("luggage.php?t=luggage&action=copy",
+        {
+	    	id:id
+        },
+        function(res){
+			layer.msg(res,{
+				icon: 6,time:2000
+			});
+			location.reload();		
+        },
+		true
+    )
+	})
+}
+//发短信
+function sendMsg(obj,id){
+	layer.confirm('确认要发送短信吗？', {
+        btn : [ '确定', '取消' ]//按钮
+    }, function(index) {
+		layer.close(index);
+		$(obj).parent("td").html('已发送');
+		bingo_ajax("luggage.php?action=send",
+			{
+				orderId:id,
+			},
+			function(res){
+				 if(res=='ok'){
+					
+				 }else{
+					layer.alert(res, {
+						skin: ''
+						,closeBtn: 0
+						,anim: 4 //动画类型
+					});
+				 }		
+			},
+			true
+		)
+	})
+}
+//处理订单
+function dealOrder(obj,id){
+	var orderId=$(obj).parent("td").siblings().eq(0).text();
+	var orderPrice=$(obj).parent("td").siblings().eq(5).text();	
+	$('#orderId').text(orderId);
+	$('#orderPrice').text(orderPrice);
+	$('#id').val(id);
+	$('.deal-form').toggle();
+}
+//查看详情
+function getDetails(obj,id){
+	$.ajax({
+			secureuri : false, //是否需要安全协议，一般设置为false
+			type:"post",
+			dataType:'json',
+			data:{
+			'id':id
+			},
+			url:"luggage.php?t=luggage&action=getDetails",
+			success:function(res){
+				var text=" 原票号："+res.oldNumber+"<br/> 原票回款"+res.oldpayPrice+"<br/> 采购金额:"+res.payPrice+"<br/> 新票号:"+res.newNumber+"<br/> 新票采购金额:"+res.newpayPrice;
+				layer.open({
+				  type: 1,
+				  skin: 'layui-layer-rim', //加上边框
+				  area: ['420px', '240px'], //宽高
+				  content: text
+				});				
+			}
+		});
+}
+//解锁
+function unlock(obj,id){
+	$.ajax({
+			secureuri : false, //是否需要安全协议，一般设置为false
+			type:"post",
+			dataType:'json',
+			data:{
+			'id':id
+			},
+			url:"luggage.php?t=luggage&action=unlock",
+			success:function(res){
+				if(res){
+					layer.msg('已解锁',{
+						icon: 6,time:2000
+					});
+					$(obj).parent().append('否');
+					$(obj).remove();
+				}else{
+					layer.msg('请重试',{
+						icon: 6,time:2000
+					});
+				}
+			}
+		});
+}
+//修改状态
+function tijiao(){
+	var payPrice=$('#payPrice').val();
+	if(payPrice==''){
+		return;
+	}
+	var data = $("#dealForm").serialize();
+	$.ajax({
+			secureuri : false, //是否需要安全协议，一般设置为false
+			type:"post",
+			dataType:'json',
+			data:data,
+			url:"luggage.php?t=luggage&action=deal",
+			success:function(res){
+				if(res.code){
+					layer.msg(res.data,{
+						icon: 6,time:2000
+					});
+					window.location.reload();
+				}else{
+					layer.alert(res.data);	
+				}
+				
+			}
+		});
+	  /* bingo_ajax("luggage.php?t=luggage&action=deal",
+        {
+            data
+        },
+        function(res){			
+			layer.msg(res,{
+				icon: 6,time:2000
+			});
+			
+        },
+        true
+    )*/
+}
+</script>
+{/block}

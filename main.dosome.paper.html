@@ -1,0 +1,313 @@
+{extends file='main.base.html'}
+
+{block name=headjs}
+<link type="text/css" rel="stylesheet" media="screen" href="/resource/css/base.iduq.info.css">
+<script type="text/javascript" src="/resource/javascripts/Validform_v5.3.2_min.js"></script>
+<script type="text/javascript" src="/resource/javascripts/base.iduq.info.js"></script>
+<script>
+    var mysum = {$mysum};
+	var mypmoney = {$pmoney};
+    var mycount = {$mycount};
+    {literal}
+    function gotopp(){
+        /*var user = $('#user').val();
+        var money = $('input[name="case"]').val();
+        var count = parseInt($('#cur').html());
+
+        if(!user || user == ""){
+            bingo.alert('请选择交款用户');
+            return false;
+        }
+
+        if(!money || money == "" || !g_regexp_list.NFF.test(money)){
+            bingo.alert('请输入交款金额');
+            return false;
+        }*/
+        var count = parseInt($('#cur').html());
+
+
+        if(confirm('确认添加?')){
+            /*var param = {
+                user:user,
+                money:money,
+                count:count
+            };*/
+
+            var param = {count:count};
+            bingo_ajax('dosome.php?action=ajax_do_paper',param,function(){
+                alert('添加成功!');
+                bingo_jump('dosome.php?action=paper');
+            })
+        }
+
+        return false;
+    }
+
+    var g_checkagree = 1;
+
+    function fixdata(callback){
+        var check = $('#agreepp').is(':checked');
+        var user = $('#touser').val();
+        if(!check) {
+            if (!user || user == "") {
+                bingo.alert('请选择交单用户!');
+                $('input[name="code"]').val('');
+                $('input[name="username"]').val('');
+                $('input[name="pirce"]').val('');
+                $('input[name="oldpirce"]').val('');
+                return false;
+            }
+        }
+        var code = $('input[name="code"]').val();
+        if(!code || code == ""){
+            $('input[name="username"]').val('');
+            $('input[name="pirce"]').val('');
+            $('input[name="oldpirce"]').val('');
+            return;
+        }
+        bingo_ajax('dosome.php?action=ajax_do_add_paper',{
+            code:code,
+            user:user,
+            agree:g_checkagree,
+            agreepp:check
+        },function(data){
+            if(data.noteq){
+                $('input[name="username"]').val(data.username);
+                $('input[name="pirce"]').val(data.pirce);
+                $('input[name="oldpirce"]').val(data.oldpirc);
+                setTimeout(function(){
+                    if(confirm('面单用户与交单用户不一致,是否依然录入?')){
+                        g_checkagree = 0;
+                        fixdata(callback);
+                        g_checkagree = 1;
+                    }else{
+
+                    }
+                },500);
+                return;
+            }
+            if(data.agreenote){
+                $('input[name="username"]').val(data.username);
+                $('input[name="pirce"]').val(data.pirce);
+                $('input[name="oldpirce"]').val(data.oldpirc);
+                bingo.alert('此面单没有对应的面单用户!');
+                return;
+            }
+            $('input[name="code"]').val('');
+            $('input[name="username"]').val(data.username);
+            $('input[name="pirce"]').val(data.pirce);
+            $('input[name="oldpirce"]').val(data.oldpirc);
+
+            var myimport = data.paper.timport == 1?'是':'否';
+
+            var html = '<tr class="paperitem" myval="'+data.paper.id+'"><td>'+data.paper.ctime+'</td><td>'+data.paper.code+'</td><td>'+data.username+'</td><td>'+data.pirce+'</td><td>'+data.paper.inusername+'</td><td>'+data.paper.tempname+'</td><td>'+data.paper.tweight+'</td><td>'+data.paper.taddr+'</td><td>'+data.paper.tpirce+'</td><td>'+myimport+'</td><td><a href="javascript:void(0);" onclick="delitme('+data.paper.id+',\''+data.paper.code+'\');">删除</a> </td> </tr>';
+            $('#paperlist').prepend(html);
+
+            var count = parseInt($('#cur').html());
+            count ++ ;
+            $('#cur').html(count);
+
+            mypmoney += parseFloat(data.pirce);
+            mysum += parseFloat(data.paper.tpirce);
+            mycount ++;
+
+            var curneed = mysum - mypmoney;
+            $('#allyuan').html(mysum+' 元');
+            $('#allpmoney').html(mypmoney+' 元');
+            $('#allbi').html(mycount+' 笔');
+            $('#needpay').html(curneed+' 元');
+
+            if(typeof(callback) == 'function') {
+                callback(data);
+            }
+        },true);
+    }
+
+    function delitme(id,code){
+        if(confirm('确认删除['+code+']这笔交单吗?')){
+            bingo_ajax('dosome.php?action=ajax_del_paper_id',{
+                id:id
+            },function(data){
+                var pir = $('.paperitem[myval="'+id+'"] td:eq(8)').html();
+				var mian = $('.paperitem[myval="'+id+'"] td:eq(3)').html();
+
+				mypmoney -= mian;
+                mysum -= pir;
+                mycount --;
+				
+				var curneed = mysum - mypmoney;
+                $('#allyuan').html(mysum+' 元');
+				$('#allpmoney').html(mypmoney+' 元');
+				$('#needpay').html(curneed+' 元');
+                $('#allbi').html(mycount+' 笔');
+
+                $('.paperitem[myval="'+id+'"]').remove();
+                var count = parseInt($('#cur').html());
+                count -- ;
+                $('#cur').html(count);
+            },true);
+        }
+    }
+
+    function remath(){
+        bingo_ajax('dosome.php?action=ajax_remath_paper',{
+        },function(data){
+            alert('试算完成!');
+            bingo_jump('dosome.php?action=paper');
+        },true);
+    }
+    {/literal}
+</script>
+{/block}
+
+{block name=body}
+<div style="width:50%; margin:20px auto;">
+	<form action="info.php" method="post">
+        <table class="aa02_table" width="100" border="0" align="center" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="r_h2" colspan="2">快递交单</td>
+            </tr>
+            <tbody>
+                <tr>
+                    <td width="15%" align="right">交单人：</td>
+                    <td width="30%">
+                        <select id="touser" name="touser">
+                            <option value>== 请选择 ==</option>
+                            {foreach $userlist as $one}
+                            <option value="{$one.id}">{$one.name}</option>
+                            {/foreach}
+                        </select>
+                        <label><input type="checkbox" id="agreepp">忽略交单人(以发放人为准)</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">快递单号：</td>
+                    <td width="30%">
+                        <input type="text" name="code" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">面单拥有者：</td>
+                    <td width="30%">
+                        <input type="text" name="username" value="" disabled readonly>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">面单资费：</td>
+                    <td width="30%">
+                        <input type="text" name="pirce" value="" disabled readonly>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">面单交款：</td>
+                    <td width="30%">
+                        <input type="text" name="oldpirce" value="" disabled readonly>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <input type="button" value="确定" onclick="fixdata();"/>
+                    </td>
+                </tr>
+                <!--<tr>
+                    <td width="15%" align="right">交款人：</td>
+                    <td width="30%">
+                        <select id="user" name="user">
+                            <option value>== 请选择 ==</option>
+                            {foreach $userlist as $one}
+                            <option value="{$one.id}">{$one.name}</option>
+                            {/foreach}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">交款：</td>
+                    <td width="30%">
+                        <input type="text" name="case" value="">
+                    </td>
+                </tr>-->
+                <tr>
+                    <td width="15%" align="right">笔数：</td>
+                    <td width="30%">
+                        <span id="cur">{count($bindlist)}</span>
+                    </td>
+                </tr>
+                <!--<tr>
+                    <td colspan="2" align="center">
+                        <input type="button" value="提交" onclick="gotopp();"/>
+                    </td>
+                </tr>-->
+            </tbody>
+        </table>
+	</form>
+    <table class="aa02_table"  widtd="100" border="0" align="center" cellpadding="0" cellspacing="0">
+        <tr class="list_th">
+        	<td>总应收</td>
+            <td id="needpay">{$mysum-$pmoney} 元</td>
+            <td>总试算金额</td>
+            <td id="allyuan">{$mysum} 元</td>
+            <td>总面单资费</td>
+            <td id="allpmoney">{$pmoney} 元</td>
+            <td>笔数</td>
+            <td id="allbi">{$mycount} 笔</td>
+            <td colspan="2" ><input type="button" value="重新试算" onclick="remath();"/></td>
+            <td ><input type="button" value="提交" onclick="gotopp();"/></td>
+        </tr>
+        <tr class="list_th">
+            <td>交单时间</td>
+            <td>单号</td>
+            <td>面单用户</td>
+            <td>面单资费</td>
+            <td>交单用户</td>
+            <td>运费摸版</td>
+            <td>匹配重量</td>
+            <td>匹配地址</td>
+            <td>试算金额</td>
+            <td>是否导入</td>
+            <td>操作</td>
+        </tr>
+        <tbody id="paperlist">
+        {foreach $bindlist as $one}
+        <tr class="paperitem" myval="{$one.id}">
+            <td>{$one.ctime}</td>
+            <td>{$one.code}</td>
+            <td>{$one.out_user_name}</td>
+            <td>{$one.curpirc}</td>
+            <td>{$one.inusername}</td>
+            <td>{$one.tmp_name}</td>
+            <td>{$one.tweight}</td>
+            <td>{$one.taddr}</td>
+            <td>{$one.tpirce}</td>
+            <td>{if $one.timport == 1}是{else}否{/if}</td>
+            <td><a href="javascript:void(0);" onclick="delitme({$one.id},'{$one.code}');">删除</a> </td>
+        </tr>
+        {/foreach}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    {literal}
+    $(function(){
+        var scanfcount = new gun($('input[name="case"]'),function(isscanf){
+            gotopp();
+        })
+
+        var lastcode = "";
+        var scanf = new gun($('input[name="code"]'),function(){
+            fixdata();
+        });
+
+        $('#agreepp').on('click',function(){
+            var check = $('#agreepp').is(':checked');
+            if(check){
+                $("#touser").val("");
+                $('#touser').attr("disabled","disabled");
+            }else{
+                $('#touser').removeAttr("disabled");
+            }
+        })
+    })
+    {/literal}
+</script>
+{/block}

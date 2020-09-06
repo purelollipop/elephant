@@ -1,0 +1,115 @@
+{extends file='main.base.html'}
+
+{block name=headjs}
+<link type="text/css" rel="stylesheet" media="screen" href="/resource/css/base.iduq.info.css">
+<script type="text/javascript" src="/resource/javascripts/Validform_v5.3.2_min.js"></script>
+<script type="text/javascript" src="/resource/javascripts/base.iduq.info.js"></script>
+<script>
+$(function(){
+	$('#info').click(function(){
+		$('#pad').toggle();
+	});
+	
+	$('#add').click(function(){
+		var v = $('input[name="id"]').val();
+		bingo.openhtml('添加规格','info.php?action=addstyle&id='+v,function(){
+			location.reload();
+		})
+	});
+});
+
+function check(){
+	var v;
+	var undef;
+	v = $('input[name="count"]').val();
+	if(v == '' || v==undef || parseInt(v) < 1 || parseInt(v) > 9999999){
+		alert('请输入数量');
+		return false;
+	}
+	
+	v = $('input[name="case"]').val();
+	if(v == '' || v==undef || parseFloat(v) <= 0 || parseFloat(v) > 9999999){
+		alert('请输入金额');
+		return false;
+	}
+	
+	v = $('select[name="style"]').val();
+	if(v == '' || v==undef){
+		alert('请选择规格');
+		return false;
+	}
+	
+	v = $('select[name="fin"]').val();
+	if(v == '' || v==undef){
+		alert('请选择货源地');
+		return false;
+	}
+	return confirm('确认进货?')
+}
+</script>
+{/block}
+
+{block name=body}
+<div style="width:50%; margin:20px auto;">
+<form action="info.php" method="post">
+<table class="aa02_table" width="100" border="0" align="center" cellpadding="0" cellspacing="0">
+    <tr>
+        <td class="r_h2" colspan="2">添加进货  <a href="object.php?t=object&us=1" style="float:right;">返回</a></td>
+    </tr>
+    <tbody>
+        <tr>
+            <td width="15%" align="right">商品名称：</td>
+            <td width="30%">
+                {$object.name} <a href="javascript:void(0)" id="info" style="float:right;">详细</a>
+            </td>
+        </tr>
+        <tr>
+            <td width="15%" align="right">规格：</td>
+            <td width="30%">
+                <select name="style">
+                	<option>==请选择==</option>
+                    {foreach $stylelist as $one}
+                    <option value="{$one.id}">{$one.name}</option>
+                    {/foreach}
+                </select>
+                <a href="javascript:void(0)" id="add">+添加</a>
+            </td>
+        </tr>
+        <tr>
+            <td width="15%" align="right">货源地：</td>
+            <td width="30%">
+    			<select name="fin">
+                	<option>==请选择==</option>
+                    {foreach $finlist as $one}
+                    <option value="{$one.id}">{$one.name}</option>
+                    {/foreach}
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td width="15%" align="right">数量：</td>
+            <td width="30%">
+                <input name="count" value=""/>
+            </td>
+        </tr>
+        <tr>
+            <td width="15%" align="right">总价¥：</td>
+            <td width="30%">
+                 <input name="case" value=""/>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" align="center">
+            	<input type="hidden" name="action" value="doin"/>
+                <input type="hidden" name="id" value="{$object.id}"/>
+            	<input type="submit" value="提交" onclick="return check();"/>
+            </td>
+        </tr>
+    </tbody>
+</table>
+</form>
+<div id="pad" style="display:none;">
+        {include file='objectinfo.tpl'}
+</div>
+</div>
+{/block}

@@ -1,0 +1,2273 @@
+﻿<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>人工出单</title>
+    <link rel="shortcut icon" href="favicon.ico">
+  <link href="../bingo/css/bootstrap.min14ed.css" rel="stylesheet">
+    <link href="../bingo/css/style.min862f.css" rel="stylesheet">
+   <link href="../bingo/css/plugins/datapicker/datepicker3.css" rel="stylesheet">  <!--日期选择器的样式-->
+    <link href="../bingo/css/plugins/chosen/chosen.css" rel="stylesheet">  <!--航司菜单 下拉菜单样式-->
+   <link href="../bingo/css/font-awesome.min.css" rel="stylesheet">      <!--按钮图标的样式 如果不要按钮可以不加-->
+   <link href="../bingo/css/animate.min.css" rel="stylesheet">  <!--此处样式会让下拉菜单下拉后的二级菜单北京为透明 会被其它样式覆盖-->
+    <link href="../bingo/css/style.min862f.css" rel="stylesheet"> <!--下拉菜单下拉后让其不会被其它样式覆盖 插件自己的一些css样式-->
+    <style type="text/css">
+        /*整个页面的字体*/
+        *{
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: black;
+            /*"SimSun","Helvetica Neue",Helvetica,Arial,sans-serif*/
+        }
+        .artificial_tab_1 tbody tr{
+            background-color: white;
+        }
+        /*标头的线性渐变*/
+        .theadA{
+            background-color: red;
+            /*border: 0.1px solid;*/
+            /*border-color:#E7EAEC;;*/
+            /*background: linear-gradient(white,#EDEDED);*/
+        }
+        /*各个table的样式*/
+        .artificial_tab_1 tbody tr:nth-child(odd){
+            background-color: #f1f1f1;
+        }
+        .artificial_tab_1 tbody tr:hover{
+            background-color:#dee5ff;
+        }
+        .artificial_tab_2 tbody tr:nth-child(even){
+            background-color: rgba(203,227,251,0.4)
+            /*background-color:rgba(203,227,251,1);*/
+        }
+        .artificial_tab_2 tbody tr:hover{
+            background-color:rgba(203,227,251,1);
+        }
+        .table th, .table td {
+            text-align: center;
+            vertical-align: middle!important;
+        }
+        /*@media screen and (min-width:1440px){*/
+
+        /*}*/
+        .hoverColor{
+            background-color: #f1f1f1;
+        }
+        .hoverColor:hover{
+            background-color: #dee5ff;
+        }
+        /*更改table标头的样式距离*/
+        #ttb td{
+            padding: 2px 3px;
+        }
+        #ttbLock td{
+            padding: 2px 3px;
+        }
+        /*选择框的样式*/
+        #chose{
+            margin: 3px;
+            position: relative;
+            width: 1280px;
+            height: 160px;
+        }
+        #chose>div{
+            float: left;
+            margin-left: 20px;
+        }
+        #chose_lock{
+            margin: 3px;
+            position: relative;
+            width: 1280px;
+            height: 160px;
+        }
+        #chose_lock>div{
+            float: left;
+            margin-left: 20px;
+        }
+        .curspointer{
+            /*border: 0.5px  solid;*/
+        }
+        .curspointer:hover{
+            cursor:pointer;
+            box-shadow: 1px 1px 1px 1px gray;
+            /*font-size: 14px;*/
+        }
+        .curspointertwo:hover{
+            box-shadow: 1px 1px 2px 1px gray;
+            cursor:pointer;
+        }
+        .condition{
+            position: absolute;
+            top: 5px;
+            width: 100%;
+            height: 2700px;
+            background-color: rgba(192,192,192,0.4);
+            z-index: 2;
+        }
+        .condition>div{
+            position: relative;
+            margin: 90px auto;
+            width: 1000px;
+            height: 900px;
+            background-color: whitesmoke;
+        }
+        .condition>div>div{
+            margin-top: 20px;
+        }
+        #hangsi{
+            width: 100%;
+            height: 530px;
+        }
+        #iinp>div{
+            width: 40px;
+            margin-left: 80px;
+            float: left;
+        }
+        #pingtai{
+            position: relative;
+            width: 100%;
+            height: 150px;
+        }
+        #pingtaichild{
+            position: absolute;
+            top: -2px;
+            left: 80px;
+            width:60px;
+            height: 10px;
+        }
+        #pingtai>div>div{
+            float: left;
+            width: 150px;
+            height: auto;
+            margin-left: 80px;
+        }
+        #last{
+            width: 100%;
+            padding-left: 35%;
+        }
+        #last>*{
+            float: left;
+            margin-left: 10px;
+        }
+        /*锁单页面操作单独的单的按钮*/
+        .hand{
+            font-size: 10px;
+            background-color: whitesmoke;
+            border: 1px #e7eaec solid;
+            margin: 1px;
+            padding: 0px 3px;
+        }
+        .hand:hover{
+            background-color: #ABA3E0;
+        }
+        /*属性为data-red 值为red的时候 字体标红*/
+        div[data-red='red']>div{
+            color: red;
+        }
+        div[data-redTime='red']{
+            background-color: red;
+        }
+        /*td[data-redTime='red']{*/
+            /*color: red;*/
+        /*}*/
+        td[data-cursite='1']{
+            color:red;
+        }
+        div[data-cursite='1']{
+            color: red;
+        }
+        .td_message{
+            width: 135px;
+        }
+        .td_message>div>div{
+            display: inline-block;
+            float: left;
+            margin-left: 10px;
+        }
+        /*.td_price{*/
+            /*width: 180px;*/
+        /*}*/
+        .td_price>div{
+            /*float: left;*/
+            /*margin-left: 8px;*/
+            display: flex;
+            justify-content: center;
+            margin-top: 2px;
+        }
+        .td_price>div>div{
+            margin-left: 4px;
+        }
+        /*日志样式*/
+        .log{
+            z-index: 999;
+            position: fixed;
+            /*right: 350px;*/
+            top: 10px;
+            left: 200px;
+        }
+        /*未锁单页面红叉的父给定位，方便红叉定位*/
+        .chaFather{
+            position: relative;
+        }
+        /*未锁单页面红叉的样式*/
+        .cha{
+            position: absolute;
+            top: 20%;
+            left: 1%;
+            width: 15px;
+            height: 15px;
+            background-image: url('../images/font/cha03.png');
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+        }
+        /*拆分样式*/
+        .BreakUp{
+            z-index: 999;
+            position: fixed;
+            /*width: 80%;*/
+            height: auto;
+            top: 1px;
+            /*left: 20%;*/
+        }
+        .BreakUp input{
+            border: none;
+            text-align: center;
+        }
+        /*未锁单页面上方input样式*/
+        .gray>span{
+            font-size: 12px;
+            background-color: #f1f1f1
+        }
+        /*支付日期，起飞日期框的样式*/
+        .grayAll *{
+            /*color: black;*/
+            border-color:#C3C3D6
+        }
+        /*普通input框样式*/
+        .gray>input{
+            border: 1px solid #C3C3D6;
+        }
+        /*航司样式框*/
+        .chosen-select{
+            width:120px;
+            margin-top: 6px;
+            height: 29px;
+            border-radius: 4px;
+            border: 1px solid #C3C3D6;
+        }
+        /*锁单页面按钮样式*/+
+        .buttonfalse{
+            border: 1px solid #C3C3D6;
+        }
+        .buttonfalse:hover{
+            background-color: #CBE3FB;
+        }
+        .table{
+            /*font-family: "Microsoft YaHei";*/
+        }
+        [v-cloak]{
+            display: none;
+        }
+        #ttb>tr[data-color='color']{
+            background-color: #F9F1EC;
+        }
+        /*复制按钮的样式*/
+        .fuzhi{
+            display: inline-block;
+            cursor: pointer;
+            background-image: url("../images/font/fuzhi3.png");
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            width: 15px;
+            height: 15px;
+            margin-top: -5px;
+        }
+        .fuzhi:active{
+            border: 1px black solid;
+        }
+        .fuzhiDom{
+            position: absolute;
+            left: -300px;
+        }
+        #fuzhiId{
+            background-color: red;
+        }
+        /*.table-bordered{*/
+            /*text-align: center;!important;*/
+        /*}*/
+    </style>
+    <div class="fadeInRight artificial" style="font-size: 12px" v-cloak>
+        <div class="fuzhiDom">
+            <input type="text" id="fuzhiId" ref="copy">
+        </div>
+        <div class="tabs-container">
+            <ul class="nav nav-tabs" style="margin-left: 100px">
+                <li class="active"><a data-toggle="tab" href="#tab-1" aria-expanded="true" @click="inpLock">未锁单</a>
+                </li>
+                <li class=""><a id="lock02" data-toggle="tab" href="#tab-2" aria-expanded="false" @click="inpLock2">锁单待处理</a>
+                </li>
+                <li class=""><a id="process_order" data-toggle="tab" href="#tab-2" aria-expanded="false" @click="inpLock3">处理中订单</a>
+                </li>
+                <li class=""><a id="ab_order" data-toggle="tab" href="#tab-2" aria-expanded="false" @click="inpLock4">客服异常单</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div id="tab-1" class="tab-pane active artificial_tab_1" style="margin-right: 5px"  >
+                    <!--input选项-->
+                    <div id="chose">
+                        <!--航司选择框-->
+                        <div class="wrapper wrapper-content  fadeInRight" style="padding: 5px">
+                            <span style="color:black">航空公司选择</span>
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <select data-placeholder="选择航空公司" class="chosen-select lock"  tabindex="2">
+                                        <option value="">全部</option>
+                                        <option value="3U">3U</option>
+                                        <option value="9C">9C</option>
+                                        <option value="ZH">ZH</option>
+                                        <option value="MF">MF</option>
+                                        <option value="CA">CA</option>
+                                        <option value="BK">BK</option>
+                                        <option value="HO">HO</option>
+                                        <option value="EU">EU</option>
+                                        <option value="SC">SC</option>
+                                        <option value="KY">KY</option>
+                                        <option value="NS">NS</option>
+                                        <option value="QW">QW</option>
+                                        <option value="TV">TV</option>
+                                        <option value="G5">G5</option>
+                                        <option value="DZ">DZ</option>
+                                        <option value="UQ">UQ</option>
+                                        <option value="GJ">GJ</option>
+                                        <option value="JR">JR</option>
+                                        <option value="A6">A6</option>
+                                        <option value="GY">GY</option>
+                                        <option value="RY">RY</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <!--日期选择框-->
+                        <div class="form-group grayAll" id="data_5" style="width: 220px;margin-top: 4px">
+                            <label class="font-noraml" style="color:black">支付日期</label>
+                            <div class="input-daterange input-group" id="datepicker">
+                                <input type="text" class="input-sm form-control data02" name="start" :value='date01'>
+                                <span class="input-group-addon">-</span>
+                                <input type="text" class="input-sm form-control data02" name="end" :value="date01">
+                            </div>
+                        </div>
+                        <!--input输入框-->
+                        <div class="input-group m-b gray" style="width: 180px;">
+                            <span class="input-group-addon">大PNR</span>
+                            <input type="text" placeholder="" class="form-control inp" >
+                        </div>
+                        <!--input输入框-->
+                        <div class="input-group m-b gray" style="width: 180px;">
+                            <span class="input-group-addon">小PNR</span>
+                            <input type="text" placeholder="" class="form-control inp">
+                        </div>
+                        <!--input输入框-->
+                        <div class="input-group m-b gray" style="width: 180px;">
+                            <span class="input-group-addon">换大PNR</span>
+                            <input type="text" placeholder="" class="form-control inp">
+                        </div>
+                        <!--input输入框-->
+                        <div class="input-group m-b gray" style="width: 180px;">
+                            <span class="input-group-addon">换小PNR</span>
+                            <input type="text" placeholder="" class="form-control inp">
+                        </div>
+                        <!--input输入框-->
+                        <div class="input-group m-b gray" style="width: 180px;">
+                            <span class="input-group-addon">系统订单号</span>
+                            <input type="text" placeholder="" class="form-control inp">
+                        </div>
+                        <!--input输入框-->
+                        <div class="input-group m-b gray" style="width: 180px;">
+                            <span class="input-group-addon">平台订单号</span>
+                            <input type="text" placeholder="" class="form-control inp">
+                        </div>
+                        <!--input输入框-->
+                        <div class="input-group m-b gray" style="width: 180px;">
+                            <span class="input-group-addon">乘客姓名</span>
+                            <input type="text" placeholder="" class="form-control inp">
+                        </div>
+                        <!--input输入框-->
+                        <div class="input-group m-b gray" style="width: 180px;">
+                            <span class="input-group-addon">平台政策代码</span>
+                            <input type="text" placeholder="" class="form-control inp">
+                        </div>
+                        <!--起飞日期-->
+                        <div class="form-group grayAll" id="data_6" style="width: 220px;margin-top: -20px">
+                            <label class="font-noraml" style="color:black" >起飞日期</label>
+                            <button type="button" class="btn hoverColor btn-sm" style="position: absolute;left: 250px;top: 100px" @click="rest">重置</button>
+                            <div class="input-daterange input-group" id="datepicker02">
+                                <input type="text" class="input-sm form-control data02 date02" name="start" :value="date02">
+                                <span class="input-group-addon">-</span>
+                                <input type="text" class="input-sm form-control data02 date02" name="end" :value='date02'>
+                            </div>
+                        </div>
+                        <!--input输入框-->
+                        <div class="input-group m-b gray" style="width: 180px;position: absolute;left: 390px;top: 100px">
+                            <span class="input-group-addon">平台</span>
+                            <!--<input type="text" placeholder="" class="form-control inp">-->
+                            <select data-placeholder="选择平台" class="chosen-select inp" style="height: 30px;display: inline-block;margin: 0px">
+                                <option value="">全部</option>
+                                <option value="淘宝9C">淘宝9C</option>
+                                <option value="去哪儿">去哪</option>
+                            </select>
+
+                        </div>
+                        <!--input输入框-->
+                        <div class="input-group m-b gray" style="width: 180px;position: absolute;left: 590px;top: 100px">
+                            <span class="input-group-addon">航班号</span>
+                            <input type="text" placeholder="" class="form-control inp">
+                        </div>
+                        <!--条件筛选-->
+                        <div class="input-group m-b grayAll" style="width: 10px;position: absolute;left: 790px;top: 100px" @click="condition">
+                            <button type="button" class="btn  hoverColor btn-sm">条件筛选</button>
+                        </div>
+                        <!--确认筛选条件-->
+                        <div class="input-group m-b grayAll" style="width: 10px;position: absolute;left: 900px;top: 100px">
+                            <button type="button" class="btn hoverColor btn-sm " @click="choselock">确认筛选</button>
+                        </div>
+                    </div>
+                    <div class="panel-body" style="margin-top:9px;padding: 0px">
+                        <div class="gray">
+                            <input type="button" value="锁定前3单" class="btn btn-outline btn-white hoverColor btn-sm" @click="three">
+                            <input type="button" value="批量锁定" class="btn btn-outline btn-white hoverColor btn-sm" @click="lotSize">
+                        </div>
+                        <div class="col-sm-12" style="padding:5px;">
+                            <div class="">
+                                <div class="" >
+                                    <!--主体展示dom-->
+                                    <table class="table table-bordered" style="font-size: 12px;">
+                                        <colgroup  style="width:5%"></colgroup><!--全选-->
+                                        <colgroup  style="width:4%"></colgroup><!--订单处理-->
+                                        <colgroup  style="width:7%"></colgroup><!--票台-->
+                                        <colgroup  style="width:16%"></colgroup><!--政策代码-->
+                                        <colgroup  style="width:14%"></colgroup> <!--航班信息-->
+                                        <colgroup  style="width:4%;"></colgroup><!--时长-->
+                                        <colgroup  style="width:auto"></colgroup><!--订单号-->
+                                        <colgroup  style="width:6%"></colgroup><!--余位-->
+                                        <colgroup  style="width:5%"></colgroup><!--收付款	-->
+                                        <colgroup  style="width:6%"></colgroup><!--备注-->
+                                        <colgroup  style="width:15%"></colgroup><!--比价-->
+                                        <thead class="theadA">
+                                        <tr style="text-align:center">
+                                            <th style="padding: 1px">
+                                                <div>
+                                                    <input type="checkbox"  @click='allInp' id="allcheck">
+                                                </div>
+                                                <div>
+                                                    <span>全选</span>
+                                                </div>
+                                            </th>
+                                            <th>
+                                                <div>
+                                                    <span>订单</span>
+                                                </div>
+                                            </th>
+                                            <th style="text-align:center">票台</th>
+                                            <th>政策代码</th>
+                                            <th>航班信息</th>
+                                            <th style="padding: 1px">时长</th>
+                                            <th>订单号</th>
+                                            <th>余位</th>
+                                            <th>收付款</th>
+                                            <th>备注</th>
+                                            <th>比价</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody style="word-break : break-all" id="ttb">
+                                        <tr v-for="(ord,index) in or" :key="ord.id" :data-color="ord.mode==0?'color':false">
+                                            <td>
+                                                <input v-if="ord.mode" type="button" name="dispose_0"  value="锁单" class="hand" :data-cc="ord.id" @click="locKfun(ord.aircompany_str)">
+                                                <div v-if="ord.mode">
+                                                    <input class='inp01 marke' type="checkbox" name="made" @click='inpdata' :data-cc="ord.id">
+                                                    {{index+1}}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div v-if="ord.mode==0?false:ord.aircompany_str=='9C'?true:false">
+                                                    <input type="button" name="dispose_0"  value="重订" title="重启订票" class="hand" :data-cc="ord.id" @click="replacefun(ord.id)">
+                                                    <input type="button" name="dispose_0"  value="重付" title="重启支付" class="hand" :data-cc="ord.id" @click="repay(ord.id)">
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>{{ord.ticketTable}}</div>
+                                            </td>
+                                            <td> <!--政策代码与个人备注-->
+                                                <div v-if="ord.orderMarkes" >
+                                                    <div style="width: 100%;">
+                                                        <div>{{ord.policyCode}}&emsp;{{ord.policyPerson}}</div>
+                                                    </div>
+                                                    <div style="height: 20px;overflow: hidden;color:red" :title="ord.orderMarkes">
+                                                        {{ord.orderMarkes}}
+                                                    </div>
+                                                </div>
+                                                <div v-else>
+                                                    <div>
+                                                        <div>{{ord.policyCode}}&emsp;{{ord.policyPerson}}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="td_message"> <!--航班信息-->
+                                                <div :data-red="ord.red">
+                                                    <div>{{ord.flight}}</div>
+                                                    <div>{{ord.flyDistance}}</div>
+                                                    <div>{{ord.population}}</div>
+                                                    <div>{{ord.flyTime}}</div>
+                                                    <div>{{ord.position}}</div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div :data-redTime="ord.red_time">{{ord.orderTime}}</div>
+                                            </td> <!--时长-->
+                                            <!--订单号-->
+                                            <td class="chaFather">
+                                                <div class="cha" v-if="ord.isdone==0?false:true" :data-is="ord.isdone"></div>
+                                                <div @click="locKfuntwo" class="curspointertwo" :data-cc="ord.id" data-toggle="modal">{{ord.id}}</div>
+                                                <div style="display: inline-block" @dblclick="dblcli" @click="orderUp(ord.id)" class="curspointertwo" :data-cc="ord.id" data-toggle="modal">{{ord.platformOrder}}</div>
+                                                <div class="fuzhi" @click="fuzhifun(ord.platformOrder)"></div>
+                                            </td>
+                                            <!--余位-->
+                                            <td :data-red="ord.red" :data-cursite="ord.cursiteColor">
+                                                <div :data-cursite="ord.cursiteColor">{{ord.cursite | yuwei}}</div>
+                                                <div :data-cursite="ord.cursiteColor">{{ord.cursite | yuwei2}}</div>
+                                            </td>
+
+
+                                            <td>
+                                                <div>{{ord.collection}}</div>
+                                                <div>{{ord.pay}}</div>
+                                            </td>
+                                            <td >
+                                                <div :title="ord.remarks" style="height: 30px;overflow: hidden;">{{ord.remarks}}</div>
+                                            </td>
+                                            <td class="td_price">
+                                                <div>
+                                                    <div>淘宝:10000</div>
+                                                    <div>携程:10000</div>
+                                                </div>
+                                                <div>
+                                                    <div>去哪:10000</div>
+                                                    <div>官网:10000</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                    <!--分页逻辑-->
+                                    <div class="form-group form-inline">
+                                        <div class="col-sm-12" >
+                                            <div style="float: right">
+                                                <button type="button" title="第一页" class="btn white-bg" name="backward_0" @click="firstpage"><span class="glyphicon glyphicon-step-backward"></span></button>
+                                                <button type="button" title="前一页" class="btn white-bg" id="a_one" name="backward_1" @click="uppage"><span class="glyphicon glyphicon-backward"></span></button>
+                                                共<span>{{pages}}</span>页&nbsp;&nbsp;
+                                                第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" id="apage" name="page_0" :value="num">&nbsp;页&nbsp;&nbsp;
+                                                <button type="button" title="转到" class="btn btn-outline btn-primary btn-xs" name="certain_0" @click="gotopage">转到</button>
+                                                <button type="button" title="后一页" class="btn white-bg" id="a_two" name="forward_0" @click="downpage"><span class="glyphicon glyphicon-forward"></span></button>
+                                                <button type="button" title="最后一页" class="btn white-bg" name="forward_1"  @click="llastpage"><span class="glyphicon glyphicon-fast-forward"></span></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="tab-2" class="tab-pane artificial_tab_2">
+                    <!--input选项-->
+                    <div id="chose_lock">
+                        <!--航司选择框-->
+                        <div class="wrapper wrapper-content fadeInRight" style="padding: 5px">
+                            <span style="color:black">航空公司选择</span>
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <select data-placeholder="选择航空公司" class="chosen-select lockLock"  tabindex="2">
+                                        <option value="">全部</option>
+                                        <option value="3U">3U</option>
+                                        <option value="9C">9C</option>
+                                        <option value="ZH">ZH</option>
+                                        <option value="MF">MF</option>
+                                        <option value="CA">CA</option>
+                                        <option value="BK">BK</option>
+                                        <option value="HO">HO</option>
+                                        <option value="EU">EU</option>
+                                        <option value="SC">SC</option>
+                                        <option value="KY">KY</option>
+                                        <option value="NS">NS</option>
+                                        <option value="QW">QW</option>
+                                        <option value="TV">TV</option>
+                                        <option value="G5">G5</option>
+                                        <option value="DZ">DZ</option>
+                                        <option value="UQ">UQ</option>
+                                        <option value="GJ">GJ</option>
+                                        <option value="JR">JR</option>
+                                        <option value="A6">A6</option>
+                                        <option value="GY">GY</option>
+                                        <option value="RY">RY</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <!--日期选择框-->
+                        <div class="form-group gray grayAll" id="data_7" style="width: 220px;margin-top: 4px">
+                            <label class="font-noraml" style="color:black">支付日期</label>
+                            <div class="input-daterange input-group" id="datepicker03">
+                                <input type="text" class="input-sm form-control data02Lock" name="start" :value='date01'>
+                                <span class="input-group-addon">-</span>
+                                <input type="text" class="input-sm form-control data02Lock" name="end" :value="date01">
+                            </div>
+                        </div>
+                        <!--input输入框-->
+                        <div class="input-group m-b gray" style="width: 180px;">
+                            <span class="input-group-addon inputfalse">大PNR</span>
+                            <input type="text" placeholder="" class="form-control inpLock" >
+                        </div>
+                        <!--input输入框-->
+                        <div class="input-group m-b gray" style="width: 180px;">
+                            <span class="input-group-addon inputfalse">小PNR</span>
+                            <input type="text" placeholder="" class="form-control inpLock">
+                        </div>
+                        <!--input输入框-->
+                        <div class="input-group m-b gray" style="width: 180px;">
+                            <span class="input-group-addon inputfalse">换大PNR</span>
+                            <input type="text" placeholder="" class="form-control inpLock">
+                        </div>
+                        <!--input输入框-->
+                        <div class="input-group m-b gray" style="width: 180px;">
+                            <span class="input-group-addon inputfalse">换小PNR</span>
+                            <input type="text" placeholder="" class="form-control inpLock">
+                        </div>
+                        <!--input输入框-->
+                        <div class="input-group m-b gray" style="width: 180px;">
+                            <span class="input-group-addon inputfalse">系统订单号</span>
+                            <input type="text" placeholder="" class="form-control inpLock">
+                        </div>
+                        <!--input输入框-->
+                        <div class="input-group m-b gray" style="width: 180px;">
+                            <span class="input-group-addon inputfalse">平台订单号</span>
+                            <input type="text" placeholder="" class="form-control inpLock">
+                        </div>
+                        <!--input输入框-->
+                        <div class="input-group m-b gray" style="width: 180px;">
+                            <span class="input-group-addon inputfalse">乘客姓名</span>
+                            <input type="text" placeholder="" class="form-control inpLock">
+                        </div>
+                        <!--input输入框-->
+                        <div class="input-group m-b gray" style="width: 180px;">
+                            <span class="input-group-addon inputfalse">平台政策代码</span>
+                            <input type="text" placeholder="" class="form-control inpLock">
+                        </div>
+                        <!--起飞日期-->
+                        <div class="form-group gray grayAll" id="data_8" style="width: 220px;margin-top: -20px">
+                            <label class="font-noraml" style="color:black" >起飞日期</label>
+                            <button type="button" class="btn btn-xs btn-outline buttonfalse" style="position: absolute;left: 250px;top: 105px" @click="rest">重置</button>
+                            <div class="input-daterange input-group" id="datepicker04">
+                                <input type="text" class="input-sm form-control data02Lock date02" name="start" :value="date02">
+                                <span class="input-group-addon">-</span>
+                                <input type="text" class="input-sm form-control data02Lock date02" name="end" :value='date02'>
+                            </div>
+                        </div>
+                        <!--个人锁单-->
+                        <div style="width: 130px;position: relative;top: 5px;left:49px" v-show="inplock">
+                            <input type="checkbox" name="made" @click='onelockshow' style="position: relative;top: 2px">
+                            <span>个人锁单</span>
+                        </div>
+                        <!--input输入框-->
+                        <div class="input-group m-b gray" style="width: 180px;position: absolute;left: 390px;top: 100px">
+                            <span class="input-group-addon inputfalse">平台</span>
+                            <select data-placeholder="选择平台" class="chosen-select inpLock" style="height: 30px;display: inline-block;margin: 0px">
+                                <option value="">全部</option>
+                                <option value="淘宝9C">淘宝9C</option>
+                                <option value="去哪儿">去哪</option>
+                            </select>
+                        </div>
+                        <!--input输入框-->
+                        <div class="input-group m-b gray" style="width: 180px;position: absolute;left: 590px;top: 100px">
+                            <span class="input-group-addon inputfalse">航班号</span>
+                            <input type="text" placeholder="" class="form-control inpLock">
+                        </div>
+                        <!--条件筛选-->
+                        <div class="input-group m-b" style="width: 10px;position: absolute;left: 790px;top: 100px" >
+                            <button type="button" class="btn btn-sm btn-outline buttonfalse" @click="condition">条件筛选</button>
+                        </div>
+                        <!--确认筛选条件-->
+                        <div class="input-group m-b" style="width: 10px;position: absolute;left: 900px;top: 100px">
+                            <button type="button" class="btn btn-sm btn-outline buttonfalse" @click="choselock">确认筛选</button>
+                        </div>
+                    </div>
+                    <div class="panel-body" style="margin-top:9px;padding: 0px">
+                        <div>
+                            <input type="button" name="dispose_0"  value="批量解锁" class="btn btn-outline btn-sm buttonfalse" @click="lotSizeLock">
+                        </div>
+                        <div class="col-sm-12" style="padding:5px;">
+                            <div class="ibox float-e-margins">
+                                <div class="ibox-heading" >
+                                    <!--主体展示dom-->
+                                    <table class="table table-bordered" style="text-align:center;font-size: 12px;">
+                                        <colgroup>
+                                            <col  style="width:40px"><!--序号-->
+                                            <col  style="width:50px"><!--处理方式-->
+                                            <col  style="width:60px"><!--处理人-->
+                                            <col  style="width:50px;"><!--票台-->
+                                            <col  style="width:auto"><!--政策代码-->
+                                            <col><!--航班信息-->
+                                            <col  style="width:45px"><!--时长-->
+                                            <col  style="width:auto"><!--订单号-->
+                                            <col  style="width:70px"><!--收款	-->
+                                            <col  style="width:100px"><!--支付-->
+                                            <!--<col  style="width:50px">&lt;!&ndash;票号&ndash;&gt;-->
+                                            <col  style="width:60px"><!--余位-->
+                                            <col  style="width:65px"><!--平台状态	-->
+                                            <col  style="width:65px"><!--航司状态-->
+                                            <col  style="width:6%"><!--备注-->
+                                            <col  style="width:150px">
+                                        </colgroup><!--比价-->
+                                        <thead class="theadA">
+                                        <tr style="text-align:center">
+                                            <th style="padding: 1px;width: 40px">
+                                                <div>
+                                                    <input type="checkbox" @click="allInpLock"  id="allcheck_lock">
+                                                </div>
+                                                <div>
+                                                    <span>全选</span>
+                                                </div>
+                                            </th>
+                                            <th>处理</th>
+                                            <th>处理人</th>
+                                            <th>票台</th>
+                                            <th>政策代码</th>
+                                            <th>航班信息</th>
+                                            <th>时长</th>
+                                            <th>订单号</th>
+                                            <th>收款/支付</th>
+                                            <th>票号</th>
+                                            <!--<th>票号</th>-->
+                                            <th>余位</th>
+                                            <th>平台状态</th>
+                                            <th>航司状态</th>
+                                            <th>备注</th>
+                                            <th>比价</th>
+                                        </thead>
+                                        <tbody style="word-break : break-all"  id="ttbLock" >
+                                        <tr v-for="(ord,index,key) in orLock" :data-cc="ord.show">
+                                            <td>
+                                                <input class='inp01 marke markeLock' type="checkbox" name="made" :data-cc="ord.id" v-if="ord.permission">
+                                                {{index + 1}}
+                                                <div @click="jiesuo" :data-cc="ord.id" class="curspointer" v-if="ord.permission">解锁</div>
+                                            </td>
+                                            <td>
+                                                <div></div>
+                                                <div v-if="ord.permission" >
+                                                    <div v-if="ord.aircompany_str=='9C'?true:false">
+                                                        <div @click="replacefun(ord.id)" :data-cc="ord.id" class="curspointer" title="重启订票">重订</div>
+                                                        <div @click="repay(ord.id)" :data-cc="ord.id" class="curspointer" title="重启支付">重付</div>
+                                                    </div>
+                                                    <div v-if="ord.population>1?true:false" @click="BreakUpFun(ord.id,ord.collection)" :data-cc="ord.id" class="curspointer">拆分</div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div v-if="ord.permission">
+                                                    <div v-if="ord.aircompany_str=='9C'?true:false" @click="changerestart(ord.id)" :data-cc="ord.id" class="curspointer" title="换号重启">换号</div>
+                                                    <div @click="chupiao" :data-cc="ord.id" class="curspointer">出票</div>
+                                                </div>
+                                                <div v-else>{{ord.dealpeople}}</div>
+                                            </td>
+                                            <td>{{ord.ticketTable}}</td>
+                                            <td> <!--政策代码-->
+                                                <div>{{ord.policyCode}}</div>
+                                                <div style="display: inline-block">{{ord.policyPerson}}</div>
+                                                <div v-if="ord.orderMarkes" :title="ord.orderMarkes" style="display: inline-block;height:18px;width: 50px;overflow: hidden;color: red;display: inline-block">
+                                                    {{ord.orderMarkes}}
+                                                </div>
+                                            </td>
+                                            <!--航班信息-->
+                                            <td class="td_message">
+                                                <div :data-red="ord.red">
+                                                    <div>{{ord.flight}}</div>
+                                                    <div>{{ord.flyDistance}}</div>
+                                                    <div>{{ord.population}}</div>
+                                                    <div>{{ord.flyTime}}</div>
+                                                    <div>{{ord.position}}</div>
+                                                </div>
+                                            </td>
+                                            <!--时长-->
+                                            <td>
+                                                <div :data-redTime="ord.red_time">
+                                                    {{ord.orderTime}}
+                                                </div>
+                                            </td>
+                                            <!--订单号-->
+                                            <td>
+                                                <div @click="locKfuntwo" class="curspointertwo" :data-cc="ord.id" data-toggle="modal">{{ord.id}}</div>
+                                                <div style="display: inline-block;" @dblclick="dblcli" @click="orderUp(ord.id)" class="curspointertwo" :data-cc="ord.id" data-toggle="modal">{{ord.platformOrder}}</div>
+                                                <div class="fuzhi" @click="fuzhifun(ord.platformOrder)"></div>
+                                            </td>
+                                            <!--收款-->
+                                            <td>
+                                                <div>{{ord.collection}}</div>
+                                                <input type="text" :class="ord.id" placeholder="金额" style="width: 100%;height: 17px"  v-model="ord.pay" v-if="ord.aircompany_str == '9C'&&ord.permission?true:false">
+                                            </td>
+                                            <!--付款-->
+                                            <td>
+                                                <div v-if="ord.aircompany_str == '9C'&&ord.permission?true:false" >
+                                                    <input type="text" :class="ord.id" placeholder="票号" style="width: 100%;height: 17px" v-model="ord.ticketNum">
+                                                    <button class="hand" v-retunum :id="ord.id">回帖</button>
+                                                </div>
+                                            </td>
+                                            <!--票号-->
+                                            <!--<td>-->
+                                               <!---->
+                                            <!--</td>-->
+                                            <!--余位-->
+                                            <td :data-red="ord.red" :data-cursite="ord.cursiteColor">
+                                                <div :data-cursite="ord.cursiteColor">{{ord.cursite | yuwei}}</div>
+                                                <div :data-cursite="ord.cursiteColor">{{ord.cursite | yuwei2}}</div>
+                                            </td>
+                                            <!--平台状态-->
+                                            <td :title="ord.platformStatus">
+                                                <div style="height: 30px;overflow: hidden;">{{ord.platformStatus}}</div>
+                                            </td>
+                                            <!--航司状态-->
+                                            <td>{{ord.airlineStatus}}</td>
+                                            <td>
+                                                <div :title="ord.remarks" style="height: 30px;overflow: hidden;">{{ord.remarks}}</div>
+                                            </td>
+                                            <td class="td_price">
+                                                <div>
+                                                    <div>淘宝:10000</div>
+                                                    <div>携程:10000</div>
+                                                </div>
+                                                <div>
+                                                    <div>去哪:10000</div>
+                                                    <div>官网:10000</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                    <!--分页逻辑-->
+                                    <div  class="form-group form-inline">
+                                        <div class="col-sm-12" >
+                                            <div style="float: right">
+                                                <button type="button" title="第一页" class="btn white-bg" name="backward_0" @click="firstpage"><span class="glyphicon glyphicon-step-backward"></span></button>
+                                                <button type="button" title="前一页" class="btn white-bg" id="b_one" name="backward_1" @click="uppage"><span class="glyphicon glyphicon-backward"></span></button>
+                                                共<span>{{lockpages}}</span>页&nbsp;&nbsp;
+                                                第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" id="bpage" name="page_0" :value="num">&nbsp;页&nbsp;&nbsp;
+                                                <button type="button" title="确定" class="btn btn-white btn-xs hoverColor" name="certain_0" @click="gotopage">转到</button>
+                                                <button type="button" title="后一页" class="btn white-bg" id="b_two" name="forward_0" @click="downpage"><span class="glyphicon glyphicon-forward"></span></button>
+                                                <button type="button" title="最后一页" class="btn white-bg" name="forward_1"  @click="llastpage"><span class="glyphicon glyphicon-fast-forward"></span></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="condition" v-if="conditionflag" @click="conditionshow">
+            <div>
+                <div id="tiaojian">
+                    <span>查单排序条件</span>
+                    <input type="radio" name="time"  value="进单时间" checked/><span>进单时间</span>
+                    <input type="radio" name="time"  value="起飞时间"/><span>起飞时间</span>
+                </div>
+                <div id="hangsi">
+                    <span>选择航空公司</span>
+                    <input type="checkbox" value="全选" @click="chosehangsifun"><span>全选</span>
+                    <div id="iinp">
+                        <div><input type="checkbox" value="2P"><span>2P</span></div>
+                        <div><input type="checkbox" value="3K"><span>3K</span></div>
+                        <div><input type="checkbox" value="3U"><span>3U</span></div>
+                        <div><input type="checkbox" value="4U"><span>4U</span></div>
+                        <div><input type="checkbox" value="5J"><span>5J</span></div>
+                        <div><input type="checkbox" value="6U"><span>6U</span></div>
+                        <div><input type="checkbox" value="8C"><span>8C</span></div>
+                        <div><input type="checkbox" value="8L"><span>8L</span></div>
+                        <div><input type="checkbox" value="8M"><span>8M</span></div>
+                        <div><input type="checkbox" value="9C"><span>9C</span></div>
+                        <div><input type="checkbox" value="9H"><span>9H</span></div>
+                        <div><input type="checkbox" value="9W"><span>9W</span></div>
+                        <div><input type="checkbox" value="A3"><span>A3</span></div>
+                        <div><input type="checkbox" value="A6"><span>A6</span></div>
+                        <div><input type="checkbox" value="AA"><span>AA</span></div>
+                        <div><input type="checkbox" value="AC"><span>AC</span></div>
+                        <div><input type="checkbox" value="AE"><span>AE</span></div>
+                        <div><input type="checkbox" value="AF"><span>AF</span></div>
+                        <div><input type="checkbox" value="AH"><span>AH</span></div>
+                        <div><input type="checkbox" value="AI"><span>AI</span></div>
+                        <div><input type="checkbox" value="AK"><span>AK</span></div>
+                        <div><input type="checkbox" value="AM"><span>AM</span></div>
+                        <div><input type="checkbox" value="AR"><span>AR</span></div>
+                        <div><input type="checkbox" value="AS"><span>AS</span></div>
+                        <div><input type="checkbox" value="AT"><span>AT</span></div>
+                        <div><input type="checkbox" value="AV"><span>AV</span></div>
+                        <div><input type="checkbox" value="AY"><span>AY</span></div>
+                        <div><input type="checkbox" value="AZ"><span>AZ</span></div>
+                        <div><input type="checkbox" value="B2"><span>B2</span></div>
+                        <div><input type="checkbox" value="B3"><span>B3</span></div>
+                        <div><input type="checkbox" value="B6"><span>B6</span></div>
+                        <div><input type="checkbox" value="B7"><span>B7</span></div>
+                        <div><input type="checkbox" value="BA"><span>BA</span></div>
+                        <div><input type="checkbox" value="BD"><span>BD</span></div>
+                        <div><input type="checkbox" value="BG"><span>BG</span></div>
+                        <div><input type="checkbox" value="BH"><span>BH</span></div>
+                        <div><input type="checkbox" value="BI"><span>BI</span></div>
+                        <div><input type="checkbox" value="BK"><span>BK</span></div>
+                        <div><input type="checkbox" value="BL"><span>BL</span></div>
+                        <div><input type="checkbox" value="BP"><span>BP</span></div>
+                        <div><input type="checkbox" value="BR"><span>BR</span></div>
+                        <div><input type="checkbox" value="BT"><span>BT</span></div>
+                        <div><input type="checkbox" value="BV"><span>BV</span></div>
+                        <div><input type="checkbox" value="CA"><span>CA</span></div>
+                        <div><input type="checkbox" value="CI"><span>CI</span></div>
+                        <div><input type="checkbox" value="CK"><span>CK</span></div>
+                        <div><input type="checkbox" value="CM"><span>CM</span></div>
+                        <div><input type="checkbox" value="CN"><span>CN</span></div>
+                        <div><input type="checkbox" value="CO"><span>CO</span></div>
+                        <div><input type="checkbox" value="CQ"><span>CQ</span></div>
+                        <div><input type="checkbox" value="CX"><span>CX</span></div>
+                        <div><input type="checkbox" value="CZ"><span>CZ</span></div>
+                        <div><input type="checkbox" value="D7"><span>D7</span></div>
+                        <div><input type="checkbox" value="DE"><span>DE</span></div>
+                        <div><input type="checkbox" value="DJ"><span>DJ</span></div>
+                        <div><input type="checkbox" value="DL"><span>DL</span></div>
+                        <div><input type="checkbox" value="DR"><span>DR</span></div>
+                        <div><input type="checkbox" value="DZ"><span>DZ</span></div>
+                        <div><input type="checkbox" value="EF"><span>EF</span></div>
+                        <div><input type="checkbox" value="EK"><span>EK</span></div>
+                        <div><input type="checkbox" value="EN"><span>EN</span></div>
+                        <div><input type="checkbox" value="ET"><span>ET</span></div>
+                        <div><input type="checkbox" value="EU"><span>EU</span></div>
+                        <div><input type="checkbox" value="EY"><span>EY</span></div>
+                        <div><input type="checkbox" value="FD"><span>FD</span></div>
+                        <div><input type="checkbox" value="FE"><span>FE</span></div>
+                        <div><input type="checkbox" value="FI"><span>FI</span></div>
+                        <div><input type="checkbox" value="FM"><span>FM</span></div>
+                        <div><input type="checkbox" value="FU"><span>FU</span></div>
+                        <div><input type="checkbox" value="FV"><span>FV</span></div>
+                        <div><input type="checkbox" value="G5"><span>G5</span></div>
+                        <div><input type="checkbox" value="GA"><span>GA</span></div>
+                        <div><input type="checkbox" value="GE"><span>GE</span></div>
+                        <div><input type="checkbox" value="GF"><span>GF</span></div>
+                        <div><input type="checkbox" value="GJ"><span>GJ</span></div>
+                        <div><input type="checkbox" value="GS"><span>GS</span></div>
+                        <div><input type="checkbox" value="GT"><span>GT</span></div>
+                        <div><input type="checkbox" value="GX"><span>GX</span></div>
+                        <div><input type="checkbox" value="GX"><span>GX</span></div>
+                        <div><input type="checkbox" value="GY"><span>GY</span></div>
+                        <div><input type="checkbox" value="HA"><span>HA</span></div>
+                        <div><input type="checkbox" value="HO"><span>HO</span></div>
+                        <div><input type="checkbox" value="HU"><span>HU</span></div>
+                        <div><input type="checkbox" value="HX"><span>HX</span></div>
+                        <div><input type="checkbox" value="HY"><span>HY</span></div>
+                        <div><input type="checkbox" value="IB"><span>IB</span></div>
+                        <div><input type="checkbox" value="IR"><span>IR</span></div>
+                        <div><input type="checkbox" value="IT"><span>IT</span></div>
+                        <div><input type="checkbox" value="J2"><span>J2</span></div>
+                        <div><input type="checkbox" value="JD"><span>JD</span></div>
+                        <div><input type="checkbox" value="JJ"><span>JJ</span></div>
+                        <div><input type="checkbox" value="JK"><span>JK</span></div>
+                        <div><input type="checkbox" value="JL"><span>JL</span></div>
+                        <div><input type="checkbox" value="JP"><span>JP</span></div>
+                        <div><input type="checkbox" value="JQ"><span>JQ</span></div>
+                        <div><input type="checkbox" value="JR"><span>JR</span></div>
+                        <div><input type="checkbox" value="JS"><span>JS</span></div>
+                        <div><input type="checkbox" value="K6"><span>K6</span></div>
+                        <div><input type="checkbox" value="KA"><span>KA</span></div>
+                        <div><input type="checkbox" value="KC"><span>KC</span></div>
+                        <div><input type="checkbox" value="KE"><span>KE</span></div>
+                        <div><input type="checkbox" value="KL"><span>KL</span></div>
+                        <div><input type="checkbox" value="KM"><span>KM</span></div>
+                        <div><input type="checkbox" value="KN"><span>KN</span></div>
+                        <div><input type="checkbox" value="KQ"><span>KQ</span></div>
+                        <div><input type="checkbox" value="KU"><span>KU</span></div>
+                        <div><input type="checkbox" value="KY"><span>KY</span></div>
+                        <div><input type="checkbox" value="LA"><span>LA</span></div>
+                        <div><input type="checkbox" value="LG"><span>LG</span></div>
+                        <div><input type="checkbox" value="LH"><span>LH</span></div>
+                        <div><input type="checkbox" value="LO"><span>LO</span></div>
+                        <div><input type="checkbox" value="LT"><span>LT</span></div>
+                        <div><input type="checkbox" value="LX"><span>LX</span></div>
+                        <div><input type="checkbox" value="LY"><span>LY</span></div>
+                        <div><input type="checkbox" value="MA"><span>MA</span></div>
+                        <div><input type="checkbox" value="MD"><span>MD</span></div>
+                        <div><input type="checkbox" value="MF"><span>MF</span></div>
+                        <div><input type="checkbox" value="MH"><span>MH</span></div>
+                        <div><input type="checkbox" value="MI"><span>MI</span></div>
+                        <div><input type="checkbox" value="MK"><span>MK</span></div>
+                        <div><input type="checkbox" value="MS"><span>MS</span></div>
+                        <div><input type="checkbox" value="MU"><span>MU</span></div>
+                        <div><input type="checkbox" value="NH"><span>NH</span></div>
+                        <div><input type="checkbox" value="NK"><span>NK</span></div>
+                        <div><input type="checkbox" value="NS"><span>NS</span></div>
+                        <div><input type="checkbox" value="NW"><span>NW</span></div>
+                        <div><input type="checkbox" value="NX"><span>NX</span></div>
+                        <div><input type="checkbox" value="NZ"><span>NZ</span></div>
+                        <div><input type="checkbox" value="OA"><span>OA</span></div>
+                        <div><input type="checkbox" value="OK"><span>OK</span></div>
+                        <div><input type="checkbox" value="OM"><span>OM</span></div>
+                        <div><input type="checkbox" value="OQ"><span>OQ</span></div>
+                        <div><input type="checkbox" value="OS"><span>OS</span></div>
+                        <div><input type="checkbox" value="OZ"><span>OZ</span></div>
+                        <div><input type="checkbox" value="PG"><span>PG</span></div>
+                        <div><input type="checkbox" value="PK"><span>PK</span></div>
+                        <div><input type="checkbox" value="PN"><span>PN</span></div>
+                        <div><input type="checkbox" value="PR"><span>PR</span></div>
+                        <div><input type="checkbox" value="PX"><span>PX</span></div>
+                        <div><input type="checkbox" value="PY"><span>PY</span></div>
+                        <div><input type="checkbox" value="QF"><span>QF</span></div>
+                        <div><input type="checkbox" value="QR"><span>QR</span></div>
+                        <div><input type="checkbox" value="QV"><span>QV</span></div>
+                        <div><input type="checkbox" value="QW"><span>QW</span></div>
+                        <div><input type="checkbox" value="RG"><span>RG</span></div>
+                        <div><input type="checkbox" value="RJ"><span>RJ</span></div>
+                        <div><input type="checkbox" value="RY"><span>RY</span></div>
+                        <div><input type="checkbox" value="S7"><span>S7</span></div>
+                        <div><input type="checkbox" value="SA"><span>SA</span></div>
+                        <div><input type="checkbox" value="SC"><span>SC</span></div>
+                        <div><input type="checkbox" value="SK"><span>SK</span></div>
+                        <div><input type="checkbox" value="SN"><span>SN</span></div>
+                        <div><input type="checkbox" value="SQ"><span>SQ</span></div>
+                        <div><input type="checkbox" value="SU"><span>SU</span></div>
+                        <div><input type="checkbox" value="SV"><span>SV</span></div>
+                        <div><input type="checkbox" value="TG"><span>TG</span></div>
+                        <div><input type="checkbox" value="TK"><span>TK</span></div>
+                        <div><input type="checkbox" value="TP"><span>TP</span></div>
+                        <div><input type="checkbox" value="TR"><span>TR</span></div>
+                        <div><input type="checkbox" value="TV"><span>TV</span></div>
+                        <div><input type="checkbox" value="TX"><span>TX</span></div>
+                        <div><input type="checkbox" value="U2"><span>U2</span></div>
+                        <div><input type="checkbox" value="U6"><span>U6</span></div>
+                        <div><input type="checkbox" value="UA"><span>UA</span></div>
+                        <div><input type="checkbox" value="UL"><span>UL</span></div>
+                        <div><input type="checkbox" value="UM"><span>UM</span></div>
+                        <div><input type="checkbox" value="UN"><span>UN</span></div>
+                        <div><input type="checkbox" value="UO"><span>UO</span></div>
+                        <div><input type="checkbox" value="UQ"><span>UQ</span></div>
+                        <div><input type="checkbox" value="US"><span>US</span></div>
+                        <div><input type="checkbox" value="UX"><span>UX</span></div>
+                        <div><input type="checkbox" value="VD"><span>VD</span></div>
+                        <div><input type="checkbox" value="VN"><span>VN</span></div>
+                        <div><input type="checkbox" value="VS"><span>VS</span></div>
+                        <div><input type="checkbox" value="VV"><span>VV</span></div>
+                        <div><input type="checkbox" value="VX"><span>VX</span></div>
+                        <div><input type="checkbox" value="VY"><span>VY</span></div>
+                        <div><input type="checkbox" value="WN"><span>WN</span></div>
+                        <div><input type="checkbox" value="WS"><span>WS</span></div>
+                        <div><input type="checkbox" value="XF"><span>XF</span></div>
+                        <div><input type="checkbox" value="XQ"><span>XQ</span></div>
+                        <div><input type="checkbox" value="Y8"><span>Y8</span></div>
+                        <div><input type="checkbox" value="Z2"><span>Z2</span></div>
+                        <div><input type="checkbox" value="ZH"><span>ZH</span></div>
+                    </div>
+                </div>
+                <div id="pingtai">
+                    <span>选择平台</span>
+                    <div id="pingtaichild">
+                        <input type="checkbox" value="全选" @click="chosepingtaifun"/>
+                        <span>全选</span>
+                    </div>
+                    <div id="xuanzepingtai">
+                        <div><input type="checkbox" value="tts向上商旅"><span>tts向上商旅</span></div>
+                        <div><input type="checkbox" value="tts向上优选"><span>tts向上优选</span></div>
+                        <div><input type="checkbox" value="tts天天航服"><span>tts天天航服</span></div>
+                        <div><input type="checkbox" value="tb携程"><span>tb携程</span></div>
+                        <div><input type="checkbox" value="淘宝"><span>淘宝</span></div>
+                        <div><input type="checkbox" value="八千翼"><span>八千翼</span></div>
+                        <div><input type="checkbox" value="就旅行"><span>就旅行</span></div>
+                        <div><input type="checkbox" value="51book"><span>51book</span></div>
+                        <div><input type="checkbox" value="百拓供应"><span>百拓供应</span></div>
+                        <div><input type="checkbox" value="517na"><span>517na</span></div>
+                        <div><input type="checkbox" value="酷讯"><span>酷讯</span></div>
+                        <div><input type="checkbox" value="同程"><span>同程</span></div>
+                        <div><input type="checkbox" value="淘宝B平台供应"><span>淘宝B平台供应</span></div>
+                        <div><input type="checkbox" value="去哪国际tfb"><span>去哪国际tfb</span></div>
+                        <div><input type="checkbox" value="去哪国际tps"><span>去哪国际tps</span></div>
+                        <div><input type="checkbox" value="去哪国际向上商旅飞旅"><span>去哪国际向上商旅飞旅</span></div>
+                        <div><input type="checkbox" value="同程国际"><span>同程国际</span></div>
+                        <div><input type="checkbox" value="TB"><span>TB</span></div>
+                        <div><input type="checkbox" value="携程团队"><span>携程团队</span></div>
+                    </div>
+                </div>
+                <div id="last">
+                    <div >
+                        <span>全选</span>
+                        <input type="checkbox" value="全选" @click="choseallfun">
+                    </div>
+                    <button @click="chosefun">确定筛选</button>
+                    <button @click="choosereturn">返回</button>
+                </div>
+            </div>
+        </div>
+        <div class='log' v-show="logflag">
+            <div class="modal-dialog">
+                <div class="modal-content animated bounceInRight">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true" @click="logfun">&times;</span>
+                        </button>
+                        <i class="fa fa-laptop modal-icon"></i>
+                        <h4 class="modal-title">操作日志</h4>
+                    </div>
+                    <div>
+                        <table class="table" style="font-size: 12px">
+                            <thead>
+                            <tr>
+                                <th>用户</th>
+                                <th>操作</th>
+                                <th>时间</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="(log,index) in logar">
+                                <td>{{log.name}}</td>
+                                <td class="text-navy"></i>{{log.note}}</td>
+                                <td>{{log.time}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-white" data-dismiss="modal" @click="logfun">关闭</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="BreakUp container-fluid" v-show="BreakUpFlag">
+            <div class="modal-content col-sm-12">
+                <div class="modal-header">
+                    <button type="button" class="close" @click="BreakUpFunClose">
+                        <span>×</span>
+                    </button>
+                    <i class="fa fa-laptop modal-icon"></i>
+                    <h4 class="modal-title">拆分航班信息</h4>
+                </div>
+                <div class="row">
+                    <table class="table" style="font-size: 12px">
+                        <thead >
+                        <tr>
+                            <th>序号</th>
+                            <th>姓名</th>
+                            <th>身份证</th>
+                            <th>金额</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(ar,index,key) in breakuparr">
+                            <td><input type="checkbox" @click="check(index)"></td>
+                            <td><input class="col-xs-8  col-xs-offset-2" type="text" :value="ar.man"></td>
+                            <td><input class="col-xs-12" type="text" :value="ar.licenseNumber"></td>
+                            <td><input class="col-xs-8 col-xs-offset-2 aloneMoney" type="text" :value="ar.collection"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <span>总金额</span>
+                    <input type="text" class="btn btn-success btn-sm" style="margin-top: 5px" v-model="totalmoney" readonly>
+                    <button type="button" class="btn btn-white btn-sm" style="margin-top: 5px" @click="splitorderFun">确认金额</button>
+                    <button type="button" class="btn btn-white btn-sm" style="margin-top: 5px" @click="BreakUpFunClose">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="../vue/vue.js"></script>
+<script src="../vue/axios.min.js"></script>
+<script src="../bingo/js/calc.min.js"></script>
+<script type="text/javascript">
+
+
+Vue.config.devtools = true;
+Vue.directive('retunum',{
+    inserted:function (el) {
+        el.onclick = function(){
+            let num = el.id;
+            let inp = document.getElementsByClassName(num);
+            let cash = inp[0].value;
+            let ticket = inp[1].value;
+            axios({
+                url:'../ticket/manual.php?action=reply',
+                method:'post',
+                data:{
+                    orderid:num,
+                    ticket,
+                    cash,
+                }
+            }).then((response)=>{
+                console.log(response)
+                if(response.data=='回帖成功'){
+                    location.reload(true)
+                }else if(response.data=='票号校验失败'){
+                    alert('票号校验失败')
+                }
+            }).catch((error)=>{
+                console.log(error)
+            })
+        }
+    }
+})
+new Vue({
+    el:'.artificial',
+    data:{
+        flag:true,     //总开关 告诉axios 现在在哪个页面
+        flaglotSize:true,
+        flagLock:false,  //个人锁单显示
+        tt:false,
+        inplock:false, //个人锁单按钮的if判断
+        // check:'nocheck',
+        d:'',  //axios临时接收数据用
+        or:[],    //未锁单页面初始化渲染，axios传入值，dom自己循环遍历
+        ar:[],   //让单个或几个选项在被选点的时候，传每个自己的订单号到改数组，以便让axiso时候直接传数据 不能用or，不然那会导致数据刷新
+        br:[],  //去重ar后的数组
+        choosear:[[],[],[],[],[]],
+        date01:'',  //支付选项框的日期
+        date02:'',  //起飞选项框日期让其初始化为空
+        dataValue:[], //支付日期与起飞日期的数组 存取时间选项的值
+        inppValue:[],  //确认筛选里面的选出来的值存在这里，不与其他数组合并，以免逻辑复杂
+        chosensingle: '',
+        conditionflag:false,
+        lockorder:'',
+        orderid:[],
+        //回帖
+        //回帖相关的对象，用来存储金额和票号
+        ticket:{},
+        //日志
+        logar:[],
+        logflag:false,
+        //axios相关请求和拿dom值
+        ttb : null,
+        ttr : [],
+        leng : null,
+        marke: [],
+        //锁单待处理页面相关数据
+        orLock:'',    //锁单待处理页面初始渲染时候，axios传入值，dom自己循环遍历
+        arLock:[],     //批量解锁时候 传入的数组 axios统一告诉后台
+        ttbLock:null,
+        ttrLock:null,
+        //拆分逻辑数据
+        BreakUpFlag:false,  //拆分逻辑的显示隐藏开关
+        breakuparr:'',     //拆分逻辑的乘客信息数组
+        totalmoney:0,
+        indexarr:[], // input的打钩集合
+        breakuparrid:null, //存储拆分时候要用的订单号
+        breakuparrcollection:'', //存储拆分时的价格总额
+        //分页筛选相关数据
+        choseObjflag:false,
+        choseObj:{},
+        //分页逻辑数据
+        lockpages:'', //未锁单共多少页
+        pages:'',     //锁单共多少页
+        num: 1,       //页面第一次的时候给后台的页数是第一页
+        nnum:'',  //num在值改变后 赋值给nnum 比如翻页到第二 nnum=2 然后通过nnum传给后台 再把num改变
+        //复制功能相关数据
+        clinum:null,  //复制相关的计时器，用来计算上次与本次点击时间
+        dbl:false, //复制双击后触发的参数
+
+    },
+    methods:{
+        //日志内部关闭日志按钮
+        logfun:function(){
+            this.logflag = false
+        },
+        //未锁单页面功能
+        inpLock:function(){
+            this.cleanIpuLock();
+            this.inplock = false;
+            this.flag = true;
+            this.num = 1;  //从锁单页面跳转过来，将num,nnum重置，避免因为两个页面使用同一个参数导致错误
+            this.nnum = '';
+            axios({
+                method:'post',
+                url:'../bingo/ticking.php?action=unlock',
+                data:{
+                    page:this.num
+                }
+            }).then( (response)=>{
+                this.or=[];
+                this.pages = response.data.pages
+                var d = response.data.list;
+                for(var i=0;i<d.length;i++){
+                    this.or.push(d[i]);
+                }
+            }).catch( (error)=> {
+                console.log(error)
+            });
+        },
+        //锁单待处理的页面功能
+        inpLock2:function(){
+            this.cleanIpu();
+            this.inplock = true;
+            this.flag = false;
+            this.num = 1;  //从未锁单页面跳转过来，将num,nnum重置，避免因为两个页面使用同一个参数导致错误
+            this.nnum = '';
+            axios({
+                method:'post',
+                url:'../bingo/ticking.php?action=locklist',
+                data:{
+                    page:this.num
+                }
+            }).then( (response)=>{
+                this.orLock = response.data.list;
+                this.lockpages = response.data.pages;
+            }).catch( (error)=>{
+                console.log(error)
+            });
+            //axios!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        },
+        //客服异常单页面处理函数
+        inpLock4:function(){
+            //this.cleanIpu();
+            this.inplock = false;
+            this.flag = true;
+            this.choseObjflag = true;
+            this.choseObj = false;
+            this.unexpt = true;
+            this.processing = false;
+            //this.num = 1;  //从未锁单页面跳转过来，将num,nnum重置，避免因为两个页面使用同一个参数导致错误
+            //this.nnum = '';
+            axios({
+                method:'post',
+                url:'../bingo/abnormal_order.php?action=UnexpectOrder',
+                data:{
+                    page:this.num
+                }
+            }).then( (response)=>{
+                if(response.data.res = 'success')
+                    this.orLock = response.data.list;
+                    this.lockpages = response.data.pages;
+            }).catch( (error)=>{
+                console.log(error)
+            });
+            //axios!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        },
+        //处理中页面函数
+        inpLock3:function(){
+            this.inplock = false;
+            this.flag = true;
+            this.choseObjflag = true;
+            this.choseObj = false;
+            this.processing = true;
+            this.unexpt = false;
+            axios({
+                method:'post',
+                url:'../bingo/processing_order.php?action=ProcessingOrder',
+                data:{
+                    page:this.num
+                }
+            }).then( (response)=>{
+                this.orLock = response.data.list;
+                this.lockpages = response.data.pages;
+            }).catch( (error)=>{
+                console.log(error)
+            });
+            //axios!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        },
+
+        //条件筛选按钮显出弹窗
+        condition:function(){
+            this.conditionflag = !this.conditionflag;
+        },
+        //点击灰色区域关闭弹窗
+        conditionshow:function(){
+            if(event.target.className == 'condition'){
+                this.conditionflag = !this.conditionflag;
+            }
+        },
+        chosehangsifun:function(){
+            var iinp = document.getElementById('iinp').getElementsByTagName('input')
+            if(event.target.checked == true){
+                for(var a=0;a<iinp.length;a++){
+                    iinp[a].checked = true;
+                }
+            }else{
+                this.choosear[1]=[];
+                for(var b=0;b<iinp.length;b++){
+                    iinp[b].checked = false
+                }
+            }
+        },
+        chosepingtaifun:function(){
+            var pingtaichild = document.getElementById('xuanzepingtai').getElementsByTagName('input')
+            if(event.target.checked == true){
+                for(var a=0;a<pingtaichild.length;a++){
+                    pingtaichild[a].checked = true;
+                    this.choosear[2].push(pingtaichild[a].value)
+                }
+            }else{
+                this.choosear[2]=[];
+                for(var b=0;b<pingtaichild.length;b++){
+                    pingtaichild[b].checked = false
+                }
+            }
+        },
+        //筛选内最下行的全选按钮
+        choseallfun:function(){
+            var condition = document.getElementsByClassName('condition')[0].getElementsByTagName('input');
+            if(event.target.checked == true){
+                for(var a=2;a<condition.length;a++){
+                    condition[a].checked = true;
+                }
+            }else{
+                for(var b=2;b<condition.length;b++){
+                    condition[b].checked = false;
+                }
+            }
+        },
+        chosefun:function(){   //条件筛选下满的 确认筛选按钮 会筛选所有打钩的input 放入到choosear里面
+            this.choosear = [[],[],[]];
+            var tiaojian = document.getElementById('tiaojian').getElementsByTagName('input')[0];
+            var tiaojian02 = document.getElementById('tiaojian').getElementsByTagName('input')[1];
+            tiaojian.checked == true?this.choosear[0].push(tiaojian.value):this.choosear[0].push(tiaojian02.value);
+
+            var iinp = document.getElementById('iinp').getElementsByTagName('input');
+            for(var a=0;a<iinp.length;a++){
+                if(iinp[a].checked == true){
+                    this.choosear[1].push(iinp[a].value)
+                }
+            }
+            var pingtaichild = document.getElementById('xuanzepingtai').getElementsByTagName('input')
+            for(var b=0;b<pingtaichild.length;b++){
+                if(pingtaichild[b].checked == true){
+                    this.choosear[2].push(pingtaichild[b].value)
+                }
+            }
+            var type = '';
+            if(this.flag){
+                axios({
+                    url:'../bingo/ticking.php?action=choose',
+                    method:'post',
+                    data:{
+                        choosear:this.choosear,
+                        flag:this.flag,
+                        page:1
+                    }
+                }).then((response)=>{
+                    this.or = response.data.list;
+                    this.conditionflag = !this.conditionflag;
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            }else{
+                axios({
+                    url:'../bingo/ticking.php?action=choose',
+                    method:'post',
+                    data:{
+                        choosear:this.choosear,
+                        flag:this.flag,
+                        page:1
+                    }
+                }).then((response)=>{
+                    this.orLock = response.data.list;
+                    this.conditionflag = !this.conditionflag;
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            }
+
+
+        },
+        choosereturn:function(){
+            this.choosear=[];
+            this.conditionflag = !this.conditionflag;
+        },
+        //确认筛选按钮的函数，更新为筛选后的数据
+        choselock:function (num) {
+            if(this.flag){
+                var hangsi = document.getElementsByClassName('lock')[0].value;  //航司的值
+                var data = document.getElementsByClassName('data02'); //时间选项
+                var inp = document.getElementsByClassName('inp');   //input选项
+                var len = inp.length;
+                for(var i=0;i<=3;i++){
+                    this.dataValue[i] = data[i].value; //0,1支付日期 2,3起飞日期
+                };
+                for(var n=0;n<len;n++){
+                    this.inppValue[n] = inp[n].value;  //inp的值
+                };
+                this.choseObj = {
+                    hangsi,
+                    date:this.dataValue,
+                    inp:this.inppValue,
+                    flag:this.flag,
+                    page:1
+                };
+                this.choseObjflag = true;
+                axios({
+                    method: 'post',
+                    url: '../bingo/ticking.php?action=countersign',
+                    data:{   //放入上述三个部分的值
+                        hangsi,
+                        date:this.dataValue,
+                        inp:this.inppValue,
+                        flag:this.flag,
+                        page:1
+                    }
+                }).then((response)=>{
+                    console.log(response)
+                    this.or = response.data.list;
+                    this.pages = response.data.pages;
+                    this.cleanIpu();
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            }else{
+                var hangsiLock = document.getElementsByClassName('lockLock')[0].value;  //航司的值
+                var dataLock = document.getElementsByClassName('data02Lock'); //时间选项
+                var inpLock = document.getElementsByClassName('inpLock');   //input选项
+                var lenLock = inpLock.length;
+                for(var ii=0;ii<=3;ii++){
+                    this.dataValue[ii] = dataLock[ii].value; //0,1支付日期 2,3起飞日期
+                }
+                for(var nn=0;nn<lenLock;nn++){
+                    this.inppValue[nn] = inpLock[nn].value;  //inp的值
+                }
+                axios({
+                    url: '../bingo/ticking.php?action=countersign',
+                    method: 'post',
+                    data:{   //放入上述三个部分的值
+                        hangsi:hangsiLock,
+                        date:this.dataValue,
+                        inp:this.inppValue,
+                        flag:this.flag,
+                        page:1
+                    }
+                }).then((response)=>{
+                    this.orLock = response.data.list;
+                    this.lockpages = response.data.pages;
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            }
+        },
+        //锁单待处理页面 只显示个人锁单功能的按钮
+        onelockshow:function(){
+            if(event.target.checked == true){
+                axios({
+                    url:'../bingo/ticking.php?action=oneman',
+                    method:'get',
+                }).then((response)=>{
+                    console.log(response)
+                    this.orLock = response.data.list
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            }else{
+                axios({
+                    method:'post',
+                    url:'../bingo/ticking.php?action=locklist',
+                    data:{
+                        page:this.num
+                    }
+                }).then( (response)=>{
+                    this.orLock = response.data.list;
+                    this.lockpages = response.data.pages;
+                    console.log(response.data)
+                }).catch( (error)=>{
+                    console.log(error)
+                });
+            }
+        },
+        //重置按钮让日期重置
+        rest:function(){
+            if(this.flag){
+                var date02 = document.getElementsByClassName('date02');  //这里是date 小心与data同样选择日期的逻辑搞混
+                date02[0].value = '';  //让其两个选项框的值为空
+                date02[1].value = '';
+            }else{
+                var date02 = document.getElementsByClassName('date02');  //这里是date 小心与data同样选择日期的逻辑搞混
+                date02[2].value = '';  //让其两个选项框的值为空
+                date02[3].value = '';
+            }
+        },
+        //锁定前三张单
+        three:function(){
+            this.orderid=[];
+            this.ar = [];
+            if(this.leng<=2){
+                alert('单量不满足三张单');
+                return
+            }
+            for(var a=0;a<=2;a++){
+                this.ttb.getElementsByClassName('marke')[a].checked = 'checked';
+                this.orderid.push(this.ttb.getElementsByClassName('marke')[a].dataset.cc);
+
+            }
+            axios({
+                url:'../bingo/ticking.php?action=locking',
+                method:'post',
+                data:{
+                    orderid:this.orderid,
+                    lockorder:'yes',
+                }
+            }).then((response)=>{
+                if(response.data.res=='success'){
+                    $('#lock02').click()
+                    this.inpLock2();
+                }else{
+                    for(var a=0;a<=2;a++){
+                        this.ttb.getElementsByClassName('marke')[a].checked = false;//将前三单的打钩状态解开
+                    }
+                    alert('锁单失败')
+                }
+            }).catch((error)=>{
+                console.log(error)
+            })
+        },
+        //批量锁定
+        lotSize:function(){
+            this.orderid=[];  //重置为空
+            this.ar= [];
+            var flaglotSize = false;
+            this.lockorder='yes';
+            for(var a=0;a<this.leng;a++){
+                var t = this.ttr[a].getElementsByClassName('marke')[0].checked;
+                if( t == true){        //用来判断Input是否有选择的，如果一个都没有选择，那么就不会重置true，
+                    flaglotSize = true;
+                    break            //只要其中一个为true 就退出循环
+                }
+            }
+            if(flaglotSize){
+                var tt = [];
+                for(var b=0;b<this.leng;b++){
+                    tt[b] = this.ttr[b].getElementsByClassName('marke')[0].checked;
+                    if(tt[b]){
+                        this.ar.push(this.ttr[b].getElementsByClassName('marke')[0].dataset.cc)
+                    }
+                }
+                var f1 = confirm('确定所选？');
+                if(f1){
+                    axios({
+                        url:'../bingo/ticking.php?action=locking',
+                        method:'post',
+                        data:{
+                            orderid:this.ar,
+                            lockorder:this.lockorder
+                        }
+                    }).then((res)=>{
+                        if(res.data.res=='success'){
+                            $('#lock02').click()
+                            this.inpLock2();
+                        }else{
+                            alert('该单已被锁')
+                            return
+                        }
+                    }).catch((error)=>{
+
+                    })
+                }else if(!f1){
+                    this.ar = [];
+                    for(var c=0;c<this.leng;c++){
+                        this.ttr[c].getElementsByClassName('marke')[0].checked = false ;
+                    }
+                    var allcheck = document.getElementById('allcheck');
+                    allcheck.checked = false
+                }
+            }else{
+                alert('选项为空')
+            }
+        },
+        //锁单按钮直接跳转页面
+        locKfun:function(table){
+            this.orderid=[];  //重置orderid 以免上次数组里面的值残留其中没有去掉
+            var va = event.target.dataset.cc;
+            this.orderid.push(va);
+            this.lockorder='yes';
+            axios({
+                url:'../bingo/ticking.php?action=locking',   //仅为验证！！！！！！！！！！！！！！！！！！！！！！！！还要改
+                method:'post',
+                data:{
+                    orderid:this.orderid,
+                    lockorder:this.lockorder,
+                    see:false
+                }
+            }).then((res)=>{
+                if(table == '9C'){
+                    if(res.data.res=='success'){
+                        $('#lock02').click()
+                        this.inpLock2();
+                    }else{
+                        alert('该单已被锁')
+                    }
+                }else{
+                    if(res.data.res=='success'){
+                        window.location.href='../template/s_info_one.html?id='+va;
+                    }else{
+                        alert('该单已被锁')
+                    }
+                }
+
+
+            }).catch((error)=>{
+                console.log(error)
+            })
+        },
+        //重启支付
+        repay:function(orderid){
+            axios({
+                url:'../ticket/manual.php?action=repay',
+                method:'post',
+                data:{
+                    orderid
+                }
+            }).then(res=>{
+                if(!res.data){
+                    window.location.reload(true)
+                }else{
+                    alert('该单已经被其他人重启支付')
+                }
+            }).catch(error=>{console.log(error)})
+        },
+        //点击订单号，跳转到处理页面，但是只能看不能操作
+        locKfuntwo:function(){
+            // this.orderid=[];  //重置orderid 以免上次数组里面的值残留其中没有去掉
+            var va = event.target.dataset.cc;
+            window.location.href='../template/s_info_one.html?id='+va+'&see=true';
+        },
+        //单个input在打钩的时候输cc值到ar
+        inpdata:function(){
+            var inpuda = event.target.dataset.cc;
+            console.log(inpuda)
+            if(event.target.checked){
+                this.ar.push(inpuda);
+            }else{
+                this.ar.forEach( (item,index)=> {   //删除在ar中添加的cc值
+                    var c = this.ar.includes(item);
+                    this.ar[index] == inpuda ?this.ar.splice(index,1):'';
+                });                                                              //?????????????????此处ab有不同
+            }
+        },
+        //全锁定
+        allInp:function(){
+            if(event.target.checked){
+                for(var a=0;a<this.leng;a++){
+                    this.ttr[a].getElementsByClassName('marke')[0].checked = true;
+                    this.ar.push(this.ttr[a].getElementsByClassName('marke')[0].dataset.cc)
+                }
+                function remo(arrayX) {
+                    var br = [];
+                    arrayX.forEach( (item)=> {  //去重 在单个input点击添加到ar后 全选再次添加去重
+                        br.includes(item)?'':br.push(item)
+                    });
+                    arrayX = [];
+                    arrayX = arrayX.concat(br);
+                    br = null;
+                    remo = null;
+                    return arrayX
+                }
+                this.ar = remo(this.ar);
+
+            }else{
+                for(var c=0;c<this.leng;c++){
+                    this.ttr[c].getElementsByClassName('marke')[0].checked = false ;
+                    this.ar = []
+                }
+            }
+        },
+        //重启订票
+        replacefun:function(id){
+            // axios.interceptors.response.use((response)=>{
+            //     window.location.reload(true)
+            // })
+            axios({
+                url:'../ticket/manual.php?action=restart',
+                method:'post',
+                data:{
+                    orderid:id
+                }
+            }).then(res=>{
+                if(!res.data){
+                    window.location.reload(true)
+                }else{
+                    alert('该单已经被其他人重启订票')
+                }
+            }).catch(error=>console.log(error))
+
+        },
+        //换号重启
+        changerestart:function(id){
+            axios.interceptors.response.use((response)=>{
+                window.location.reload(true)
+            });
+            axios({
+                url:'../ticket/manual.php?action=change_restart',
+                method:'post',
+                data:{
+                    orderid:id
+                }
+            }).then(res=>{
+                if(!res.data){
+                    window.location.reload(true)
+                }else{
+                    alert('该单已经被其他人换号重启')
+                }
+            }).catch(error=>console.log(error))
+        },
+        //锁单待处理页面的全选按钮
+        allInpLock:function(){
+            var markeLock = document.getElementsByClassName('markeLock');
+            if(event.target.checked){
+                for(var a=0;a<markeLock.length;a++)
+                    markeLock[a].checked = true;
+            }else{
+                for(var c=0;c<markeLock.length;c++){
+                    markeLock[c].checked = false ;
+                }
+            }
+            console.log(markeLock)
+        },
+        //双击函数
+        dblcli:function(){
+            this.dbl = true;
+            //清除上个计时器
+            clearTimeout(this.clinum)
+        },
+        //copy函数
+        fuzhifun:function(id){
+            this.$refs.copy.value = id;
+            this.$refs.copy.select();
+            document.execCommand('copy',false);
+        },
+        //日志函数
+        orderUp:function(orderid){
+            this.clinum = setTimeout(()=>{
+                if(!this.dbl){
+                    this.logflag = true;
+                    axios({
+                        url:'../bingo/ticking.php?action=log',
+                        method:'post',
+                        data:{
+                            orderid
+                        }
+                    }).then((response)=>{
+                        this.logar = response.data.list;
+                    }).catch((error)=>{
+                        console.log(error)
+                    })
+                }
+                this.dbl = false
+            },200)
+            let b = new Date().getTime();
+        },
+        //清除data数据的函数 未锁单
+        cleanIpu:function(){
+            this.ar = [];         //清除ar数组
+            this.date01 = new Date().toLocaleDateString();  //时间重置
+            this.inppValue = [];
+            this.dataValue = [];
+            this.chosensingle.innerHTML = '航司';   //上述三个为选择按钮得到的值清空
+            document.getElementById('allcheck').checked = false;
+            for(var c=0;c<this.leng;c++){
+                this.ttb.getElementsByClassName('marke')[c].checked = false;
+            }                                   //清除每一个单独的input的状态
+        },
+        //清除data数据的函数 锁单
+        cleanIpuLock:function(){
+            this.arLock = [];         //清除ar数组
+            this.date01 = new Date().toLocaleDateString();  //时间重置
+            this.inppValue = [];
+            this.dataValue = [];
+            this.chosensingle.innerHTML = '航司';
+            document.getElementById('allcheck_lock').checked = false;
+            var markeLock = document.getElementsByClassName('markeLock');
+            for(var c=0;c<markeLock.length;c++){
+                markeLock[c].checked = false;
+            }                                   //清除每一个单独的input的状态
+        },
+        //批量解锁
+        lotSizeLock:function(){
+            this.orderid=[];
+            this.arLock=[];
+            var arlockflag = false;
+            var inpLock = document.getElementsByClassName('markeLock');
+            for(var a=0;a<inpLock.length;a++){
+                if(inpLock[a].checked == true){
+                    arlockflag = true;
+                    break
+                }
+            }
+            if(arlockflag){
+                for(var b=0;b<inpLock.length;b++){
+                    if(inpLock[b].checked == true){
+                        this.arLock.push(inpLock[b].dataset.cc)
+                    }
+                }
+                axios({
+                    method:'post',
+                    url:'../bingo/ticking.php?action=locking',
+                    data:{
+                        orderid:this.arLock,
+                        lockorder:'no',
+                    }
+                }).then((response)=>{
+                    if(response.data.res == 'success'){
+                        window.location.reload(true)
+                        console.log(this.arLock)
+                    }else{
+                        alert('解锁失败')
+                    }
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            }else{
+                alert('选项不能为空')
+                window.location.reload(true)
+            }
+        },
+        //解锁按钮函数
+        jiesuo:function () {
+            this.orderid=[];
+            var cc = event.target.dataset.cc;
+            this.orderid.push(cc)
+            axios({
+                url:'../bingo/ticking.php?action=locking',
+                method:'post',
+                data:{
+                    orderid:this.orderid,
+                    lockorder:'no',
+                    see:false,
+                }
+            }).then((response)=>{
+                if(response.data.res == 'success'){
+                    window.location.reload(true)
+                }else{
+                    alert('解锁失败')
+                }
+            }).catch((error)=>{
+                console.log(error)
+            });
+
+        },
+        //出票函数
+        chupiao:function(){
+            window.location.href='../template/s_info_one.html?id='+event.target.dataset.cc;
+        },
+        //拆分函数
+        BreakUpFun:function(id,collection){
+            this.breakuparr = '';
+            this.totalmoney = 0;
+            this.breakuparrid = id;
+            this.breakuparrcollection = collection
+            axios({
+                method:'post',
+                url:'../bingo/ticking.php?action=obtain_information',
+                data:{
+                    orderid:id
+                }
+            }).then((response)=>{
+                this.breakuparr = response.data.namelist;
+                this.totalmoney = collection;
+            }).catch((error)=>{
+                console.log(error)
+            })
+            var bo = document.getElementsByTagName('body')[0];
+            var coordinates = event.target.getBoundingClientRect();
+            var eveLeft = coordinates.left
+            var scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
+            $('.BreakUp').css({'top':scrollTop,'left':eveLeft*3})
+            this.BreakUpFlag = true;
+            var brea = document.getElementsByClassName('BreakUp')[0];
+        },
+        //存储打钩input的index 该index为dom的index 正好与input唯一对应
+        check:function(ind){
+            if(event.target.checked){
+                this.indexarr.push(ind)
+            }else{
+                this.indexarr.forEach((value,index,key)=>{
+                    if(ind == value) {
+                        this.indexarr.splice(index,1)
+                    }
+                })
+            }
+            console.log(this.indexarr)
+        },
+        //确认拆分订单 同时会把打钩的input拿来打包
+        splitorderFun:function(id){
+            let alonearr = document.getElementsByClassName('aloneMoney') //拿到金额的input dom
+            let  alonevalue = 0;                              //先让第一个金额为0 方便calc组件的运算
+            for(let a=0;a<alonearr.length;a++){
+                this.breakuparr[a].price = alonearr[a].value;  //breakuparr = namelist 所以可直接把价格放入单个乘客信息中 价格可以自己修改
+                this.breakuparr[a].che = 0;        //先让所有che为0，然后下面再跟勾选状态去改值
+                this.indexarr.forEach((value,index,key)=>{  //乘客个人信息中加入是否拆分的值
+                    if(value == a){                       //此处通过之前已经拿到的input为true的数组 input的dom下标与乘客是对应关系
+                        this.breakuparr[a].che = 1        //比如第一个乘客index为0，第三个为2 value是打钩Input的下标 循环判断下标与
+                    // }else{                                //乘客是否是对等关系，对等，说明该乘客被勾，没，则没有被拆分
+                    //     this.breakuparr[a].che = 0
+                    }
+                })
+                if(!alonevalue){
+                    alonevalue = alonearr[a].value
+                }else{
+                    alonevalue = calc.add(alonearr[a].value,alonevalue)
+                }
+            };
+            if(this.totalmoney == alonevalue&&this.indexarr.length){
+                axios({
+                    method:'post',
+                    url:'../bingo/ticking.php?action=split_order',
+                    data:{
+                        namelist:this.breakuparr,
+                        orderid:this.breakuparrid
+                    }
+                }).then((response)=>{
+                    console.log(response)
+                    if(response.data == 'success'){
+                        this.indexarr = [];
+                        window.location.reload(true)
+                    }
+
+                }).catch((error)=>{
+                    console.log(error)
+                    this.indexarr = [];
+                })
+            }else{
+                this.indexarr = [];
+                alert('金额不对或必须勾选一项')
+            }
+        },
+        //拆分弹窗的隐藏于显示
+        BreakUpFunClose:function () {
+            this.BreakUpFlag = false
+        },
+        //回帖函数
+        returnfun:function(ind){
+            let inde = ind
+            // console.log(ind)
+            // console.log(this.ticket)
+            // this.ticket.inde
+        },
+        //分页函数
+        //想后转页面 -
+        uppage:function(){
+            if(this.num>1){
+                this.num -= 1;
+            }else{
+                return
+            }
+            this.nnum = this.num;
+            this.axfun(this.nnum)
+        },
+        //向前转页面 +
+        downpage:function(){
+            this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+            if(this.flag){
+                if(this.num<this.pages){
+                    this.num = this.num + 1;
+                }else{
+                    return
+                }
+                this.nnum = this.num;
+                this.axfun(this.nnum)
+            }else{
+                if(this.num<this.lockpages){
+                    this.num = this.num + 1;
+                }else{
+                    return
+                }
+                this.nnum = this.num;
+                this.axfun(this.nnum)
+            }
+
+        },
+        //直接去某页面
+        gotopage:function (){
+            var apage = document.getElementById('apage');
+            var bpage = document.getElementById('bpage');
+            if(this.flag){
+                if(apage.value > this.pages){
+                    alert('没有该页码');
+                    apage.value = this.num
+                }else{
+                    this.num = apage.value;
+                    this.nnum = this.num;
+                    this.axfun(this.nnum)
+                }
+            }else{
+                if(bpage.value > this.lockpages){
+                    alert('没有该页码');
+                    bpage.value = this.num
+                }else{
+                    this.num = bpage.value;
+                    this.nnum = this.num;
+                    this.axfun(this.nnum)
+                }
+            }
+
+        },
+        //直接去首页
+        firstpage:function () {
+            this.num = 1;
+            this.nnum = this.num;
+            this.axfun(this.nnum)
+        },
+        //直接去末尾页
+        llastpage:function () {
+            if(this.flag){
+                this.num = this.pages;
+                this.nnum = this.num;
+                this.axfun(this.nnum)
+            }else{
+                this.num = this.lockpages;
+                this.nnum = this.num;
+                this.axfun(this.nnum)
+            }
+        },
+        //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+        axfun:function(nnum){
+            if(this.flag&&!this.choseObjflag){
+                axios({
+                    method: 'post',
+                    url:'../bingo/ticking.php?action=unlock',
+                    data:{
+                        page:nnum
+                    }
+                }).then((response)=>{
+                    this.or=[];
+                    this.pages = response.data.pages
+                    var d = response.data.list;
+                    for(var i=0;i<d.length;i++){
+                        this.or.push(d[i]);
+                    }
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            }else if(!this.flag){
+                axios({
+                    method: 'post',
+                    url:'../bingo/ticking.php?action=locklist',
+                    data:{
+                        page:nnum
+                    }
+                }).then((response)=>{
+                    this.lockpages = response.data.pages
+                    this.orLock = response.data.list;
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            }else if(this.choseObj){
+                this.choseObj.page = nnum;
+                axios({
+                    method: 'post',
+                    url: '../bingo/ticking.php?action=countersign',
+                    data:this.choseObj
+                }).then((response)=>{
+                    console.log(response)
+                    this.or = response.data.list;
+                    this.pages = response.data.pages;
+                    this.cleanIpu();
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            }else if(this.processing){
+                this.choseObj.page = nnum;
+                axios({
+                    method: 'post',
+                    url: '../bingo/processing_order.php?action=ProcessingOrder',
+                    data:{
+                        page:nnum
+                    }
+                }).then((response)=>{
+                    console.log(response)
+                    this.or = response.data.list;
+                    this.pages = response.data.pages;
+                    this.cleanIpu();
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            }else if(this.unexpt){
+                this.choseObj.page = nnum;
+                axios({
+                    method: 'post',
+                    url: '../bingo/abnormal_order.php?action=UnexpectOrder',
+                    data:{
+                        page:nnum
+                    }
+                }).then((response)=>{
+                    console.log(response)
+                    this.or = response.data.list;
+                    this.pages = response.data.pages;
+                    this.cleanIpu();
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            }
+
+        },
+    },
+    filters:{
+        yuwei:function (data) {
+            if(data){
+                const data01 = data.split('-');
+                return data01[0];
+            }
+        },
+        yuwei2:function (data) {
+            if(data){
+                const data01 = data.split('-');
+                return data01[1];
+            }
+        },
+        orderTimeFilter(data){
+            if(data){
+                console.log(event)
+            }
+            return data
+        }
+    },
+    beforeCreate:function(){
+
+    },
+    created:function () {
+        this.date01 = new Date().toLocaleDateString();  //这里仅仅是获取最新事件，但最终是为了让其更新到日期选择功能里面去
+        axios({
+            method:'post',
+            url:'../bingo/ticking.php?action=unlock',
+            data:{
+                page:this.num
+            }
+        }).then( (response)=>{
+            this.d = response;
+            this.pages = response.data.pages;
+            if(this.d.data.res == 'success'){
+                for(var i=0;i<this.d.data.list.length;i++){
+                    this.or.push(this.d.data.list[i]);
+                }
+            }else{
+                alert('数据请求失败')
+            }
+            this.d = null;
+        }).catch( (error)=> {
+            console.log(error)
+        });
+    },
+    beforeMount:function(){
+
+    },
+    mounted:function(){
+        this.ttb = document.getElementById('ttb');
+        this.ttr = this.ttb.getElementsByTagName('tr');
+        setTimeout(()=>{this.leng = this.ttr.length;},0);
+    },
+    beforeUpdate:function(){  //此处更改data 貌似造成了死循环 预留接口
+    },
+    updated:function () {
+        if(this.flag){
+            this.ttb = document.getElementById('ttb');
+            this.ttr = this.ttb.getElementsByTagName('tr');
+            this.leng = this.ttr.length;
+        }else if(!this.flag){
+            this.ttbLock = document.getElementById('ttbLock');
+            this.ttrLock = this.ttbLock.getElementsByTagName('tr');
+            this.leng = this.ttrLock.length;
+        }
+    }
+});
+</script>
+	<script src="../bingo/js/jquery.min.js"></script>
+	<script src="../bingo/js/bootstrap.min.js"></script>
+	<script src="../bingo/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+	<script src="../bingo/js/plugins/layer/layer.min.js"></script>
+	<script src="../bingo/js/plugins/cropper/cropper.min.js"></script>
+	<script src="../bingo/js/demo/form-advanced-demo.min.js"></script>
+</html>

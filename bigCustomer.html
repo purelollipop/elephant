@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>大客户</title>
+    <script src="../vue/vue.js"></script>
+    <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+    <link rel="stylesheet" href="../resource/css/tableCustom.css" >
+    <style type="text/css">
+        /*table主体样式*/
+        .ariticialTalbe{
+            border: 1px silver solid;
+        }
+        /*给头加border*/
+        .headBorder>th{
+            border: 1px #E7E7E7 solid;
+        }
+        /*给tr加border*/
+        .ariticialTalbeChild>tr>td{
+            border: 1px #E7E7E7 solid;
+        }
+        .ariticialTalbeChild>tr>td input{
+            width: 60px;
+        }
+    </style>
+</head>
+<body>
+<div id="bigCustomer">
+    <div class="">
+        <!--主体展示dom-->
+        <table class="ariticialTalbe" style="font-size: 12px;width: 2000px">
+            <colgroup>
+                <col  style="width:auto"><!--序号-->
+                <col  style="width:auto"><!--处理方式-->
+                <col  style="width:auto"><!--处理人-->
+                <col  style="width:auto;"><!--票台-->
+                <col  style="width:auto"><!--政策代码-->
+                <col><!--航班信息-->
+                <col  style="width:auto"><!--时长-->
+                <col  style="width:auto"><!--订单号-->
+                <col  style="width:auto"><!--收款	-->
+                <col  style="width:auto"><!--支付-->
+                <col  style="width:auto"><!--票号-->
+                <col  style="width:auto"><!--余位-->
+                <col  style="width:auto"><!--平台状态	-->
+                <col  style="width:auto"><!--航司状态-->
+                <col  style="width:auto"><!--备注-->
+                <col  style="width:150px"><!--比价-->
+                <!--支付单位-->
+                <!--政策-->
+                <!--金额-->
+                <!--支付方式-->
+                <!--订票员-->
+                <!--出票员-->
+                <!--保险-->
+                <!--客户单位-->
+                <!--联系人-->
+                <!--备注-->
+                <!--利润-->
+                <!--平台状态-->
+                <col  style="width:auto"><!--订单号-->
+                <col  style="width:auto"><!--订单号-->
+                <col  style="width:auto"><!--订单号-->
+                <col  style="width:auto"><!--订单号-->
+                <col  style="width:auto"><!--订单号-->
+                <col  style="width:auto"><!--订单号-->
+                <col  style="width:auto"><!--订单号-->
+                <col  style="width:auto"><!--订单号-->
+                <col  style="width:auto"><!--订单号-->
+                <col  style="width:auto"><!--订单号-->
+                <col  style="width:auto"><!--订单号-->
+            </colgroup>
+            <thead class="">
+            <tr  class="headBorder" style="height: 60px">
+                <th @click="addBig">PNR</th>
+                <th>出票日期</th>
+                <th>乘机日期</th>
+                <th>姓名</th>
+                <th>航程</th>
+                <th>航班号</th>
+                <th>舱位</th>
+                <th>票号</th>
+                <th>张数</th>
+                <th>票面金额</th>
+                <th>基建</th>
+                <th>服务费</th>
+                <th>应收款</th>
+                <th>差额</th>
+                <th>支付单位</th>
+                <th>政策</th>
+                <th>金额</th>
+                <th>支付方式</th>
+                <!--<th>订票员</th>-->
+                <th>出票员</th>
+                <th>保险</th>
+                <th>客户单位</th>
+                <th>联系人</th>
+                <th>备注</th>
+                <th>利润</th>
+            </thead>
+            <tbody class="ariticialTalbeChild" >
+            <tr v-for="(ele,index) in tableObj" :key="ele.id">
+                <td>
+                    <div v-if="!ele.flag">{{ele.pnr}}</div>
+                    <div  v-if="ele.flag" >
+                        <input v-model="ele.pnr" @change="getOrder(ele.pnr,index)">
+                        <button @click="saveOrder(index)">保存</button>
+                    </div>
+                </td>
+                <!--出票日期-->
+                <td>{{ele.ticket_time}}</td>
+                <!--乘机日期-->
+                <td>{{ele.flight_date}}</td>
+                <!--姓名-->
+                <td>{{ele.passenger_name}}</td>
+                <!--航程-->
+                <td>{{ele.dpt}}-{{ele.arr}}</td>
+                <!--航班号-->
+                <td>{{ele.code}}</td>
+                <!--舱位-->
+                <td>{{ele.position}}</td>
+                <!--票号-->
+                <td>{{ele.ticket_number}}</td>
+                <!--张数 乘机人数-->
+                <td>{{ele.passenger_num}}</td>
+                <!--票面金额-->
+                <td>
+                    <div v-if="!ele.flag">{{ele.face_price}}</div>
+                    <input v-if="ele.flag" v-model="ele.face_price">
+                </td>
+                <!--基建-->
+                <td>
+                    <div v-if="!ele.flag">{{ele.infrastructure}}</div>
+                    <input v-if="ele.flag" v-model="ele.infrastructure">
+                </td>
+                <!--服务费-->
+                <td>
+                    <div v-if="!ele.flag">{{ele.service_fee}}</div>
+                    <input v-if="ele.flag" v-model="ele.service_fee">
+                </td>
+                <!--应收款-->
+                <td>
+                    <div v-if="!ele.flag">{{ele.receivables}}</div>
+                    <input v-if="ele.flag" v-model="ele.receivables">
+                </td>
+                <!--差额-->
+                <td>
+                    <div v-if="!ele.flag">{{ele.difference}}</div>
+                    <input v-if="ele.flag" v-model="ele.difference">
+                </td>
+                <!--支付单位-->
+                <td>
+                    <div v-if="!ele.flag">{{ele.pay_unit}}</div>
+                    <input v-if="ele.flag" v-model="ele.pay_unit">
+                </td>
+                <!--政策-->
+                <td>
+                    <div v-if="!ele.flag">{{ele.policy}}</div>
+                    <input v-if="ele.flag" v-model="ele.policy">
+                </td>
+                <!--金额-->
+                <td>
+                    <div v-if="!ele.flag">{{ele.amount}}</div>
+                    <input v-if="ele.flag" v-model="ele.amount">
+                </td>
+                <!--支付方式-->
+                <td>
+                    <div v-if="!ele.flag">{{ele.pay_way}}</div>
+                    <input v-if="ele.flag" v-model="ele.pay_way">
+                </td>
+                <!--订票员-->
+                <!--<td>{{ele.ticket_holder}}</td>-->
+                <!--出票员-->
+                <td>
+                    <div v-if="!ele.flag">{{ele.ticket_man}}</div>
+                    <input v-if="ele.flag" v-model="ele.ticket_man">
+                </td>
+                <!--保险-->
+                <td>
+                    <div v-if="!ele.flag">{{ele.insurance}}</div>
+                    <input v-if="ele.flag" v-model="ele.insurance">
+                </td>
+                <!--客户单位-->
+                <td>
+                    <div v-if="!ele.flag">{{ele.customer_unit}}</div>
+                    <input v-if="ele.flag" v-model="ele.customer_unit">
+                </td>
+                <!--联系人-->
+                <td>
+                    <div v-if="!ele.flag">{{ele.contact_name}}</div>
+                    <input v-if="ele.flag" v-model="ele.contact_name">
+                </td>
+                <!--备注-->
+                <td>
+                    <div v-if="!ele.flag">{{ele.remarks}}</div>
+                    <input v-if="ele.flag" v-model="ele.remarks">
+                </td>
+                <!--利润-->
+                <td>
+                    <div v-if="!ele.flag">{{ele.profit}}</div>
+                    <input v-if="ele.flag" v-model="ele.profit">
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <!--分页逻辑-->
+        <div style="float: right;margin-top: 20px">
+            <button @click="exportfun">导出</button>
+            <button type="button"  class=""  @click="firstpage">第一页</button>
+            <button type="button"  class=""  @click="uppage">前一页</button>
+            共<span>{{pages}}</span>页&nbsp;&nbsp;
+            第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" :value="num" ref="num">&nbsp;页&nbsp;&nbsp;
+            <button  class=""  @click="gotopage">转到</button>
+            <button  class=""  @click="downpage">后一页</button>
+            <button  class=""  @click="llastpage">最后一页</button>
+        </div>
+    </div>
+</div>
+<script src="../vue/axios.min.js"></script>
+<script src="../vue/vue-router.js"></script>
+<script src="../resource/iview-2.0/dist/iview.js"></script>
+<script type="text/javascript">
+    new Vue({
+        el:'#bigCustomer',
+        data:{
+            tableObj:[],
+            num:1,
+            pages:undefined
+        },
+        methods:{
+            //初始化函数
+            bigcustomerFun(page){
+                axios({
+                    url:'../bingo/big_client.php?action=query_data',
+                    method:'post',
+                    data:{
+                        page
+                    }
+                }).then(res=>{
+                    this.tableObj = res.data.list;
+                    this.pages = res.data.pages;
+                }).catch(err=>console.log(err))
+            },
+            //添加数据，录制报表
+            addBig(){
+                this.tableObj.push({flag:true})
+            },
+            //pnr获取报表数据
+            getOrder(pnr,index){
+                axios({
+                    url:'../bingo/big_client.php?action=get_data',
+                    method:'post',
+                    data:{
+                        pnr
+                    }
+                }).then(res=>{
+                    // console.log(res.data.list.lines.Line)
+                    // 出票日期
+                    Vue.set(this.tableObj[index],'ticket_time',"无")
+                    // this.tableObj[index].ticket_time = "无";
+                    // 乘机日期
+                    this.tableObj[index].flight_date = res.data.list.lines.Line.date;
+                    // 姓名
+                    let leng = res.data.list.passengers["@attributes"].count*1;
+                    if(leng>1){
+                        for(let a=0;a<leng;a++){
+                            this.tableObj[index].passenger_name += res.data.list.passengers.passenger[a].Name+',';
+                        }
+                    }else{
+                        this.tableObj[index].passenger_name = res.data.list.passengers.passenger.Name;
+                    }
+                    // 航程
+                    this.tableObj[index].dpt = res.data.list.lines.Line.DepartureCity;
+                    this.tableObj[index].arr = res.data.list.lines.Line.DestinationCity;
+                    <!--航班号-->
+                    this.tableObj[index].code = res.data.list.lines.Line.AirLine;
+                    <!--舱位-->
+                    this.tableObj[index].position = res.data.list.lines.Line.Cabin;
+                    <!--票号-->
+                    this.tableObj[index].ticket_number = res.data.list.tickets.ticket[0];
+                    <!--张数 乘机人数-->
+                    this.tableObj[index].passenger_num = leng;
+                    let priceLength = res.data.list.prices["@attributes"].count*1;
+                    let priceObj = res.data.list.prices.price;
+                    for(let a=0;a<priceLength;a++){
+                        for(let b=0;b<priceLength;b++){
+                            if(priceObj[a].Fare<priceObj[b].Fare&&(b==priceLength-1)){
+                                <!--票面金额-->
+                                this.tableObj[index].face_price = priceObj[b].Fare;
+                                <!--基建-->
+                                this.tableObj[index].infrastructure = priceObj[b].Tax;
+                            }
+                        }
+                    }
+
+                }).catch(err=>console.log(err));
+            },
+            //保存报表
+            saveOrder(index){
+                axios({
+                    url:'../bingo/big_client.php?action=save_data',
+                    method:'post',
+                    data:{
+                        order:this.tableObj[index]
+                    }
+                }).then(res=>{
+
+                }).catch(err=>console.log(err));
+            },
+            //导出报表
+            exportfun(){
+                axios({
+                    url:'../bingo/big_client.php?action=out',
+                    method:'post',
+                    data:{},
+                    responseType:'blob'
+                }).then(response=>{
+                    if(response.data.size>0){
+                        let filename = '改签报表';
+                        let url = window.URL.createObjectURL(response.data)
+                        let link = document.createElement('a')
+                        link.style.display = 'none'
+                        link.href = url
+                        link.setAttribute('download', filename + '.xls')
+                        document.body.appendChild(link)
+                        link.click()
+                    }else{
+                        alert('暂无数据');
+                    }
+                }).catch(err=>console.log(err))
+            },
+            //分页函数
+            //向后转页面 —
+            uppage:function(){
+                if(this.num>1){
+                    this.num -= 1;
+                }else if(this.num<1){
+                    alert('没有该页码')
+                }else{
+                    return
+                }
+                this.axfun(this.num);
+            },
+            //向前转页面 +
+            downpage:function(){
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if(this.num<this.pages){
+                    this.num = this.num + 1;
+                }else{
+                    return
+                };
+                this.axfun(this.num)
+            },
+            //直接去某页面
+            gotopage:function () {
+                let val = this.$refs.num.value;
+                if(val > this.pages||val<1){
+                    //页数框页码重置
+                    this.$refs.num.value = this.num;
+                    alert('没有该页码');
+                }else{
+                    this.num = Math.round(this.num);
+                    this.num = val;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去首页
+            firstpage:function () {
+                //如果num已经是第一页了，就不再请求了
+                if(this.num == 1){
+                    return
+                }
+                this.num = 1;
+                this.axfun(this.num)
+            },
+            //直接去末尾页
+            llastpage:function () {
+                //如果已经等于最后已页，就不再请求
+                if(this.num == this.pages){
+                    return
+                }
+                this.num = this.pages;
+                this.axfun(this.num)
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun:function(page){
+                this.bigcustomerFun(page)
+            },
+        },
+        created(){
+            this.bigcustomerFun(1)
+        }
+    })
+</script>
+</body>
+</html>

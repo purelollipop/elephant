@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>table</title>
+    <meta charset="UTF-8">
+	<!-- import Vue.js -->
+	<!--<script src="//vuejs.org/js/vue.min.js"></script>-->
+	<script src="../vue/vue.js"></script>
+	<!-- import stylesheet -->
+	<link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+	<!-- import iView -->
+	<script src="../resource/iview-2.0/dist/iview.js"></script>
+	<!-- import axios -->
+	<script src="../vue/axios.min.js"></script>
+	<style scoped="scoped">
+		.ivu-page{
+			text-align: right;
+		}
+		.page-top{
+			border: 1px solid lightgray;
+			height: 200px;
+		}
+		.mask{
+			position: absolute;
+			top: 0%;
+			left: 0%;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0, 0, 0, 0.3);
+			z-index:10;
+		}
+		.btnclose{
+			width: 30px;
+			height: 30px;
+			border: 1px solid white;
+			float: right;
+			background-color: white;
+		}
+		.containt{
+			width: 80%;
+			height: 45%;
+			margin: auto;
+			margin-top: 10%;
+			z-index: 100;
+			background-color: white;
+			padding: 40px;
+			border-radius: 10px;
+		}
+		[v-cloak] {
+              display: none;
+             }
+		.timeDiv{
+			border-radius: 4px;
+			border: 1px solid lightgray;
+			height: 30px;
+			width: 250px;
+		}
+		.timeSpan{
+			display: block;
+			width: 30%;
+			height: 28px;
+			padding: 4px 9px;
+			border-right: 1px solid lightgray;
+			background-color: #F7F7F7;
+			float: left;
+		}
+		.timeInput{
+			float: left;
+			height: 28px;
+			border: none;
+			padding-left: 8px;
+			width: 70%;
+		}
+	</style>
+</head>
+<body>
+<div id="app">
+	<template>
+		<!--手工录入信息遮罩-->
+		<div v-cloak v-if="searchFlag" class="page-top mask">
+			<input type="button" value="X" class="btnclose" @click="InputInfo()">
+            <div class="containt">
+				<h3 style="margin-left:48%;color: red;">手工录入弹窗</h3><br>
+			<Row :gutter="24" >
+				<i-Col span="6">
+					<!--平台订单号-->
+					<div>
+						<i-input class="chooseChild" style="width: 100%;" v-model="TabList.platformOrder">
+							<span slot="prepend">平台订单号</span>
+						</i-input>
+					</div>
+				</i-Col>
+				<i-Col span="6">
+					<!--小PNR-->
+					<div>
+						<i-input class="chooseChild" style="width: 100%;" v-model="TabList.smartNumber">
+							<span slot="prepend">小PNR</span>
+						</i-input>
+					</div>
+				</i-Col>
+				<i-Col span="6">
+					<!--平台-->
+					<div>
+						<i-Select v-model="TabList.ticketTable" style="width:100%" placeholder="请选择平台">
+							<i-Option
+									v-for="item in PTList"
+									:value="item.value"
+									:key="item.value">
+								{{ item.label }}
+							</i-Option>
+						</i-Select>
+					</div>
+				</i-Col>
+				<i-Col span="6">
+					<!--票号-->
+					<div>
+						<i-input class="chooseChild" style="width: 100%;" v-model="TabList.ticketNum">
+							<span slot="prepend">票号</span>
+						</i-input>
+					</div>
+				</i-Col>
+			</Row>
+			<br>
+			<Row :gutter="24" >
+				<i-Col span="6">
+					<!--出票时间-->
+					<div  class="timeDiv">
+                        <span slot="prepend" class="timeSpan">出票时间</span>
+						<input  type="text"
+                                autofocus="autofocus"
+                                @focus.once="today"
+                                v-model="TabList.ticketing_time"
+                                class="timeInput"
+                        />
+					</div>
+				</i-Col>
+				<i-Col span="6">
+					<!--出票人-->
+					<div>
+						<i-input class="chooseChild" style="width: 100%;" v-model="TabList.Drawer">
+							<span slot="prepend">出票人</span>
+						</i-input>
+					</div>
+				</i-Col>
+				<i-Col span="6">
+					<!--收款金额-->
+					<div>
+						<i-input class="chooseChild"  style="width: 100%;" v-model="TabList.Amount_Collected">
+							<span slot="prepend">收款金额</span>
+						</i-input>
+					</div>
+
+				</i-Col>
+				<i-Col span="6">
+					<!--采购金额-->
+					<div>
+						<i-input class="chooseChild"  style="width: 100%;"
+								 v-model="TabList.Payment_amount"
+								 @keyup="compute">
+							<span slot="prepend">采购金额</span>
+						</i-input>
+					</div>
+
+				</i-Col>
+			</Row>
+				<br>
+			<Row :gutter="24" >
+				<i-Col span="6">
+					<!--利润-->
+					<div>
+						<i-input class="chooseChild"  style="width: 100%;" v-model="TabList.profit">
+							<span slot="prepend">利润</span>
+						</i-input>
+					</div>
+
+				</i-Col>
+				<i-Col span="6">
+					<!--出票方式-->
+					<div>
+						<i-Select v-model="TabList.Ticket_method" style="width:100%;"
+                                  placeholder="请选择出票方式">
+							<i-Option
+									v-for="item in CPList"
+									:value="item.value"
+									:key="item.value">
+								{{ item.label }}
+							</i-Option>
+						</i-Select>
+					</div>
+				</i-Col>
+				<i-Col span="6">
+					<!--支付方式-->
+					<div>
+						<i-input class="chooseChild"  style="width: 100%;" v-model="TabList.Payment_method">
+							<span slot="prepend">支付方式</span>
+						</i-input>
+					</div>
+				</i-Col>
+				<i-Col span="6">
+					<!--出票备注-->
+					<div>
+						<i-input class="chooseChild"  style="width: 100%;" v-model="TabList.Draft_notes">
+							<span slot="prepend">出票备注</span>
+						</i-input>
+					</div>
+				</i-Col>
+			</Row>
+			<br>
+			<Row :gutter="5" type="flex" justify="center" class="code-row-bg">
+				<i-Button type="primary" size="small" style="float: right" @click="insert">提交</i-Button>
+			</Row>
+            </div>
+		</div>
+	</template>
+	<i-Button type="primary" size="small" style="margin: 10px;" @click="InputInfo">
+		<Icon type="ios-search"></Icon>
+		录入信息
+	</i-Button>
+	<i-Button type="success" size="small" @click="visible">搜索</i-Button>
+    <!--搜索遮罩-->
+	<div v-cloak v-if="visibleDiv">
+		<div class="mask">
+			<input type="button" value="X" class="btnclose" @click="visible()">
+			<div class="containt">
+				<h3 style="margin-left:48%;color: red;">搜索弹窗</h3><br>
+				<Row :gutter="24" >
+					<i-Col span="6">
+						<!--平台订单号:-->
+						<div>
+							<i-input class="chooseChild" style="width: 100%;" v-model="actionList.platformOrder">
+								<span slot="prepend">平台订单号</span>
+							</i-input>
+						</div>
+					</i-Col>
+					<i-Col span="6">
+						<!--小PNR-->
+						<div>
+							<i-input class="chooseChild" style="width: 100%;" v-model="actionList.smartNumber">
+								<span slot="prepend">小PNR</span>
+							</i-input>
+						</div>
+					</i-Col>
+					<i-Col span="6">
+						<!--平台-->
+						<div>
+							<i-Select  style="width:100%" v-model="actionList.ticketTable"
+									   placeholder="请选择平台">
+								<i-Option
+										v-for="item in PTList"
+										:value="item.value"
+										:key="item.value">
+									{{ item.label }}
+								</i-Option>
+							</i-Select>
+						</div>
+					</i-Col>
+					<i-Col span="6">
+						<!--票号-->
+						<div>
+							<i-input class="chooseChild" style="width: 100%;" v-model="actionList.ticketNum">
+								<span slot="prepend">票号</span>
+							</i-input>
+						</div>
+					</i-Col>
+				</Row>
+				<br>
+				<Row :gutter="24" >
+					<i-Col span="6">
+						<Date-Picker
+								type="date"
+								placeholder="请选择开始时间"
+								style="width: 100%"
+								@on-change="starttimefun"
+						></Date-Picker>
+					</i-Col>
+					<i-Col span="6">
+						<Date-Picker
+								type="date"
+								placeholder="请选择结束时间"
+
+								style="width: 100%"
+								@on-change="endtimefun"
+						></Date-Picker>
+					</i-Col>
+					<i-Col span="6">
+						<!--出票人-->
+						<div>
+							<i-input class="chooseChild" style="width: 100%;" v-model="actionList.Drawer">
+								<span slot="prepend">出票人</span>
+							</i-input>
+						</div>
+					</i-Col>
+					<i-Col span="6">
+						<!--收款金额-->
+						<div>
+							<i-input class="chooseChild" style="width: 100%;" v-model="actionList.Amount_Collected">
+								<span slot="prepend">收款金额</span>
+							</i-input>
+						</div>
+
+					</i-Col>
+
+
+				</Row>
+				<br>
+				<Row :gutter="24" >
+					<i-Col span="6">
+						<!--采购金额-->
+						<div>
+							<i-input class="chooseChild" style="width: 100%;" v-model="actionList.Payment_amount">
+								<span slot="prepend">采购金额</span>
+							</i-input>
+						</div>
+
+					</i-Col>
+					<i-Col span="6">
+						<!--出票方式-->
+						<div>
+							<i-Select  style="width:100%" v-model="actionList.Ticket_method"
+									   placeholder="请选择出票方式">
+								<i-Option
+										v-for="item in CPList"
+										:value="item.value"
+										:key="item.value">
+									{{ item.label }}
+								</i-Option>
+							</i-Select>
+						</div>
+					</i-Col>
+					<i-Col span="6">
+						<!--支付方式-->
+						<div>
+							<i-input class="chooseChild"  style="width: 100%;" v-model="actionList.Payment_method">
+								<span slot="prepend">支付方式</span>
+							</i-input>
+						</div>
+					</i-Col>
+					<i-Col span="6">
+						<!--出票备注-->
+						<div>
+							<i-input class="chooseChild"  style="width: 100%;" v-model="actionList.Draft_notes">
+								<span slot="prepend">出票备注</span>
+							</i-input>
+						</div>
+					</i-Col>
+				</Row>
+				<br>
+				<Row :gutter="5" type="flex" justify="center" class="code-row-bg">
+					<i-Button type="primary" size="small"
+							  style="float: right" @click=manual_entry(1)>提交</i-Button>
+					&nbsp;&nbsp;&nbsp;&nbsp;
+					<i-Button type="primary" size="small"
+							  style="float: right" @click=exports>导出</i-Button>
+				</Row>
+			</div>
+		</div>
+	</div>
+	<!--修改信息遮罩-->
+	<div v-cloak v-if="visib">
+		<div class="mask">
+			<input type="button" value="X" class="btnclose" @click="close()">
+			<div class="containt">
+				<h3 style="margin-left:48%;color: red;">修改信息弹窗</h3><br>
+				<Row :gutter="24" >
+					<i-Col span="6">
+						<!--平台订单号:-->
+						<div>
+							<i-input class="chooseChild" style="width: 100%;"
+									 v-model="updateList.platformOrder">
+								<span slot="prepend">平台订单号</span>
+							</i-input>
+						</div>
+					</i-Col>
+					<i-Col span="6">
+						<!--小PNR-->
+						<div>
+							<i-input class="chooseChild" style="width: 100%;"
+									 v-model="updateList.smartNumber">
+								<span slot="prepend">小PNR</span>
+							</i-input>
+						</div>
+					</i-Col>
+					<i-Col span="6">
+						<!--平台-->
+						<div>
+							<i-Select  style="width:100%"
+									   v-model="updateList.ticketTable">
+								<i-Option
+										v-for="item in PTList"
+										:value="item.value"
+										:key="item.value">
+									{{ item.label }}
+								</i-Option>
+							</i-Select>
+						</div>
+					</i-Col>
+					<i-Col span="6">
+						<!--票号-->
+						<div>
+							<i-input class="chooseChild" style="width: 100%;"
+									 v-model="updateList.ticketNum">
+								<span slot="prepend">票号</span>
+							</i-input>
+						</div>
+					</i-Col>
+				</Row>
+				<br>
+				<Row :gutter="24" >
+					<i-Col span="6">
+						<!--出票时间-->
+						<div>
+							<i-input class="chooseChild" style="width: 100%;"
+									 v-model="updateList.ticketing_time">
+								<span slot="prepend">出票时间</span>
+							</i-input>
+						</div>
+					</i-Col>
+					<i-Col span="6">
+						<!--出票人-->
+						<div>
+							<i-input class="chooseChild" style="width: 100%;"
+									 v-model="updateList.Drawer">
+								<span slot="prepend">出票人</span>
+							</i-input>
+						</div>
+					</i-Col>
+					<i-Col span="6">
+						<!--收款金额-->
+						<div>
+							<i-input class="chooseChild" style="width: 100%;"
+									 v-model="updateList.Amount_Collected">
+								<span slot="prepend">收款金额</span>
+							</i-input>
+						</div>
+
+					</i-Col>
+					<i-Col span="6">
+						<!--采购金额-->
+						<div>
+							<i-input class="chooseChild"
+									 style="width: 100%;"
+									 v-model="updateList.Payment_amount"
+									 @keyup="compute2">
+								<span slot="prepend">采购金额</span>
+							</i-input>
+						</div>
+
+					</i-Col>
+
+				</Row>
+				<br>
+				<Row :gutter="24" >
+					<i-Col span="6">
+						<!--利润-->
+						<div>
+							<i-input class="chooseChild" style="width: 100%;"
+									 v-model="updateList.profit">
+								<span slot="prepend">利润</span>
+							</i-input>
+						</div>
+
+					</i-Col>
+					<i-Col span="6">
+						<!--出票方式-->
+						<div>
+							<i-Select  style="width:100%" v-model="updateList.Ticket_method"
+									   >
+								<i-Option
+										v-for="item in CPList"
+										:value="item.value"
+										:key="item.value">
+									{{ item.label }}
+								</i-Option>
+							</i-Select>
+						</div>
+					</i-Col>
+					<i-Col span="6">
+						<!--支付方式-->
+						<div>
+							<i-input class="chooseChild"  style="width: 100%;"
+									 v-model="updateList.Payment_method">
+								<span slot="prepend">支付方式</span>
+							</i-input>
+						</div>
+					</i-Col>
+					<i-Col span="6">
+						<!--出票备注-->
+						<div>
+							<i-input class="chooseChild"  style="width: 100%;"
+									 v-model="updateList.Draft_notes">
+								<span slot="prepend">出票备注</span>
+							</i-input>
+						</div>
+					</i-Col>
+				</Row>
+				<br>
+				<Row :gutter="5" type="flex" justify="center" class="code-row-bg">
+					<i-Button type="primary" size="small"
+							  style="float: right" @click=modify()>确定</i-Button>
+				</Row>
+			</div>
+		</div>
+	</div>
+	<!--页面加载table-->
+	<i-table border stripe :columns="columns1" :data="historyData"></i-table>
+	<!--页码-->
+	<Page :total="dataCount" :page-size="pageSize" show-total @on-change="changepage"></Page>
+</div>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data () {
+            return {
+                visibleDiv:false,
+                searchFlag: false,
+                visib:false,
+                list:[],  //接口获取的总数据
+				array:[],
+                dataCount:0, // 总数据的条目
+                pageSize:10,     // 每页显示多少条
+                historyData:'',  //展示的数据
+				CPList:[
+                    {
+                        value: 'BSB',
+                        label: 'BSB'
+                    },
+                    {
+                        value: 'BSP',
+                        label: 'BSP'
+                    },
+                    {
+                        value: '官网',
+                        label: '官网'
+                    },
+                    {
+                        value: '电话',
+                        label: '电话'
+                    },
+				],
+                PTList: [
+                    {
+                        value: '酷讯',
+                        label: '酷讯'
+                    },
+                    {
+                        value: '同程',
+                        label: '同程'
+                    },
+                    {
+                        value: '八千翼',
+                        label: '八千翼'
+                    },
+                    {
+                        value: 'xss',
+                        label: 'xss'
+                    },
+                    {
+                        value: 'xsg',
+                        label: 'xsg'
+                    },
+                    {
+                        value: 'ttr',
+                        label: 'ttr'
+                    },
+                    {
+                        value: 'pai',
+                        label: 'pai'
+                    },
+                    {
+                        value: '平安航旅',
+                        label: '平安航旅'
+                    },
+                    {
+                        value: '向上航服',
+                        label: '向上航服'
+                    },
+                    {
+                        value: '湘潭平安航服',
+                        label: '湘潭平安航服'
+                    },
+                    {
+                        value: '携程',
+                        label: '携程'
+                    }
+                ],
+				actionList:{
+                    page:"",
+                    platformOrder: "",
+                    smartNumber: "",
+                    ticketTable:"",
+                    ticketNum: "",
+                    starttime:"",
+					endtime:"",
+                    Drawer: "",
+                    Ticket_method:"",
+                    Payment_method: "",
+				},
+				TabList:{
+                    platformOrder: "",
+                    smartNumber: "",
+                    ticketTable:"",
+                    ticketNum: "",
+                    ticketing_time:"",
+                    Drawer: "",
+                    Amount_Collected: "",
+                    Payment_amount: "",
+                    profit: "",
+                    Ticket_method:'',
+                    Payment_method: "",
+                    Draft_notes: "",
+				},
+				updateList:{
+                    id:"",
+                    platformOrder: "",
+                    smartNumber: "",
+                    ticketTable:"",
+                    ticketNum: "",
+                    Ticketing_time:"",
+                    Drawer: "",
+                    Amount_Collected: "",
+                    Payment_amount: "",
+                    profit: "",
+                    Ticket_method:'',
+                    Payment_method: "",
+                    Draft_notes: "",
+				},
+                columns1: [
+                    {
+                        title: '平台订单号',
+						width:'120px',
+                        key: 'platformOrder',
+                        render:(h,params)=>{
+                            return h('div',[
+                                h('Tooltip',[
+                                    params.row.platformOrder,
+                                    h('div', {
+                                        slot: 'content',
+                                        style: {
+                                            whiteSpace: 'normal',
+                                            wordBreak: 'break-all'
+                                        }
+                                    }, params.row.platformOrder)
+                                ])
+                            ])
+                        }
+                    },
+                    {
+                        title: '小PNR',
+                        key: 'smartNumber'
+                    },
+                    {
+                        title: '平台',
+                        key: 'ticketTable'
+                    },
+                    {
+                        title: '票号',
+                        key: 'ticketNum'
+                    },
+                    {
+                        title: '出票时间',
+                        key: 'ticketing_time',
+                        render:(h,params)=>{
+                            return h('div',[
+                                h('Tooltip',[
+                                    params.row.ticketing_time,
+                                    h('div', {
+                                        slot: 'content',
+                                        style: {
+                                            whiteSpace: 'normal',
+                                            wordBreak: 'break-all'
+                                        }
+                                    }, params.row.ticketing_time)
+                                ])
+                            ])
+                        }
+                    },
+                    {
+                        title: '出票人',
+                        key: 'Drawer'
+                    },
+                    {
+                        title: '收款金额',
+                        key: 'Amount_Collected'
+                    },
+                    {
+                        title: '采购金额',
+                        key: 'Payment_amount'
+                    },
+                    {
+                        title: '利润',
+                        key: 'profit'
+                    },
+                    {
+                        title: '出票方式',
+                        key: 'Ticket_method'
+                    },
+                    {
+                        title: '支付方式',
+                        key: 'Payment_method'
+                    },
+                    {
+                        title: '出票备注',
+                        key: 'Draft_notes'
+                    },
+                    {
+                        title: '操作',
+                        key: 'action',
+                        width: 150,
+                        align: 'center',
+                        render: (h, params) => {
+                            return h('div', [
+                                h('Button', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            this.update(params.index)
+                                        }
+                                    }
+                                }, '修改'),
+                                h('Button', {
+                                    props: {
+                                        type: 'error',
+                                        size: 'small'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            this.delete(params.row.id)
+                                        }
+                                    }
+                                }, '删除')
+                            ]);
+                        }
+                    }
+                ],
+            }
+        },
+        created:function(){
+            this. manual_entry();
+            this.changepage();
+        },
+        computed:{
+            //计算利润
+            compute(){
+                //利润=收款金额-采购金额
+				this.TabList.profit= this.TabList.Amount_Collected - this.TabList.Payment_amount
+				return  this.TabList.profit
+            },
+            compute2(){
+                //利润=收款金额-采购金额
+                this.updateList.profit= this.updateList.Amount_Collected - this.updateList.Payment_amount
+                return  this.updateList.profit
+            },
+		},
+        methods: {
+            //搜索遮罩
+            visible() {
+                this.visibleDiv = !this.visibleDiv;
+            },
+            //导出
+            exports() {
+            	let self = this;   //申明个this对象
+                let url = '../bingo/manual_entry.php?action=out'; //请求数据
+                let data = this.actionList
+                axios.post(url, {data},{responseType:'blob'})
+                    .then((response)=> {
+                    if(response.data){
+                        let filename = '手工录入报表';
+                        let url = window.URL.createObjectURL(response.data)
+                        let link = document.createElement('a')
+                        link.style.display = 'none'
+                        link.href = url
+                        link.setAttribute('download', filename + '.xls')
+                        document.body.appendChild(link)
+                        link.click()
+                        location.reload(true)
+                    }else{
+                        alert('日期错误或暂无数据');
+                    }
+                }).catch(err=>{
+                    console.log(err);
+                });
+            },
+            //请求数据及分页
+            manual_entry: function (num) {
+                let self = this;   //申明个this对象
+                let url ='../bingo/manual_entry.php?action=manual_entry'; //请求数据
+                let data = this.actionList
+                axios.post(url, {data})
+                    .then((response)=> {
+                        console.log(response)
+
+                        self.TabList.Drawer=response.data.Drawer
+                        console.log(self.TabList.Drawer)
+                        	self.dataCount = response.data.count*1; //接口返回数据的总条目数
+                        	 //接口返回的总数据
+                            self.list = response.data.data;
+
+                        console.log("msg1:"+self.dataCount)
+
+                        if (self.dataCount < self.pageSize) {
+                            //如果数据的总条目数小于每页显示的条目数就赋值，否则就提取总数据的第三条
+                            self.historyData = self.list
+                        } else {
+                            self.historyData = self.list.slice(0, self.pageSize);
+                        }
+                        if(num==1){
+                        	this.visible();
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            //页数变化的时候改变每一页的内容
+            changepage(index) {
+            	this.actionList.page = index
+                let self = this
+                let _start = (index - 1) * self.pageSize;
+                let _end = index * self.pageSize;
+                self.historyData = self.list.slice(_start, _end);
+                this.manual_entry(this.actionList)
+            },
+            //弹出录入信息框
+            InputInfo() {
+                this.searchFlag = !this.searchFlag;
+            },
+            //录入新增信息方法
+            insert() {
+                this.searchFlag = !this.searchFlag;
+                let url = '../bingo/manual_entry.php?action=insert'; //请求数据
+                let data = this.TabList
+                axios.post(url, {data})
+                    .then(function (response) {
+                        if(response.data.sus==true){
+                            alert("插入成功！！！")
+						}else if(response.data.sus==false){
+                            alert("插入失败！！！")
+						}
+                        location.reload(true)
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+			//获取当前时间和日期
+			today(){
+                let today=new Date();//new 出当前时间
+                let y=today.getFullYear();//获取年
+                let m=today.getMonth()+1;//获取月
+                let d=today.getDate();//获取日
+                let H = today.getHours();//获取时
+                let M = today.getMinutes();//获取分
+                let S = today.getSeconds();//获取秒
+				let now = y+"-"+m+"-"+d+" "+H+":"+M+":"+S; //返回 年-月-日 时:分:秒*/
+                this.TabList.ticketing_time = now
+				console.log(this.TabList.ticketing_time)
+				return this.TabList.ticketing_time
+			},
+            //修改信息查询方法
+            update(index) {
+                let _this = this;
+                let url ='../bingo/manual_entry.php?action=update'; //请求数据
+                let id =  this.updateList.id = this.historyData[index].id
+                axios({
+                    url,
+                    method:'post',
+                    data:{
+                        id,
+                        submit:true
+                    }
+                }).then(res=>{
+                    console.log(res)
+                    if(res.data.sus==true){
+                    	this.visib = !this.visib;
+                        _this.updateList.platformOrder = this.historyData[index].platformOrder
+                        _this.updateList.smartNumber = this.historyData[index].smartNumber
+                        _this.updateList.ticketTable = this.historyData[index].ticketTable
+                        _this.updateList.ticketNum = this.historyData[index].ticketNum
+                        _this.updateList.ticketing_time = this.historyData[index].ticketing_time
+                        _this.updateList.Drawer = this.historyData[index].Drawer
+                        _this.updateList.Amount_Collected = this.historyData[index].Amount_Collected
+                        _this.updateList.Payment_amount = this.historyData[index].Payment_amount
+                        _this.updateList.profit = this.historyData[index].profit
+                        _this.updateList.Ticket_method = this.historyData[index].Ticket_method
+                        _this.updateList.Payment_method = this.historyData[index].Payment_method
+                        _this.updateList.Draft_notes = this.historyData[index].Draft_notes
+                    }
+                    if(res.data.sus==false){
+                        alert("没有编辑权限！")
+                    }
+                }).catch(function (error) {
+                    console.log(error);
+                });
+            },
+			//修改页面关闭按钮
+            close() {
+                this.visib = !this.visib;
+            },
+
+            //点击确定，传修改后的数据请求后台
+            modify() {
+                this.visib = !this.visib;
+                let data = this.updateList
+                let url = '../bingo/manual_entry.php?action=update'; //请求数据
+                axios({
+                	url,
+                	method:'post',
+                	data:{
+                		submit:false,
+                		data,
+                	}
+                }).then(res=>{
+                	if(res.data.sus==true){
+                		location.reload(true);
+                	}
+                	else
+                		alert(res.data.data);
+                }).catch()
+            },
+			//初始化日期
+			starttimefun(data){
+            	console.log(data)
+            	this.actionList.starttime=data
+            },
+            endtimefun(data){
+            	console.log(data)
+            	this.actionList.endtime=data
+            },
+
+            //删除信息方法
+            delete(id) {
+				if (confirm("确定要删除数据吗？")) {
+					let url = '../bingo/manual_entry.php?action=delete'; //请求数据
+					axios({
+	                	url,
+	                	method:'post',
+	                	data:{
+	                		id,
+	                	}
+	                }).then(res=>{
+	                	if(res.data.sus==false){
+	                		alert(res.data.data)
+	                	}else
+	                	location.reload(true)
+	                	}).catch()
+					}
+				}
+        }
+
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>国际总订单</title>
+    <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+    <script src="../vue/vue.js"></script>
+    <script src="../resource/iview-2.0/dist/iview.min.js"></script>
+    <style>
+        .ivu-table-cell {
+            padding-left: 1px;
+            padding-right: 1px;
+        }
+
+        .ivu-card-body {
+            padding: 2px;
+            /*padding-left: 0px;*/
+            /*padding-right: 0px;*/
+            /*padding-bottom: 3px;*/
+
+        }
+
+        .chooseChild {
+            width: 180px;
+            /*margin-right: 10px;*/
+            margin-top: 5px;
+        }
+
+        .ivu-input-group {
+            display: table;
+            border-collapse: separate;
+            position: relative;
+            font-size: 12px;
+            top: 0px;
+        }
+
+        .ivu-select-single .ivu-select-selection .ivu-select-placeholder {
+            color: #000000;
+        }
+    </style>
+</head>
+<body>
+<div id="orderApp">
+    <Tabs :animated="false" v-model="name" @on-click="tabChange" size="small" type="line">
+        <Tab-Pane disabled>
+        </Tab-Pane>
+        <Tab-Pane disabled>
+        </Tab-Pane>
+        <Tab-Pane label="出票完成单" name="accomplish">
+            <com-Accomplish v-if="name==='accomplish'"></com-Accomplish>
+        </Tab-Pane>
+        <Tab-Pane label="出票异常单" name="anomaly">
+            <com-Anomaly v-if="name==='anomaly'"></com-Anomaly>
+        </Tab-Pane>
+    </Tabs>
+</div>
+<!--出票完成单-->
+<template id="accomplish">
+    <Row span="24">
+        <i-Col>
+            <Card dis-hover style="margin-bottom: 2px;margin-top: -15px">
+                <i-Button type="primary" size="small" @click="closeSearch">
+                    <Icon type="ios-search"></Icon>
+                    搜索
+                </i-Button>
+                <i-Button v-show="has" type="primary" size="small" @click="exportFun" ref="exportCompoleteFun">
+                    导出
+                </i-Button>
+                <Card v-if="searchFlag" style="margin-top: 5px">
+                    <Row type="flex" justify="start" :gutter="5" class="code-row-bg">
+                        <i-Col>
+                            <i-Input disabled placeholder="平台" style="width:180px;">
+                                <i-Select style="width: 137px;" slot="append" v-model=" chooseObj.ticketTable"
+                                          placeholder="全部">
+                                    <i-Option style="text-align:left" v-for="(ele,index) in ticketTable" :value="ele"
+                                              :key="index">{{ele}}
+                                    </i-Option>
+                                </i-Select>
+                            </i-Input>
+                        </i-Col>
+                        <i-Col>
+                            <i-Input disabled placeholder="航司" style="width:180px;">
+                                <i-Select style="width: 137px;" slot="append" v-model="chooseObj.carrier"
+                                          placeholder="全部">
+                                    <i-Option style="text-align:left" v-for="(ele,index) in carrier" :value="ele"
+                                              :key="index">{{ele}}
+                                    </i-Option>
+                                </i-Select>
+                            </i-Input>
+                            <!--<select class="chooseChildA selectDom" v-model="chooseObj.carrier" style="width: 150px">-->
+                            <!--<option v-for="(ele,index) in carrier" :value="ele">{{ele}}</option>-->
+                            <!--</select>-->
+                        </i-Col>
+                        <i-Col>
+                            <i-Input v-model="chooseObj.orderNo" style="width: 180px">
+                                <span slot="prepend">订单号</span>
+                            </i-Input>
+                        </i-Col>
+                        <i-Col>
+                            <i-Input v-model="chooseObj.flightNumber" style="width: 180px">
+                                <span slot="prepend">航班号</span>
+                            </i-Input>
+                        </i-Col>
+                        <i-Col>
+                            <Date-picker type="daterange"
+                                         placement="bottom-end"
+                                         placeholder="下单时间"
+                                         @on-change="payTimeFun">
+                            </Date-picker>
+                        </i-Col>
+                        <i-Col>
+                            <Date-picker type="daterange"
+                                         placement="bottom-end"
+                                         placeholder="起飞日期"
+                                         @on-change="flyTimeFun">
+                            </Date-picker>
+                        </i-Col>
+                    </Row>
+                    <!--<Row type="flex" justify="start" :gutter="5" class="code-row-bg">-->
+                    <!--<i-Col>-->
+                    <!--<Date-picker type="daterange" class="chooseChild"-->
+                    <!--placement="bottom-end"-->
+                    <!--placeholder="下单时间"-->
+                    <!--@on-change="payTimeFun">-->
+                    <!--</Date-picker>-->
+                    <!--</i-Col>-->
+                    <!--<i-Col>-->
+                    <!--<Date-picker type="daterange" class="chooseChild"-->
+                    <!--placement="bottom-end"-->
+                    <!--placeholder="起飞日期"-->
+                    <!--@on-change="flyTimeFun">-->
+                    <!--</Date-picker>-->
+                    <!--</i-Col>-->
+                    <!--</Row>-->
+                    <Row type="flex" justify="start" :gutter="5" class="code-row-bg">
+                        <i-Col>
+                            <i-Input class="chooseChild" v-model="chooseObj.pnrCode">
+                                <span slot="prepend">小编</span>
+                            </i-Input>
+                        </i-Col>
+                        <i-Col>
+                            <i-Input class="chooseChild" v-model="chooseObj.cabin">
+                                <span slot="prepend">仓位</span>
+                            </i-Input>
+                        </i-Col>
+                        <i-Col>
+                            <i-input class="chooseChild" v-model="chooseObj.passname">
+                                <span slot="prepend">乘机人</span>
+                            </i-input>
+                        </i-Col>
+                        <i-Col>
+                            <i-input class="chooseChild" v-model="chooseObj.ticketNo">
+                                <span slot="prepend">票号</span>
+                            </i-input>
+                        </i-Col>
+                        <i-Col>
+                            <i-Button style="margin-top: 5px;" type="primary" @click="choose">查找</i-Button>
+                        </i-Col>
+                    </Row>
+                </Card>
+            </Card>
+            </Card>
+        </i-Col>
+        <i-Col>
+            <i-Table ref="ticketTable" border highlight-row stripe height="600" size="small" :loading="loading"
+                     :columns="accomplishColumns" :data="accomplishData">
+            </i-Table>
+            <div style="margin-bottom:2px">
+                <div style="float: right;">
+                    <Page show-total
+                          :total="pageTotal"
+                          :current="pageNum"
+                          show-elevator
+                          :page-size=20
+                          placement="top"
+                          @on-change="handlePage"
+                          @on-page-size-change='handlePageSize'>
+                    </Page>
+                </div>
+            </div>
+        </i-Col>
+    </Row>
+</template>
+<!--出票异常单-->
+<template id="anomaly">
+    <Row span="24">
+        <i-Col>
+            <Card dis-hover style="margin-bottom: 2px;margin-top: -15px">
+                <i-Button type="primary" size="small" @click="closeSearch">
+                    <Icon type="ios-search"></Icon>
+                    搜索
+                </i-Button>
+                <i-Button v-show="has" type="primary" size="small" @click="exportFun" ref="exportAbnormalFun">
+                    导出
+                </i-Button>
+                <Card v-if="searchFlag" style="margin-top: 5px">
+                    <Row type="flex" justify="start" :gutter="5" class="code-row-bg">
+                        <i-Col>
+                            <i-Input disabled placeholder="平台" style="width:180px;">
+                                <i-Select style="width: 137px;" slot="append" v-model=" chooseObj.ticketTable"
+                                          placeholder="全部">
+                                    <i-Option style="text-align:left" v-for="(ele,index) in ticketTable" :value="ele"
+                                              :key="index">{{ele}}
+                                    </i-Option>
+                                </i-Select>
+                            </i-Input>
+                        </i-Col>
+                        <i-Col>
+                            <i-Input disabled placeholder="航司" style="width:180px;">
+                                <i-Select style="width: 137px;" slot="append" v-model="chooseObj.carrier"
+                                          placeholder="全部">
+                                    <i-Option style="text-align:left" v-for="(ele,index) in carrier" :value="ele"
+                                              :key="index">{{ele}}
+                                    </i-Option>
+                                </i-Select>
+                            </i-Input>
+                        </i-Col>
+                        <i-Col>
+                            <i-Input v-model="chooseObj.orderNo" style="width: 180px">
+                                <span slot="prepend">订单号</span>
+                            </i-Input>
+                        </i-Col>
+                        <i-Col>
+                            <i-Input v-model="chooseObj.flightNumber" style="width: 180px">
+                                <span slot="prepend">航班号</span>
+                            </i-Input>
+                        </i-Col>
+                        <i-Col>
+                            <Date-picker type="daterange"
+                                         placement="bottom-end"
+                                         placeholder="下单时间"
+                                         @on-change="payTimeFun">
+                            </Date-picker>
+                        </i-Col>
+                        <i-Col>
+                            <Date-picker type="daterange"
+                                         placement="bottom-end"
+                                         placeholder="起飞日期"
+                                         @on-change="flyTimeFun">
+                            </Date-picker>
+                        </i-Col>
+                    </Row>
+                    <Row type="flex" justify="start" :gutter="5" class="code-row-bg">
+                        <i-Col>
+                            <i-Input class="chooseChild" v-model="chooseObj.pnrCode">
+                                <span slot="prepend">小编</span>
+                            </i-Input>
+                        </i-Col>
+                        <i-Col>
+                            <i-Input class="chooseChild" v-model="chooseObj.cabin">
+                                <span slot="prepend">仓位</span>
+                            </i-Input>
+                        </i-Col>
+                        <i-Col>
+                            <i-input class="chooseChild" v-model="chooseObj.passname">
+                                <span slot="prepend">乘机人</span>
+                            </i-input>
+                        </i-Col>
+                        <i-Col>
+                            <i-input class="chooseChild" v-model="chooseObj.ticketNo">
+                                <span slot="prepend">票号</span>
+                            </i-input>
+                        </i-Col>
+                        <i-Col>
+                            <i-Button style="margin-top: 5px;" type="primary" @click="choose">查找</i-Button>
+                        </i-Col>
+                    </Row>
+                </Card>
+            </Card>
+            </Card>
+        </i-Col>
+        <i-Col>
+            <i-Table ref="ticketTable" border highlight-row stripe height="600" size="small"
+                     :loading="loading"
+                     :columns="anomalyColumns"
+                     :data="anomalyData">
+            </i-Table>
+            <div style="margin-bottom:2px;">
+                <div style="float: right;">
+                    <Page show-total
+                          :total="pageTotal"
+                          :current="pageNum"
+                          show-elevator
+                          placement="top"
+                          :page-size=20
+                          @on-change="handlePage"
+                          @on-page-size-change='handlePageSize'>
+                    </Page>
+                </div>
+            </div>
+        </i-Col>
+    </Row>
+</template>
+</body>
+<script src="../vue/axios.min.js"></script>
+<script src="../vue/vuex.js"></script>
+<script>
+    const comAccomplish = {
+        template: '#accomplish',
+        data() {
+            return {
+                has: false,
+                accomplishColumns: [
+                    {
+                        align: 'center',
+                        width: 40,
+                        fixed: 'left',
+                        render: (h, params) => {
+                            return h('span', params.index + (this.pageNum - 1) * this.pageSize + 1)
+                        }
+                    },
+                    {
+                        title: '时长',
+                        key: 'time',
+                        align: 'center',
+                        width: 40
+                    },
+                    {
+                        title: '平台',
+                        align: 'center',
+                        width: 60,
+                        children: [
+                            {
+                                title: '航司',
+                                align: 'center',
+                                render: (h, params) => {
+                                    return h('div', [
+                                        h('span', params.row.ticketTable),
+                                        h('br'),
+                                        h('span', params.row.carrier)
+                                    ])
+                                }
+                            }
+                        ]
+                        // renderHeader: (h, column) => {
+                        //   return h('div', [
+                        //     h('span', '平台'),
+                        //     h('br'),
+                        //     h('span', '航司')
+                        //   ])
+                        // },
+                        // render: (h, params) => {
+                        //   return h('div', [
+                        //     h('span', params.row.ticketTable),
+                        //     h('br'),
+                        //     h('span', params.row.carrier)
+                        //   ])
+                        // }
+                    },
+                    {
+                        title: '订单号',
+                        align: 'center',
+                        children: [
+                            {
+                                title: '订票账号',
+                                align: 'center',
+                                width: 100,
+                                render: (h, params) => {
+                                    return h('div', [
+                                        h('a', params.row.orderNo),
+                                        h('br'),
+                                        h('span', params.row.chuser)
+                                    ])
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        title: '小编码',
+                        key: 'pnrCode',
+                        align: 'center'
+                    },
+                    {
+                        title: '票号',
+                        key: 'ticketNo',
+                        align: 'center'
+                    },
+                    {
+                        title: '航班信息',
+                        align: 'center',
+                        width: 160,
+                        className: 'demo-table-info-column',
+                        render: (h, params) => {
+                            let txt = ''
+                            let txt2 = ''
+                            let Airport = params.row.flight.length
+                            if (Airport < 2) {
+                                txt = '单'
+                            } else {
+                                txt = '返: ' + params.row.flight[1].depAirport + '-' + params.row.flight[1].arrAirport
+                                txt2 = params.row.flight[1].depData + ' ' + params.row.flight[1].depTime
+                            }
+                            return h('div', [
+                                h('Tooltip', {
+                                    props: {
+                                        // theme:'light',
+                                        placement: 'top',
+                                        transfer: true,
+                                        maxWidth: '250',
+                                        content: '航班号: ' + params.row.flight[0].flightNumber +
+                                            ', 起飞地: ' + params.row.flight[0].depAirport +
+                                            ', 到达地: ' + params.row.flight[0].arrAirport +
+                                            ', 乘机人数: ' + params.row.population + ' 人 ' +
+                                            ', 起飞日期: ' + params.row.flight[0].depData +
+                                            ', 起飞时间: ' + params.row.flight[0].depTime + '(' + txt + ' ' + txt2 + ')'
+                                    }
+                                }, [
+                                    h('span', {
+                                        style: {
+                                            marginRight: '5px'
+                                        }
+                                    }, params.row.flight[0].flightNumber),
+                                    h('span', params.row.flight[0].depAirport + '-' + params.row.flight[0].arrAirport),
+                                    h('br'),
+                                    h('span', {
+                                        style: {
+                                            marginRight: '5px'
+                                        }
+                                    }, params.row.population + '人'),
+                                    h('span', {
+                                        style: {
+                                            marginRight: '5px'
+                                        }
+                                    }, params.row.flight[0].depData),
+                                    // h('span', new Date(params.row.flight[0].depTime).Format('hh:mm')),
+                                    h('span', {
+                                        style: {
+                                            marginRight: '5px'
+                                        }
+                                    }, params.row.flight[0].depTime),
+                                    h('br'),
+                                    h('span', '(' + txt + ' ' + txt2 + ')')
+                                ])
+                            ])
+                        }
+                    },
+                    {
+                        title: '进单余位',
+                        align: 'center',
+                        children: [
+                            {
+                                title: '当前余位',
+                                align: 'center',
+                                render: (h, params) => {
+                                    return h('div', [
+                                        h('Tooltip', {
+                                            props: {
+                                                placement: 'top',
+                                                transfer: true,
+                                                maxWidth: '180',
+                                                content: '进单时舱位: ' + params.row.flight[0].cabin +
+                                                    ', 进单时余位: ' + params.row.flight[0].maxSeats +
+                                                    ', 当前舱位: ' + params.row.flight[0].realcabin +
+                                                    ', 当前余位: ' + params.row.flight[0].realseats
+                                            }
+                                        }, [
+                                            h('span', '[' + params.row.flight[0].cabin + '/'),
+                                            h('span', params.row.flight[0].maxSeats + ']'),
+                                            h('br'),
+                                            h('span', '(' + params.row.flight[0].realcabin + '/'),
+                                            h('span', params.row.flight[0].realseats + ')')
+                                        ])
+                                    ])
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        title: '乘机人',
+                        key: 'name',
+                        align: 'center'
+                    },
+                    {
+                        title: '收款',
+                        align: 'center',
+                        children: [
+                            {
+                                title: '支付',
+                                align: 'center',
+                                render: (h, params) => {
+                                    return h('div', [
+                                        h('Tooltip', {
+                                            props: {
+                                                placement: 'top',
+                                                transfer: true,
+                                                maxWidth: '140',
+                                                content: '收款: ' + params.row.collection +
+                                                    ', 支付: ' + params.row.cash
+                                            }
+                                        }, [
+                                            h('span', params.row.collection),
+                                            h('br'),
+                                            h('span', params.row.cash)
+                                        ])
+                                    ])
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        title: '利润',
+                        key: 'profit',
+                        align: 'center',
+                        width: 50
+                    },
+                    {
+                        title: '下单时间',
+                        key: 'orderTime',
+                        align: 'center',
+                        width: 80
+                    },
+                    {
+                        title: '支付时间',
+                        key: 'payTime',
+                        align: 'center',
+                        width: 80
+                    },
+                    {
+                        title: '出票人',
+                        key: 'drawer',
+                        align: 'center',
+                        width: 50
+                    },
+                    {
+                        title: '政策代码',
+                        align: 'center',
+                        children: [
+                            {
+                                title: '政策人/客电',
+                                align: 'center',
+                                width: 100,
+                                render: (h, params) => {
+                                    let texts = ''
+                                    if (params.row.policyCode !== null) {
+                                        if (params.row.policyCode.length > 10) {
+                                            //进行截取列显示字数
+                                            texts = params.row.policyCode.substring(0, 10) + '...'
+                                        } else {
+                                            texts = params.row.policyCode
+                                        }
+                                    }
+                                    let txt = ''
+                                    let txt2 = ''
+                                    let policyPerson = params.row.policyPerson
+                                    let contactNumber = params.row.contactNumber
+                                    if (policyPerson == null || policyPerson == '') {
+                                        txt = h('span', '无/')
+                                    } else {
+                                        txt = h('span', params.row.policyPerson + '/')
+                                    }
+                                    if (contactNumber == null || contactNumber == ' ' || contactNumber == '') {
+                                        txt2 = h('span', '无')
+                                    } else {
+                                        txt2 = h('span', params.row.contactNumber + '/')
+                                    }
+                                    return h('div', [
+                                        h('Tooltip', {
+                                            props: {
+                                                placement: 'top',
+                                                transfer: true
+                                            }
+                                        }, [
+                                            texts,
+                                            h('div', {
+                                                slot: 'content',
+                                                style: {
+                                                    whiteSpace: 'normal',
+                                                    wordBreak: 'break-all'
+                                                }
+                                            }, params.row.policyCode)
+                                        ]),
+                                        h('br'),
+                                        txt,
+                                        txt2
+                                    ])
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        title: '政策备注',
+                        align: 'center',
+                        render: (h, params) => {
+                            return h('div', {
+                                style: {
+                                    color: 'red'
+                                }
+                            }, params.row.remarks)
+                        }
+                    },
+                    {
+                        title: '渠道',
+                        align: 'center',
+                        children: [
+                            {
+                                title: '方式',
+                                align: 'center',
+                                render: (h, params) => {
+                                    return h('div', [
+                                        h('Tooltip', {
+                                            props: {
+                                                placement: 'top',
+                                                transfer: true,
+                                                maxWidth: '140',
+                                                content: '渠道: ' + params.row.ticketObject +
+                                                    ', 支付方式: ' + params.row.paySubjects
+                                            }
+                                        }, [
+                                            h('span', params.row.ticketObject),
+                                            h('br'),
+                                            h('span', params.row.paySubjects),
+                                            h('br'),
+                                            h('span', params.row.payNumber)
+                                        ])
+                                    ])
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        title: '订单状态',
+                        align: 'center',
+                        children: [
+                            {
+                                title: '平台状态',
+                                align: 'center',
+                                render: (h, params) => {
+                                    return h('div', [
+                                        h('Tooltip', {
+                                            props: {
+                                                placement: 'top',
+                                                transfer: true,
+                                                maxWidth: '140',
+                                                content: '订单状态: ' + params.row.orderStatus +
+                                                    ', 平台状态: ' + params.row.platformStatus
+                                            }
+                                        }, [
+                                            h('span', params.row.orderStatus),
+                                            h('br'),
+                                            h('span', params.row.platformStatus),
+                                        ])
+                                    ])
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        title: '操作',
+                        align: 'center',
+                        width: 50,
+                        fixed: 'right',
+                        render: (h, params) => {
+                            if (params.row.carrier === '9C') {
+                                return h('div', [
+                                    h('Button', {
+                                        props: {
+                                            type: 'error',
+                                            size: 'small'
+                                            // icon: 'md-battery-charging',
+                                        },
+                                        on: {
+                                            click: () => {
+                                                this.showOrderZZ(params.row.id)
+                                            }
+                                        }
+                                    }, '查看')
+                                ])
+                            }
+
+                        }
+                    }
+                    // {
+                    //   title: '订票账号',
+                    //   align: 'center',
+                    //   key: 'chuser'
+                    // },
+                    // {
+                    //   title: '平台状态',
+                    //   key: 'orderStatus',
+                    //   align: 'center'
+                    //   // width: 80
+                    // },
+                    // {
+                    //   title: '余位',
+                    //   align: 'center',
+                    //   // width: 80,
+                    //   render: (h, params) => {
+                    //     return h('div', [
+                    //       h('span', '[' + params.row.flight[0].cabin + '/'),
+                    //       h('span', params.row.flight[0].maxSeats + ']')
+                    //     ])
+                    //   }
+                    // },
+                    // {
+                    //   title: '备注',
+                    //   key: 'orderMarkes',
+                    //   // ellipsis: true,
+                    //   align: 'center',
+                    //   width: 150,
+                    //   render: (h, params) => {
+                    //     let texts = ''
+                    //     if (params.row.orderMarkes !== null) {
+                    //       if (params.row.orderMarkes.length > 15) {
+                    //         //进行截取列显示字数
+                    //         texts = params.row.orderMarkes.substring(0, 15) + '...'
+                    //       } else {
+                    //         texts = params.row.orderMarkes
+                    //       }
+                    //     }
+                    //     return h('div', [
+                    //       h('Tooltip', {
+                    //         props: {
+                    //           // theme:'light',
+                    //           placement: 'top',
+                    //           transfer: true
+                    //         }
+                    //       }, [
+                    //         // texts,
+                    //         h('div', {
+                    //           slot: 'content',
+                    //           style: {
+                    //             whiteSpace: 'normal',
+                    //             wordBreak: 'break-all'
+                    //           }
+                    //         }, params.row.orderMarkes)
+                    //       ])
+                    //     ])
+                    //   }
+                    // },
+
+                ],
+                accomplishData: [],
+
+                loading: false,
+                pageTotal: undefined,
+                pageNum: 1,
+                pageSize: 20,
+
+                searchFlag: false,
+                //搜索条件开启，用与翻页时候判断是否要带搜索条件
+                searchChoose: false,
+                //ajax获取的票台信息，用与搜索框中的for循环
+                ticketTable: null,
+                //ajax获取的航司信息，用与搜索框中的for循环
+                carrier: null,
+                chooseObj: {
+                    //平台
+                    ticketTable: undefined,
+                    //订单号
+                    orderNo: undefined,
+                    // 下单时间
+                    //  ordTime:undefined,
+                    // 起飞日期
+                    //  flyTime:undefined,
+                    //航司
+                    carrier: null,
+                    //    小编
+                    pnrCode: null,
+                    //    航班信息
+                    flightNumber: null,
+                    //    仓位
+                    cabin: null,
+                    //    乘机人
+                    passname: null,
+                    //    票号
+                    ticketNo: null
+                },
+                //拷贝出来的搜索条件对象，用于ajax请求
+                chooseObjClone: null
+
+            }
+        },
+        mounted() {
+        },
+        created() {
+            this.initTable(1)
+        },
+        methods: {
+            showOrderZZ(va) {
+                window.location.href = '../template/iso_info.html?id=' + va + '&see=true'
+            },
+            //初始化
+            initTable(page, request) {
+                let _this = this
+                if (_this.loading) return
+                _this.loading = true
+                axios({
+                    url: '../bingo/orderIntl.php',
+                    method: 'post',
+                    data: {
+                        'action': 'query',
+                        page,
+                        request,
+                        type: 1
+                    }
+                }).then(response => {
+                    _this.accomplishData = response.data.row
+                    _this.pageTotal = response.data.count
+                    _this.ticketTable = response.data.searchOption.ticketTable
+                    _this.carrier = response.data.searchOption.carrier
+                    _this.loading = false
+                }).catch(err => {
+                    console.log(err)
+                })
+            },
+            //起飞时间
+            flyTimeFun(data) {
+                let depTimeStart = data[0]
+                let depTimeEnd = data[1]
+                this.chooseObj.depTimeStart = depTimeStart
+                this.chooseObj.depTimeEnd = depTimeEnd
+            },
+            //下单时间
+            payTimeFun(data) {
+                let orderTimeStart = data[0]
+                let orderTimeEnd = data[1]
+                this.chooseObj.orderTimeStart = orderTimeStart
+                this.chooseObj.orderTimeEnd = orderTimeEnd
+            },
+            closeSearch() {
+                this.has = false
+                this.searchFlag = !this.searchFlag
+            },
+            choose() {
+                this.has = true
+                this.searchChoose = true
+                this.chooseObjClone = JSON.parse(JSON.stringify(this.chooseObj))
+                this.initTable(1, this.chooseObjClone)
+            },
+            //分页切换
+            handlePage(value) {
+                this.pageNum = value
+                if (this.searchChoose) {
+                    this.initTable(value, this.chooseObjClone)
+                } else {
+                    this.initTable(value, null)
+                    this.chooseObjClone = null
+                }
+            },
+            //条数切换
+            handlePageSize(value) {
+                this.pageSize = value
+                this.initTable()
+            },
+            //  导出功能
+            exportFun() {
+                axios({
+                    url: "../bingo/orderIntl.php",
+                    method: 'post',
+                    responseType: 'blob',
+                    data: {
+                        action: 'out',
+                        type: 1,
+                        request: this.chooseObjClone,
+
+                    }
+                }).then(response => {
+                    if (response.data.size > 0) {
+                        let filename = '出票完成报表';
+                        let url = window.URL.createObjectURL(response.data)
+                        let link = document.createElement('a')
+                        link.style.display = 'none'
+                        link.href = url
+                        link.setAttribute('download', filename + '.xls')
+                        document.body.appendChild(link)
+                        link.click()
+                    } else {
+                        alert('日期错误或暂无数据');
+                    }
+                }).catch(err => {
+                    console.log(err);
+                });
+            }
+        }
+    }
+
+    const comAnomaly = {
+        template: '#anomaly',
+        data() {
+            return {
+                has: false,
+                anomalyColumns: [
+                    {
+                        align: 'center',
+                        width: 40,
+                        fixed: 'left',
+                        render: (h, params) => {
+                            return h('span', params.index + (this.pageNum - 1) * this.pageSize + 1)
+                        }
+                    },
+                    {
+                        title: '时长',
+                        key: 'time',
+                        align: 'center',
+                        width: 40
+                    },
+                    {
+                        title: '平台',
+                        align: 'center',
+                        width: 60,
+                        children: [
+                            {
+                                title: '航司',
+                                align: 'center',
+                                render: (h, params) => {
+                                    return h('div', [
+                                        h('span', params.row.ticketTable),
+                                        h('br'),
+                                        h('span', params.row.carrier)
+                                    ])
+                                }
+                            }
+                        ]
+                        // renderHeader: (h, column) => {
+                        //   return h('div', [
+                        //     h('span', '平台'),
+                        //     h('br'),
+                        //     h('span', '航司')
+                        //   ])
+                        // },
+                        // render: (h, params) => {
+                        //   return h('div', [
+                        //     h('span', params.row.ticketTable),
+                        //     h('br'),
+                        //     h('span', params.row.carrier)
+                        //   ])
+                        // }
+                    },
+                    {
+                        title: '订单号',
+                        align: 'center',
+                        children: [
+                            {
+                                title: '订票账号',
+                                align: 'center',
+                                width: 100,
+                                render: (h, params) => {
+                                    return h('div', [
+                                        h('a', params.row.orderNo),
+                                        h('br'),
+                                        h('span', params.row.chuser)
+                                    ])
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        title: '小编码',
+                        key: 'pnrCode',
+                        align: 'center'
+                    },
+                    {
+                        title: '票号',
+                        key: 'ticketNo',
+                        align: 'center'
+                    },
+                    {
+                        title: '航班信息',
+                        align: 'center',
+                        width: 160,
+                        className: 'demo-table-info-column',
+                        render: (h, params) => {
+                            let txt = ''
+                            let txt2 = ''
+                            let Airport = params.row.flight.length
+                            if (Airport < 2) {
+                                txt = '单'
+                            } else {
+                                txt = '返: ' + params.row.flight[1].depAirport + '-' + params.row.flight[1].arrAirport
+                                txt2 = params.row.flight[1].depData + ' ' + params.row.flight[1].depTime
+                            }
+                            return h('div', [
+                                h('Tooltip', {
+                                    props: {
+                                        // theme:'light',
+                                        placement: 'top',
+                                        transfer: true,
+                                        maxWidth: '250',
+                                        content: '航班号: ' + params.row.flight[0].flightNumber +
+                                            ', 起飞地: ' + params.row.flight[0].depAirport +
+                                            ', 到达地: ' + params.row.flight[0].arrAirport +
+                                            ', 乘机人数: ' + params.row.population + ' 人 ' +
+                                            ', 起飞日期: ' + params.row.flight[0].depData +
+                                            ', 起飞时间: ' + params.row.flight[0].depTime + '(' + txt + ' ' + txt2 + ')'
+                                    }
+                                }, [
+                                    h('span', {
+                                        style: {
+                                            marginRight: '5px'
+                                        }
+                                    }, params.row.flight[0].flightNumber),
+                                    h('span', params.row.flight[0].depAirport + '-' + params.row.flight[0].arrAirport),
+                                    h('br'),
+                                    h('span', {
+                                        style: {
+                                            marginRight: '5px'
+                                        }
+                                    }, params.row.population + '人'),
+                                    h('span', {
+                                        style: {
+                                            marginRight: '5px'
+                                        }
+                                    }, params.row.flight[0].depData),
+                                    // h('span', new Date(params.row.flight[0].depTime).Format('hh:mm')),
+                                    h('span', {
+                                        style: {
+                                            marginRight: '5px'
+                                        }
+                                    }, params.row.flight[0].depTime),
+                                    h('br'),
+                                    h('span', '(' + txt + ' ' + txt2 + ')')
+                                ])
+                            ])
+                        }
+                    },
+                    {
+                        title: '进单余位',
+                        align: 'center',
+                        children: [
+                            {
+                                title: '当前余位',
+                                align: 'center',
+                                render: (h, params) => {
+                                    return h('div', [
+                                        h('Tooltip', {
+                                            props: {
+                                                placement: 'top',
+                                                transfer: true,
+                                                maxWidth: '180',
+                                                content: '进单时舱位: ' + params.row.flight[0].cabin +
+                                                    ', 进单时余位: ' + params.row.flight[0].maxSeats +
+                                                    ', 当前舱位: ' + params.row.flight[0].realcabin +
+                                                    ', 当前余位: ' + params.row.flight[0].realseats
+                                            }
+                                        }, [
+                                            h('span', '[' + params.row.flight[0].cabin + '/'),
+                                            h('span', params.row.flight[0].maxSeats + ']'),
+                                            h('br'),
+                                            h('span', '(' + params.row.flight[0].realcabin + '/'),
+                                            h('span', params.row.flight[0].realseats + ')')
+                                        ])
+                                    ])
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        title: '乘机人',
+                        key: 'name',
+                        align: 'center'
+                    },
+                    {
+                        title: '收款',
+                        align: 'center',
+                        children: [
+                            {
+                                title: '支付',
+                                align: 'center',
+                                render: (h, params) => {
+                                    return h('div', [
+                                        h('Tooltip', {
+                                            props: {
+                                                placement: 'top',
+                                                transfer: true,
+                                                maxWidth: '140',
+                                                content: '收款: ' + params.row.collection +
+                                                    ', 支付: ' + params.row.cash
+                                            }
+                                        }, [
+                                            h('span', params.row.collection),
+                                            h('br'),
+                                            h('span', params.row.cash)
+                                        ])
+                                    ])
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        title: '利润',
+                        key: 'profit',
+                        align: 'center',
+                        width: 50
+                    },
+                    {
+                        title: '下单时间',
+                        key: 'orderTime',
+                        align: 'center',
+                        width: 80
+                    },
+                    {
+                        title: '支付时间',
+                        key: 'payTime',
+                        align: 'center',
+                        width: 80
+                    },
+                    {
+                        title: '出票人',
+                        key: 'drawer',
+                        align: 'center',
+                        width: 50
+                    },
+                    {
+                        title: '政策代码',
+                        align: 'center',
+                        children: [
+                            {
+                                title: '政策人/客电',
+                                align: 'center',
+                                width: 100,
+                                render: (h, params) => {
+                                    let texts = ''
+                                    if (params.row.policyCode !== null) {
+                                        if (params.row.policyCode.length > 10) {
+                                            //进行截取列显示字数
+                                            texts = params.row.policyCode.substring(0, 10) + '...'
+                                        } else {
+                                            texts = params.row.policyCode
+                                        }
+                                    }
+                                    let txt = ''
+                                    let txt2 = ''
+                                    let policyPerson = params.row.policyPerson
+                                    let contactNumber = params.row.contactNumber
+                                    if (policyPerson == null || policyPerson == '') {
+                                        txt = h('span', '无/')
+                                    } else {
+                                        txt = h('span', params.row.policyPerson + '/')
+                                    }
+                                    if (contactNumber == null || contactNumber == ' ' || contactNumber == '') {
+                                        txt2 = h('span', '无')
+                                    } else {
+                                        txt2 = h('span', params.row.contactNumber + '/')
+                                    }
+                                    return h('div', [
+                                        h('Tooltip', {
+                                            props: {
+                                                placement: 'top',
+                                                transfer: true
+                                            }
+                                        }, [
+                                            texts,
+                                            h('div', {
+                                                slot: 'content',
+                                                style: {
+                                                    whiteSpace: 'normal',
+                                                    wordBreak: 'break-all'
+                                                }
+                                            }, params.row.policyCode)
+                                        ]),
+                                        h('br'),
+                                        txt,
+                                        txt2
+                                    ])
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        title: '政策备注',
+                        align: 'center',
+                        render: (h, params) => {
+                            return h('div', {
+                                style: {
+                                    color: 'red'
+                                }
+                            }, params.row.remarks)
+                        }
+                    },
+                    {
+                        title: '渠道',
+                        align: 'center',
+                        children: [
+                            {
+                                title: '方式',
+                                align: 'center',
+                                render: (h, params) => {
+                                    return h('div', [
+                                        h('Tooltip', {
+                                            props: {
+                                                placement: 'top',
+                                                transfer: true,
+                                                maxWidth: '140',
+                                                content: '渠道: ' + params.row.ticketObject +
+                                                    ', 支付方式: ' + params.row.paySubjects
+                                            }
+                                        }, [
+                                            h('span', params.row.ticketObject),
+                                            h('br'),
+                                            h('span', params.row.paySubjects)
+                                        ])
+                                    ])
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        title: '订单状态',
+                        align: 'center',
+                        children: [
+                            {
+                                title: '平台状态',
+                                align: 'center',
+                                render: (h, params) => {
+                                    return h('div', [
+                                        h('Tooltip', {
+                                            props: {
+                                                placement: 'top',
+                                                transfer: true,
+                                                maxWidth: '140',
+                                                content: '订单状态: ' + params.row.orderStatus +
+                                                    ', 平台状态: ' + params.row.platformStatus
+                                            }
+                                        }, [
+                                            h('span', params.row.orderStatus),
+                                            h('br'),
+                                            h('span', params.row.platformStatus)
+                                        ])
+                                    ])
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        title: '操作',
+                        align: 'center',
+                        width: 50,
+                        fixed: 'right',
+                        render: (h, params) => {
+                            if (params.row.carrier === '9C') {
+                                return h('div', [
+                                    h('Button', {
+                                        props: {
+                                            type: 'error',
+                                            size: 'small'
+                                            // icon: 'md-battery-charging',
+                                        },
+                                        on: {
+                                            click: () => {
+                                                this.showOrderZ(params.row.id)
+                                            }
+                                        }
+                                    }, '查看')
+                                ])
+                            }
+
+                        }
+                    }
+                    // {
+                    //   title: '订票账号',
+                    //   align: 'center',
+                    //   key: 'chuser'
+                    // },
+                    // {
+                    //   title: '平台状态',
+                    //   key: 'orderStatus',
+                    //   align: 'center'
+                    //   // width: 80
+                    // },
+                    // {
+                    //   title: '余位',
+                    //   align: 'center',
+                    //   // width: 80,
+                    //   render: (h, params) => {
+                    //     return h('div', [
+                    //       h('span', '[' + params.row.flight[0].cabin + '/'),
+                    //       h('span', params.row.flight[0].maxSeats + ']')
+                    //     ])
+                    //   }
+                    // },
+                    // {
+                    //   title: '备注',
+                    //   key: 'orderMarkes',
+                    //   // ellipsis: true,
+                    //   align: 'center',
+                    //   width: 150,
+                    //   render: (h, params) => {
+                    //     let texts = ''
+                    //     if (params.row.orderMarkes !== null) {
+                    //       if (params.row.orderMarkes.length > 15) {
+                    //         //进行截取列显示字数
+                    //         texts = params.row.orderMarkes.substring(0, 15) + '...'
+                    //       } else {
+                    //         texts = params.row.orderMarkes
+                    //       }
+                    //     }
+                    //     return h('div', [
+                    //       h('Tooltip', {
+                    //         props: {
+                    //           // theme:'light',
+                    //           placement: 'top',
+                    //           transfer: true
+                    //         }
+                    //       }, [
+                    //         // texts,
+                    //         h('div', {
+                    //           slot: 'content',
+                    //           style: {
+                    //             whiteSpace: 'normal',
+                    //             wordBreak: 'break-all'
+                    //           }
+                    //         }, params.row.orderMarkes)
+                    //       ])
+                    //     ])
+                    //   }
+                    // },
+
+                ],
+                anomalyData: [],
+
+                loading: false,
+                pageTotal: null,
+                pageNum: 1,
+                pageSize: 20,
+                //    搜索数据相关
+                //    搜索框开关
+                searchFlag: false,
+                //搜索条件开启，用与翻页时候判断是否要带搜索条件
+                searchChoose: false,
+                //ajax获取的票台信息，用与搜索框中的for循环
+                ticketTable: null,
+                //ajax获取的航司信息，用与搜索框中的for循环
+                carrier: null,
+                chooseObj: {
+                    //平台
+                    ticketTable: undefined,
+                    //订单号
+                    orderNo: undefined,
+                    //    下单时间
+                    //     ordTime:undefined,
+                    //    起飞日期
+                    //     flyTime:undefined,
+                    //航司
+                    carrier: null,
+                    //    小编
+                    pnrCode: null,
+                    //    航班信息
+                    flightNumber: null,
+                    //    仓位
+                    cabin: null,
+                    //    乘机人
+                    passname: null,
+                    //    票号
+                    ticketNo: null
+                },
+                //拷贝出来的搜索条件对象，用于ajax请求
+                chooseObjClone: null
+            }
+        },
+        methods: {
+            initTable(page, request) {
+                let _this = this
+                if (_this.loading) return
+                _this.loading = true
+                axios({
+                    url: '../bingo/orderIntl.php',
+                    method: 'post',
+                    data: {
+                        'action': 'query',
+                        page,
+                        request,
+                        type: 2
+                    }
+                }).then(response => {
+                    _this.anomalyData = response.data.row
+                    _this.pageTotal = response.data.count
+                    _this.ticketTable = response.data.searchOption.ticketTable
+                    _this.carrier = response.data.searchOption.carrier
+                    _this.loading = false
+                }).catch(err => {
+                    console.log(err)
+                })
+            },
+            //分页切换
+            handlePage(value) {
+                this.pageNum = value
+                if (this.searchChoose) {
+                    this.initTable(value, this.chooseObjClone)
+                } else {
+                    this.initTable(value, null)
+                    this.chooseObjClone = null
+                }
+            },
+            //条数切换
+            handlePageSize(value) {
+                this.pageSize = value
+                this.initTable()
+            },
+            //日期函数分割时间
+            //起飞时间
+            flyTimeFun(data) {
+                let depTimeStart = data[0]
+                let depTimeEnd = data[1]
+                this.chooseObj.depTimeStart = depTimeStart
+                this.chooseObj.depTimeEnd = depTimeEnd
+            },
+            //下单时间
+            payTimeFun(data) {
+                let orderTimeStart = data[0]
+                let orderTimeEnd = data[1]
+                this.chooseObj.orderTimeStart = orderTimeStart
+                this.chooseObj.orderTimeEnd = orderTimeEnd
+            },
+            choose() {
+                this.has = true
+                this.searchChoose = true
+                this.chooseObjClone = JSON.parse(JSON.stringify(this.chooseObj))
+                this.initTable(1, this.chooseObjClone)
+            },
+            closeSearch() {
+                this.has = false
+                this.searchFlag = !this.searchFlag
+            },
+            showOrderZ(va) {
+                window.location.href = '../template/iso_info.html?id=' + va + '&see=true'
+            },
+            //导出
+            exportFun() {
+                axios({
+                    url: "../bingo/orderIntl.php",
+                    method: 'post',
+                    responseType: 'blob',
+                    data: {
+                        action: 'out',
+                        type: 2,
+                        request: this.chooseObjClone,
+
+                    }
+                }).then(response => {
+                    if (response.data.size > 0) {
+                        let filename = '出票完成报表';
+                        let url = window.URL.createObjectURL(response.data)
+                        let link = document.createElement('a')
+                        link.style.display = 'none'
+                        link.href = url
+                        link.setAttribute('download', filename + '.xls')
+                        document.body.appendChild(link)
+                        link.click()
+                    } else {
+                        alert('日期错误或暂无数据');
+                    }
+                }).catch(err => {
+                    console.log(err);
+                });
+            },
+        },
+        filters: {
+            time1(data) {
+                if (data) {
+                    data = data.replace(/(^[0-9]{4})-/, '')
+                    data = data.replace(/(:[0-9]{2}$)/, '')
+                    return data
+                }
+            }
+        },
+        created() {
+            this.initTable(1)
+        }
+    }
+
+    const store = new Vuex.Store({
+        state: {
+            name: 'accomplish',
+            isoLogModal: false,
+            isoLogData: null
+        },
+        mutations: {}
+    })
+    new Vue({
+        el: '#orderApp',
+        store,
+        components: {
+            comAccomplish,
+            comAnomaly
+        },
+        data: {},
+        computed: {
+            name: {
+                get() {
+                    return this.$store.state.name
+                },
+                set(data) {
+                    this.$store.state.name = data
+                }
+            }
+        },
+        methods: {
+            tabChange(data) {
+
+            }
+        }
+    })
+</script>
+</html>

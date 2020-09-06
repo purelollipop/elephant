@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <title>湖南机票票务管理后台</title>
+
+    <meta name="keywords" content="湖南机票票务管理后台 向上商旅">
+    <meta name="description" content="机票后台管理">
+
+    <!--[if lt IE 9]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link href="../bingo/css/bootstrap.min14ed.css?v=3.3.6" rel="stylesheet">
+    <link href="../bingo/css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
+    <link href="../bingo/css/animate.min.css" rel="stylesheet">
+    <link href="../bingo/css/style.min.css" rel="stylesheet">
+    <link href='../bingo/css/Message_window.css' rel='stylesheet'>
+    
+    <style>
+	.roll-right.J_tabRight{
+		right:80px;
+	}
+	.roll-right.btn-group{
+		right:0px;
+	}
+	</style>
+</head>
+
+<body class="fixed-sidebar full-height-layout gray-bg" style="overflow:hidden">
+    <div id="wrapper">
+        <!--左侧导航开始-->
+        <nav class="navbar-default navbar-static-side" role="navigation">
+            <div class="nav-close"><i class="fa fa-times-circle"></i>
+            </div>
+            <div class="sidebar-collapse">
+                <ul class="nav" id="side-menu">
+                    {include file='bleft_auto.html'}
+                </ul>
+            </div>
+        </nav>
+        <!--左侧导航结束-->
+        <!--右侧部分开始-->
+        <div id="page-wrapper" class="gray-bg dashbard-1">
+            <div class="row border-bottom">
+            	{include file='btop.html'}
+            </div>
+            <div class="row content-tabs">
+                <button class="roll-nav roll-left J_tabLeft"><i class="fa fa-backward"></i>
+                </button>
+                <nav class="page-tabs J_menuTabs">
+                    <div class="page-tabs-content">
+                        <a href="javascript:;" class="active J_menuTab" data-id="index">首页</a>
+                    </div>
+                </nav>
+                <button class="roll-nav roll-right J_tabRight"><i class="fa fa-forward"></i>
+                </button>
+                <div class="btn-group roll-nav roll-right">
+                    <button class="dropdown J_tabClose" data-toggle="dropdown">关闭操作<span class="caret"></span>
+
+                    </button>
+                    <ul role="menu" class="dropdown-menu dropdown-menu-right">
+                        <li class="J_tabShowActive"><a>定位当前选项卡</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li class="J_tabCloseAll"><a>关闭全部选项卡</a>
+                        </li>
+                        <li class="J_tabCloseOther"><a>关闭其他选项卡</a>
+                        </li>
+                    </ul>
+                </div>
+                <!--<a href="login.html" class="roll-nav roll-right J_tabExit"><i class="fa fa fa-sign-out"></i> 退出</a>-->
+            </div>
+            <div class="row J_mainContent" id="content-main">
+                <iframe class="J_iframe" name="iframe0" width="100%" height="100%" src="index.php?action=main" frameborder="0" data-id="index" seamless></iframe>
+            {literal}
+                <div id="messageShow">
+                    <div :class="orr.color" v-for="(orr,index) in obj" :key="index">
+                        <div :class="orr.icon"></div>
+                        <div class="messageShowNthOfType1"><a @click.stop="togo(orr.hrefa,index,orr.msg,orr.color)">{{orr.msg}}</a></div>
+                        <div class="messageShowNthOfType2" @click.stop="closeMsg(orr.hrefa,index)"></div>
+                    </div>
+                    <div class="yellow" v-show="payFaildFlag">
+                        <div class="pictureB" @click="closePayFaild"></div>
+                        <div @click="showPay" class="messageShowNthOfType1">共有{{payFaildCount}}条支付失败</div>
+                        <div class="messageShowNthOfType2" @click="closeYellow"></div>
+                    </div>
+                    <div id="payFaild" v-if="payFaild">
+                        <div v-for="(ele,index) in faildObj" class="payFaildDiv" :key="index">
+                            <div>{{ele}}</div>
+                            <div @click="deletePayOrder(ele,index)">删除</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="messageTwo" @click.self="TwoFlagFun" v-if="TwoFlag">
+                    <div class="messageTwo_ear">
+                        <div>{{count}}</div>
+                    </div>
+                    <div class="messageTwo_window" v-show="TwoWindowFlag">
+                        <div class="messageTwo_childWin">
+                            <ul style="padding-top: 10px;">
+                                <li v-for="(ele,index) in mesArr" :key="ele" style="height:30px;">
+                                    <span>{{index+1}}</span>
+                                    <span>{{ele}}</span>
+                                    <button @click.stop="deletFun(index,ele)">删除</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div id="messageThree" @click.self="TwoFlagFun" v-if="ThreeFlag">
+                    <div class="messageTwo_ear">
+                        <div>{{count}}</div>
+                    </div>
+                    <div class="messageTwo_window" v-show="TwoWindowFlag">
+                        <div class="messageTwo_childWin">
+                            <ul style="padding-top: 10px;">
+                                <li v-for="(ele,index) in mesArr" :key="ele" style="height:30px;">
+                                    <span>{{index+1}}</span>
+                                    <span>{{ele}}</span>
+                                    <span>抢单成功</span>
+                                    <button @click.stop="deletFun(index,ele)">删除</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div id="messageRefund" @click.self="refundFlagFun" v-if="messageReundFlag">
+                    <div class="messageTwo_ear">
+                        <div>{{count}}</div>
+                    </div>
+                    <div class="messageTwo_window" v-show="refundWindowFlag">
+                        <div class="messageTwo_childWin">
+                            <ul style="padding-top: 10px;">
+                            <ul style="padding-top: 10px;">
+                                <li v-for="(ele,index) in mesArr" :key="index" style="height:30px;">
+                                    <span>{{index+1}}</span>
+                                    <span>{{ele}}</span>
+                                    <span>&nbsp;&nbsp;&nbsp;&nbsp;票号异常</span>
+                                    <button @click.stop="deletFun(index,ele)">删除</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+				<!-- 留单降舱订单 -->
+				<div id="messageLeave" @click.self="retainFlagFun" v-if="messageRetainFlag">
+				    <div class="messageTwo_ear">
+				        <div>{{count}}</div>
+				    </div>
+				    <div class="messageTwo_window" v-show="retianWindowFlag">
+						
+				        <div class="messageTwo_childWin">
+				            <ul style="padding-top: 10px;">
+				                <li v-for="(ele,index) in retianArr" :key="index" style="height:30px;">
+									<!-- 序号 -->
+				                    <span>{{index+1}}</span>
+									<!--需要展示的数据 -->
+				                    <span>{{ele}}</span>
+				                    <button @click.stop="deletFun(index,ele)">删除</button>
+				                </li>
+				            </ul>
+				        </div>
+						
+				    </div>
+				</div>
+				
+            {/literal}
+            </div>
+                
+			<div class="footer">
+                <div class="pull-right">&copy; 2014-2018 <a href="http://www.bingo.hn.cn/" target="_blank">Bingo Information Technology Co., ltd</a>
+                </div>
+            </div>
+        </div>
+        <!--右侧部分结束-->
+        <!--右侧边栏开始-->
+        <div id="right-sidebar">
+            {include file='bright.html'}
+        </div>
+        <!--右侧边栏结束-->
+        <!--mini聊天窗口开始-->
+        {include file='bfix.html'}
+    </div>
+    <script src="../bingo/js/jquery.min.js"></script>
+    <script src="../bingo/js/bootstrap.min.js"></script>
+    <script src="../bingo/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+    <script src="../bingo/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="../bingo/js/plugins/layer/layer.min.js"></script>
+    <script src="../bingo/js/hplus.min.js"></script>
+    <script type="text/javascript" src="../bingo/js/contabs.min.js"></script>
+    <script src="../bingo/js/plugins/pace/pace.min.js"></script>
+	<script src="../vue/vue.js"></script>
+	<script src="../vue/axios.min.js"></script>
+    <script>
+	$(function(){
+		$('#refresh').on('click',function(){
+			var dataid = $('.J_menuTab.active').attr('data-id');
+			var $iframe = $('iframe[data-id="'+dataid+'"]');
+			$iframe.attr('src',$iframe.attr('src'));
+            if(dataid.includes('refundNew.html')){
+                window.sessionStorage.clear()
+            }
+		})
+		$('#delCache').click(function(){
+			$.get("features.php?t=features&action=delCache",{ },function(data){
+				location.reload();
+			})
+		})
+	})
+    // pictureA
+    // {literal}
+
+	new Vue({
+        el:'#messageShow',
+        data:{
+            obj:'',
+            flag:true,
+            twinkleflag:false,
+            //支付弹窗开关
+            payFaildFlag:false,
+            //支付失败数量
+            payFaildCount:undefined,
+            //支付详细信息弹窗开关
+            payFaild:false,
+            //支付失败对象载体
+            faildObj:[],
+        },
+        methods:{
+            closeMsg:function(href,ind){
+                this.obj.splice(ind,1)
+            },
+            togo:function(hrefa,ind,msg,color){
+                var adom = document.getElementsByTagName('a');
+                let a  = Array.from(adom);
+                for(let b=0;b<adom.length;b++){
+                    if(a[b].href.search(/^http:\/\/120.78.91.205:8251\/bingo\//)!=-1){
+                        var c = a[b].href.replace(/^http:\/\/120.78.91.205:8251\/bingo\//,'');
+                    }else if(a[b].href.search(/^http:\/\/120.78.91.205:8251\/template\//)!=-1){
+                        var c = a[b].href.replace(/^http:\/\/120.78.91.205:8251\/template\//,'../template/');
+                    }
+                    if(c == hrefa){
+                        if(hrefa == '../template/lug.html'){
+
+                        }else if(hrefa == 'anrace.php?t=qnracess'){
+                            axios({
+                                url:'../SMS/error_info.php?action=delerror',
+                                method:'get'
+                            }).then().catch((error)=>{
+                                console.log(error)
+                            })
+                        }
+                        //发送给后台记录日志
+                        if(color === 'red'){
+                            axios({
+                                url:'../bingo/workNum.php?action=submit',
+                                method:'post',
+                                data:{
+                                    submit_reason:msg
+                                },
+                            }).then(res=>{
+                                if(res.data.code==200){
+                                    alert('日志插入失败')
+                                }
+                            }).catch(err=>{
+                                console.log(err)
+                            });
+                        }
+                        this.obj.splice(ind,1);
+                        a[b].click();
+                        return
+                    }
+                }
+            },
+        // 打开支付失败详细信息弹窗
+            showPay(){
+                this.payFaild = true;
+                axios({
+                    url:'../SMS/error_info.php?action=pay_failure',
+                    method:'get'
+                }).then(res=>{
+                    this.faildObj = res.data;
+                }).catch(err=>{console.log(err)})
+                // if(this.payFaild){
+                //
+                // }
+            },
+        //    删除支付失败订单中的某一条函数
+            deletePayOrder(value,index){
+                axios({
+                    url:'../SMS/error_info.php?action=del_pay_failure',
+                    method:'post',
+                    data:{
+                        value
+                    }
+                }).then(res=>{
+                    if(res.data.sus){
+                        this.faildObj.splice(index,1)
+                        if(!this.faildObj.length){
+                            this.payFaildFlag = false
+                        }
+                    }
+                }).catch(err=>{console.log(err)})
+
+            },
+        //    关闭支付失败函数弹窗
+            closePayFaild(){
+                this.payFaild = false
+            },
+        //    关闭支付失败弹窗
+            closeYellow(){
+              this.payFaildFlag = false
+            },
+        },
+        mounted:function () {
+            var that = this;
+            //检测春秋数据是否异常 有 则存入数据库
+            function a1(){
+                axios({
+                    url:'../SMS/dataMsg.php?action=spring_autumn',
+                    method:'get'
+                })
+            };
+            function a2(){
+                axios({
+                    url:'../SMS/dataMsg.php?action=knwarning',
+                    method:'get'
+                })
+            };
+            function a3(){
+                axios({
+                    url:'../SMS/dataMsg.php?action=aqwarning',
+                    method:'get'
+                })
+            };
+            function a4(){
+                axios({
+                    url:'../SMS/dataMsg.php?action=pnwarning',
+                    method:'get'
+                })
+            };
+            function a5(){
+                axios({
+                    url:'../SMS/dataMsg.php?action=yhwarning',
+                    method:'get'
+                })
+            };
+            function a6(){
+                axios({
+                    url:'../SMS/dataMsg.php?action=3uwarning',
+                    method:'get'
+                })
+            };
+            function a7(){
+                axios({
+                    url:'../SMS/dataMsg.php?action=donotwarning',
+                    method:'get'
+                })
+            };
+            function GS(){
+                axios({
+                    url:'../SMS/dataMsg.php?action=gswarning',
+                    method:'get'
+                })
+            };
+            /*setInterval(()=>{
+                axios.all(a1(),a2(),a3(),a4(),a5(),a6(),a7(),GS()).then().catch(err=>console.log(err))
+            },180000);*/
+            //从后台拿取警告数据
+            setInterval(()=>{
+                axios({
+                    url:'../SMS/error_info.php',
+                    method:'get'
+                }).then((response)=>{
+                     this.obj = response.data;
+				}).catch((error)=>{
+					console.log(error)
+				})
+            },180000);
+            //支付失败数量请求函数
+            setInterval(()=>{
+                axios({
+                    url:'../SMS/error_info.php?action=pay_failure_count',
+                    method:'get'
+                }).then(res=>{
+                    this.payFaildCount = res.data.data;
+                    if(this.payFaildCount){
+                        this.payFaildFlag = true
+                    }
+                }).catch(err=>{console.log(err)})
+            },180000);
+		},
+		
+
+	});
+    // {/literal}
+	//绿色微信提示窗
+    let messagTwo = new Vue({
+        el:'.messageTwo',
+        data:{
+            count:0,        //数量
+            mesArr:null,
+            TwoWindowFlag:false,
+            permission:1,   //默认为1，请求一次后根据实际权限判断是否进行下次请求
+        },
+        computed:{
+            TwoFlag(){
+                if(this.count){
+                    return TwoFlag = true;
+                }else{
+                    return TwoFlag = false;
+                }
+            }
+        },
+        methods:{
+            TwoFlagFun:function () {
+                if(!this.TwoWindowFlag){
+                    axios({
+                        url:'../SMS/error_info.php?action=noorder_refund',
+                        method:'get'
+                    }).then(res=>{
+                        this.mesArr = res.data;
+                        this.count = res.data.length;
+                    }).catch(err=>{
+                            console.log(err)
+                    });
+                }
+                this.TwoWindowFlag = !this.TwoWindowFlag
+            },
+            deletFun:function (ind,ord) {
+                this.mesArr.splice(ind,1);
+                this.count = this.mesArr.length;
+                axios({
+                    url:'../SMS/error_info.php?action=del_unorder_refund',
+                    method:'get',
+                    params:{
+                        platformOrder:ord
+                    }
+                }).then(res=>{
+
+                }).catch(err=>{
+                    console.log(err)
+                })
+            }
+        },
+        created(){
+            setInterval(()=>{
+                if(!this.permission){
+                    return;
+                }
+                axios({
+                    url:'../SMS/error_info.php?action=noorder_refund_count',
+                    method:'get'
+                }).then(res=>{
+                    this.count = res.data.data;
+                    this.permission = res.data.permission;
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },20000)
+        }
+    });
+    //红色微信提示窗
+    let messagThree = new Vue({
+        el:'#messageThree',
+        data:{
+            count:0,        //数量
+            mesArr:null,
+            TwoWindowFlag:false,
+            permission:1,   //默认为1，请求一次后根据实际权限判断是否进行下次请求
+            // ThreeFlag:false
+        },
+        computed:{
+            ThreeFlag(){
+                if(this.count){
+                    return ThreeFlag = true;
+                }else{
+                    return ThreeFlag = false;
+                }
+            }
+        },
+        watch:{},
+        methods:{
+            TwoFlagFun:function () {
+                if(!this.TwoWindowFlag){
+                    axios({
+                        url:'../SMS/error_info.php?action=robbery_order',
+                        method:'get'
+                    }).then(res=>{
+                        this.mesArr = res.data;
+                        this.count = res.data.length;
+                    }).catch(err=>{
+                        console.log(err)
+                    });
+                }
+                this.TwoWindowFlag = !this.TwoWindowFlag
+            },
+            deletFun:function (ind,ord) {
+                this.mesArr.splice(ind,1);
+                this.count = this.mesArr.length;
+                axios({
+                    url:'../SMS/error_info.php?action=del_robbery_order',
+                    method:'get',
+                    params:{
+                        platformOrder:ord
+                    }
+                }).then(res=>{
+
+                }).catch(err=>{
+                    console.log(err)
+                })
+            }
+        },
+        created(){
+            setInterval(()=>{
+                if(!this.permission){
+                    return;
+                }
+                axios({
+                    url:'../SMS/error_info.php?action=robbery_order_count',
+                    method:'get'
+                }).then(res=>{
+                    this.count = res.data.data*1;
+                    this.permission = res.data.permission;
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },30000)
+        }
+    });
+    //退票提醒
+    let messageReundThree = new Vue({
+		
+        el:'#messageRefund',
+        data:{
+            count:0,        //数量
+            mesArr:null,
+            refundWindowFlag:false,
+        },
+        computed:{
+            messageReundFlag(){
+                if(this.count){
+                    return messageReundFlag = true;
+                }else{
+                    return messageReundFlag = false;
+                }
+            }
+        },
+        watch:{},
+        methods:{
+            //开启退票弹窗
+            refundFlagFun(){
+                this.refundWindowFlag = !this.refundWindowFlag
+            },
+            deletFun:function (ind,ord) {
+                this.mesArr.splice(ind,1);
+                this.count = this.mesArr.length;
+                axios({
+                    url:'../SMS/error_info.php?action=del_vip_query',
+                    method:'get',
+                    params:{
+                        platformOrder:ord
+                    }
+                }).then(res=>{
+
+                }).catch(err=>{
+                    console.log(err)
+                })
+            }
+        },
+        created(){
+            setInterval(()=>{
+                axios({
+                    url:'../SMS/error_info.php?action=vip_query_count',
+                    method:'get'
+                }).then(res=>{
+                    this.count = res.data.length*1;
+                    this.mesArr = res.data;
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },300000)
+        }
+    });
+    
+	//支付失败提醒弹窗及详细信息弹窗
+	let messageRetain = new Vue({
+	    el:'#messageLeave',
+	    data:{
+	        count:0,        //数量
+	        retianArr:null,
+	        retianWindowFlag:false,
+	
+	    },
+	    computed:{
+	        messageRetainFlag(){
+	            if(this.count){
+	                return messageRetainFlag = true;
+	            }else{
+	                return messageRetainFlag = false;
+	            }
+	        },
+	    },
+	    watch:{
+			
+		},
+	    methods:{
+	        //开启退票弹窗
+	        retainFlagFun(){
+				this.retianWindowFlag = !this.retianWindowFlag;
+				if(this.retianWindowFlag){
+					axios({
+					    url:'../SMS/error_info.php?action=retain_order_failure',
+					    method:'get'
+					}).then(res=>{
+						this.retianArr = res.data;
+					}).catch(err=>{
+					    console.log(err)
+					})
+				}
+	        },
+	        deletFun:function (ind,ord) {
+	            this.retianArr.splice(ind,1);
+	            this.count = this.retianArr.length;
+	            axios({
+	                url:'../SMS/error_info.php?action=del_retain_order_failure',
+	                method:'post',
+					data:{
+						value:ord
+					}
+	            }).then(res=>{
+	
+	            }).catch(err=>{
+	                console.log(err)
+	            })
+	        }
+	    },
+	    created(){
+	        setInterval(()=>{
+	            axios({
+	                url:'../SMS/error_info.php?action=retain_order',
+	                method:'get'
+	            }).then(res=>{
+	                this.count = res.data.data*1;
+	            }).catch(err=>{
+	                console.log(err)
+	            })
+	        },300000)
+	    }
+	});
+	//留单降舱订单
+	</script>
+    <script>
+        var posX;
+        var posY;
+        fwuss = document.getElementById("small-chat");
+        fwuss.onmousedown=function(){
+            posX = event.x - fwuss.offsetLeft;
+            posY = event.y - fwuss.offsetTop;
+            document.onmousemove = mousemove;
+        }
+        document.onmouseup = function()
+        {
+            document.onmousemove = null;
+        }
+        function mousemove(ev)
+        {
+            if(ev==null) ev = window.event;
+            fwuss.style.left = (ev.clientX - posX) + "px";
+            fwuss.style.top = (ev.clientY - posY) + "px";
+        }
+    </script>
+</body>
+</html>

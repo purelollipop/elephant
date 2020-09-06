@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>导出</title>
+    <link rel="stylesheet" type="text/css" href="../resource/iview-2.0/dist/styles/iview.css">
+    <script type="text/javascript" src="../vue/vue.min.js"></script>
+    <script type="text/javascript" src="../resource/iview-2.0/dist/iview.min.js"></script>
+	<script src="../vue/axios.min.js"></script>
+</head>
+<style>
+	#app{
+		width:1200px;
+		margin:0 auto;
+	}
+	h3{
+		margin:20px 0;
+		text-align:center;
+	}
+	small{
+		font-size:12px;
+		color:#ccc;
+	}
+</style>
+<body>
+<div id="app">
+ <Row :gutter="16">	
+	<i-col span="12">
+	<div>
+		<h3>选择导出列</h3>
+		<div>
+			<i-table size="small" border ref="selection" :columns="columns" :data="fields" @on-selection-change="checkdata"></i-table>		
+		</div>	
+	</div>
+	</i-col>
+	<i-col span="12">
+	<div>
+		<h3>选择导出条件  </h3>
+		<small>支持在查询值后加上 |gt ; |lt ; |neq ; |% ; |%% </small>
+		<template v-for="(item,index) in searchOption">
+			<div v-if="item.option">
+				<Row>
+				<div>
+				<i-col span="6">
+					{{item.name}}：
+				</i-col>
+				<i-col span="6">
+					<i-select @on-change="search(item.field,$event)"   style="width:300px">
+						<i-option v-for="option in item.option" :value="option.v" >{{option.t}}</i-option>
+					</i-select>
+				</i-col>
+				</div>
+				</Row>
+				<br>
+			</div>
+			<div v-else-if="item.type=='date'">
+				<Row>
+				<div>
+				<i-col span="6">
+					{{item.name}}：
+				</i-col>
+				<i-col span="6">
+					<date-picker type="daterange" @on-change="search(item.field,$event)"  placement="bottom-end" placeholder="Select date" style="width: 300px"></date-picker>
+				</i-col>
+				</div>
+				</Row>
+				<br>
+			</div>
+			<div v-else-if="item.type=='datetime'||item.type=='timestamp'">
+				<Row>
+				<div>
+				<i-col span="6">
+					{{item.name}}：
+				</i-col>
+				<i-col span="6">
+					<date-picker type="datetimerange" @on-change="search(item.field,$event)"  placeholder="Select date and time" style="width: 300px"></date-picker>
+				</i-col>
+				</div>
+				</Row>
+				<br>
+			</div>
+			<div v-else>
+				<Row>
+				<div>
+				<i-col span="6">
+					{{item.name}}：
+				</i-col>
+				<i-col span="6">
+					<i-input placeholder=" " @input="search(item.field,$event)"  clearable style="width: 300px" />
+				</i-col>
+				</div>
+				</Row>
+				<br>
+			</div>
+			
+		</template>
+		<Row type="flex" justify="center" class="code-row-bg">
+			<div>
+			<i-col span="6">
+				<i-button  icon="ios-download-outline" :loading="loading" type="primary"  shape="circle"  @click="out()">
+					<span v-if="!loading"></span>
+					<span v-else></span>
+				</i-button>
+			</i-col>
+			
+			</div>
+		</Row>
+	</div>
+	</i-col>
+</Row>
+</div>
+<script>
+	let refNum = window.location.href.indexOf('=')+1
+	let table= '';
+	if(refNum){
+		table = window.location.href.slice(refNum)
+	}
+	new Vue({
+        el: '#app',
+        data:{
+			table:'',//表名
+            columns: [
+                    {
+                        type: 'selection',
+                        width: 60,
+                        align: 'center'
+                    },
+                    {
+                        title: '列名',
+                        key: 'name'
+                    }
+                ],
+			fields: [], //所有字段
+			selected:[], //选择字段
+			searchOption:{},//搜索选项
+			searchValue:{}, //搜索内容	
+			loading: false			
+        },
+        methods: {
+            handleSelectAll (status) {
+                this.$refs.selection.selectAll(status);
+            },
+			checkdata(selection){
+				var that=this;
+				that.selected=[];
+				selection.forEach(function (value,index) {										
+					that.selected.push(value.field);			
+				})
+			},
+			search:function(field,e){
+				this.searchValue[field]=e;
+			},
+			out:function (){
+				this.loading = true;
+				axios({
+                url:'../bingo/exportExcel.php',
+                method:'post',
+				responseType: 'blob',
+				data:{
+					action:'out',
+					table:this.table,				
+					fields:this.selected,
+					search:this.searchValue
+					},
+				}).then((response)=>{
+					if(response.data.size>0){
+						  var filename = '小象数据导出';
+						  let url = window.URL.createObjectURL(response.data)
+						  let link = document.createElement('a')
+						  link.style.display = 'none'
+						  link.href = url
+						  link.setAttribute('download', filename + '.xls')
+						  document.body.appendChild(link)
+						  link.click()
+						  this.loading = false;
+					}else{
+						this.loading = false;
+						alert('错误或暂无数据');
+					}
+				}).catch((error)=>{
+					this.loading = false;
+					alert(error);
+					console.log(error)
+				})
+			}
+        },
+		created(){
+			var that = this;
+            axios({
+                url:'../bingo/exportExcel.php?action=query&table='+table,
+                method:'get'
+            }).then((response)=>{
+				this.fields=response.data.column
+				this.searchOption=response.data.finditem
+				this.table=table=response.data.table
+				this.fields.forEach(function (value,index) {					
+					if(value._checked){
+						that.selected.push(value.field);
+					}
+				})
+            }).catch((error)=>{
+				alert(error);
+                console.log(error)
+            })
+        }
+		
+    })
+</script>

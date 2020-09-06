@@ -1,0 +1,73 @@
+{extends file='main.base.html'}
+
+{block name=headjs}
+{/block}
+
+{block name=body}
+<div style="width:50%; margin:20px auto;">
+    <form id="find_form" action="updatePwd.php">
+    	<input type="hidden" name="action" value="update">
+         <input type="hidden" name="id" value="{$user.id}">
+        <table class="aa02_table" width="100" border="0" align="center" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="r_h2" colspan="2">修改密码</td>
+            </tr>
+            <tbody>
+                <tr>
+                    <td width="15%" align="right">用户名：</td>
+                    <td width="30%">
+                        <input name="name" type="text" readonly="readonly" style="width:128px;" value="{$user.name}">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">原始密码：</td>
+                    <td width="30%">
+                        <input  name="password" type="password" style="width:128px;" value="" required>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">密码：</td>
+                    <td width="30%">
+                        <input id="txtPassword" name="uppwd" type="password" style="width:128px;" value="" required>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">重复密码：</td>
+                    <td width="30%">
+                        <input id="txtRePassword" name="reuppwd" type="password" style="width:128px;" value="" required>
+                        <span id="topti"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <button  type="submit"  id="btnSub" class="aa02_menu_butt" style="width: 100px; background-size: 100% 100%;">提交</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+
+<script type="text/javascript">
+    var tempFun = function () {
+        var value = $("#txtPassword").val();
+        var reValue = $("#txtRePassword").val();
+        if (value != reValue) {
+            $("#topti").css("color", "red").text("两次输入的密码不一样");
+            $("#btnSub").attr("disabled", "disabled");
+        }
+        else {
+            $("#topti").css("color", "red").text("");
+            $("#btnSub").attr("disabled", false);
+        }
+    }
+
+    $("#txtRePassword").bind("change", function () {
+        tempFun();
+    });
+    $("#txtPassword").bind("change", function () {
+        tempFun();
+    });
+</script>
+{/block}
+

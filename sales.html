@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<head lang="en">
+    <meta charset="UTF-8">
+
+    <title>销售政策表</title>
+    <script src="./js/jquery.min.js"></script>
+    <link href="css/bootstrap.min14ed.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
+    <link href="./css/animate.min.css" rel="stylesheet">
+   <link href="css/style.min862f.css?v=4.1.0" rel="stylesheet">  
+    <link rel="stylesheet" href="./css/custom.css">
+    <script src="./js/bootstrap.min.js"></script>
+    <link href="css/policy.css" rel="stylesheet">
+    <link href="css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="css/style.css" type="text/css" rel="stylesheet">  
+
+</head>
+<body>
+
+   <form  method="POST" enctype="multipart/form-data" class="form-horizontal" action="sales.php" name="sales_form" autocomplete='off'>
+ {if $ways == 'insert'}
+        <input type="hidden" name="action" value="myinsert">
+        {elseif $ways == 'edit'}
+         <input type="hidden" name="action" value="myedit">
+         <input type="hidden" name="t_id" value="{$id}">
+         {/if}
+<!--政策号-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label ">政策号</label>
+               <div class="col-sm-10 form-control-static ">
+                   XLY18062001140005E0
+               </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+
+<!--补录仓位-->
+ 
+       <div class="form-group" style="display:none;">
+          <label class="col-sm-2 control-label">补录仓位</label>
+               <div class="col-sm-10 form-control-static ">
+                  如果想匹配av中没有的仓位请<a href="" >补录</a>
+               </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+
+<!--航空公司-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label "><span class="col_red">*</span>航空公司</label>
+               <div class="col-sm-10  form-inline ">
+                   <input type="text" class="form-control " placeholder="KY" name="choose_airlines" value="9C"/>
+                   <span class="col_gray"> (一条政策只能对应一个航空公司,只支持航空公司二字码输入,如AC)</span>
+               </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+
+<!--政策代码-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label">政策代码</label>
+               <div class="col-sm-10 form-inline ">
+                   <input type="text" class="form-control" placeholder="1Tckwey " name="policy_code" value="1Tckwey" />
+               </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+
+<!--禁售时间-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label">禁售时间</label>
+               <div class="col-sm-10 form-inline ">
+                   <input type="text" class="form-control" placeholder="0 " name="ban_time" value="120" />
+               </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+
+
+<!--销售有效期-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label"><span class="col_red">*</span>销售有效期</label>
+               <div class="col-sm-10 form-inline ">
+                   从 <input id="ban_str" class=" form-control layer-date  " placeholder="2018-06-01" name="sales_start" value="">
+                   到 <input id="ban_end" class=" form-control layer-date" placeholder="2018-06-03" name="sales_end" value="">
+                   <span class="col_gray">(当天截止的销售政策，18点以后不显示)</span>
+                  </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+
+
+<!--旅行有效期限-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label"><span class="col_red">*</span>旅行有效期限</label>
+           <div class="col-sm-10 form-inline ">
+               从 <input id="travel_str" class=" form-control layer-date" placeholder="2018-06-21" name="travel_start" value="">
+               到 <input id="travel_end" class=" form-control layer-date" placeholder="2018-06-03" name="travel_end" value="">
+               <span class="col_gray">(输入格式：YYYY-MM-DD,如：2010-01-02)</span>
+           </div>
+       </div>
+       <div class="hr-line-dashed"></div>
+
+<!--适用时间段-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label">适用时间段</label>
+               <div class="col-sm-10 form-inline">
+                   <input type="text" class="form-control " placeholder="2040-2359" name="apply_time" value="0000-2359"/>
+                   <span class="col_gray"> (输入格式：HHMM-HHMM(小时和分钟),如：2040-2359，至多录入3段时间，中间用逗号隔开)</span>
+               </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+
+<!--航班起飞时间-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label">航班起飞时间</label>
+               <div class="col-sm-10 form-inline">
+                   <input type="text" class="form-control " placeholder="" name="flight_off" value="0000-2359"/>
+                     <span class="col_gray"> (输入格式：HHMM-HHMM,如：2040-2359，至多录入3段航班，中间用逗号隔开</span>
+               </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+
+<!--最晚提前出票时限-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label">最晚提前出票时限</label>
+               <div class="col-sm-10 form-inline">
+                   <input type="text" class="form-control " placeholder="0" name="latest_time_drawer" value="2"/>
+                        <span class=" col_gray">(含当天，只能输入整数，且必须大于等于0.列如：最晚出票时限为2，用户至少需要提前2天预定机票)</span>
+               </div>
+       </div>
+          <div class="hr-line-dashed"></div>
+
+<!--最早提前出票时限-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label">最早提前出票时限</label>
+               <div class="col-sm-10 form-inline">
+                   <input type="text" class="form-control " placeholder="520" name="first_time_drawer" value="520"/>
+               <span class=" col_gray">(含当天，只能输入整数，且必须大于等于0.列如：最晚出票时限为2，用户至多需要提前5天预定机票)</span>
+               </div>
+           </div>
+           <div class="hr-line-dashed"></div>
+
+<!--班期限制-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label"><span class="col_red">*</span>班期限制</label>
+               <div class="col-sm-10  ">
+                       <label class="checkbox-inline i-checks">
+                          <input type="checkbox"  name="schedule_limit[]" value="1">1
+                       </label>
+
+                       <label class="checkbox-inline i-checks">
+                          <input type="checkbox"   name="schedule_limit[]" value="2">2
+                       </label>
+
+                       <label class="checkbox-inline i-checks">
+                          <input type="checkbox"   name="schedule_limit[]" value="3">3
+                       </label>
+
+                       <label class="checkbox-inline i-checks">
+                          <input type="checkbox"   name="schedule_limit[]" value="4">4
+                       </label>
+
+                       <label class="checkbox-inline i-checks">
+                          <input type="checkbox"   name="schedule_limit[]" value="5">5
+                       </label>
+
+                       <label class="checkbox-inline i-checks">
+                          <input type="checkbox"   name="schedule_limit[]" value="6">6
+                       </label>
+
+                       <label class="checkbox-inline i-checks">
+                              <input type="checkbox"   name="schedule_limit[]" value="7">7
+                       </label>
+                    <span class="col_gray">(周一至周日，周日用7表示)</span>
+               </div>
+       </div>
+           <div class="hr-line-dashed" style="display:none;"></div>
+
+<!--是否提供行程单-->
+       <div class="form-group" style="display:none;">
+           <label class="col-sm-2 control-label"><span class="col_red">*</span>是否提供行程单</label>
+               <div class="col-sm-10  ">
+
+                   <label  class="checkbox-inline i-checks">
+                       <input type="radio"  name="itinerary_have" value="1">行程单
+                   </label>
+
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio" checked name="itinerary_have"  value="2">行程单和差额发票
+                   </label>
+
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"  name="itinerary_have"  value="3">仅提供发票
+                   </label>
+               </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+
+<!--是否有长旅客积分-->
+       <div class="form-group" style="display:none;">
+           <label class="col-sm-2 control-label"><span class="col_red">*</span>是否有长旅客积分</label>
+               <div class="col-sm-10  ">
+
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"  name="integral_hava"  value="1"/>是
+                   </label>
+
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio" checked name="integral_hava"  value="2"/>否
+                   </label>
+               </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+
+<!--证件类型-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label"><span class="col_red">*</span>政策适用平台</label>
+               <div class="col-sm-10  ">
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio" checked name="certificate_type"  value="1">去哪儿
+                   </label>
+
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"  name="certificate_type"  value="2">淘宝
+                   </label>
+                   
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"  name="certificate_type"  value="3">同程
+                   </label>
+                   
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"  name="certificate_type"  value="4">携程
+                   </label>
+               </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+
+<!--最大购买年龄-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label">最大购买年龄</label>
+               <div class="col-sm-10 form-inline">
+                   <input type="text" class="form-control " placeholder="0" name="best_age" value="2"/>
+                   <span class=" col_gray"> (0-100整数，允许购买机票的最大年龄；为空表示无上限年龄)</span>
+               </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+
+ <!--最小够买年龄-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label">最小够买年龄</label>
+               <div class="col-sm-10 form-inline">
+                   <input type="text" class="form-control " placeholder="0" name="small_age" value="70"/>
+                   <span class=" col_gray"> (0-100整数，允许购买机票的最小年龄；为空表示无上限年龄)</span>
+               </div>
+       </div>
+             <div class="hr-line-dashed"></div>
+
+<!--起飞机场-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label"><span class="col_red">*</span>起飞机场</label>
+               <div class="col-sm-10 form-inline">
+                 <input type="text" class="form-control " placeholder="CSX" name="takeoff_airport" value="*"/>
+                  <span class=" col_gray">
+                       (只支持一个起飞机场，输入只支持机场三字码，如 PEK)
+                   </span>
+               </div>
+       </div>
+               <div class="hr-line-dashed"></div>
+
+<!--到达机场-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label"><span class="col_red">*</span>到达机场</label>
+               <div class="col-sm-10 form-inline">
+                      <input type="text" class="form-control" placeholder="CTU" name="theend_airport" value="*">
+                    <span class="col_gray">
+                        (仅普通政策支持多个到达机场，多个机场用“；”隔开，最多支持25个机场、特价、特殊政策只支持一个到达机场
+                    </span>
+               </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+
+<!--航班号-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label"><span class="col_red">*</span>航班号</label>
+               <div class="col-sm-10  ">
+
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"   name="flight_numbre" value="1" id="one">全部航班
+                   </label>
+
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"   name="flight_numbre" value="2" id="two">不适用航班
+                         
+                   </label>
+
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"  checked name="flight_numbre" value="3" id="three">适用航班
+                           
+                   </label>
+                    <br/>
+                   <div class="col-sm-2" id="input_numbre" style="display: none" >
+                       <input type="text"  class="form-control "  name="for_numbre" value="*"/>
+                   </div>
+                   
+               </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+    {literal}       
+ <!--隐藏输入框-->
+       <script>
+                 $(document).ready(function(){
+
+                     if(document.getElementById('one').checked==true)
+                     {
+                         document.getElementById('input_numbre').style.display= 'none';
+                     }
+                     if(document.getElementById('two').checked==true)
+                     {
+                         document.getElementById('input_numbre').style.display= '';
+                     }
+                     if(document.getElementById('three').checked==true)
+                     {
+                         document.getElementById('input_numbre').style.display= '';
+                     }
+                     $("[name='flight_numbre'][value='1']").on('ifChecked',function(){
+                         document.getElementById('input_numbre').style.display= 'none';
+                     })
+                     $("[name='flight_numbre'][value='2']").on('ifChecked',function(){
+                         document.getElementById('input_numbre').style.display= '';
+                     })
+                     $("[name='flight_numbre'][value='3']").on('ifChecked',function(){
+                         document.getElementById('input_numbre').style.display= '';
+                     })
+                 });
+       </script>
+         {/literal}
+<!--隐藏输入框-->
+
+<!--支持代码共享航班-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label">支持代码共享航班</label>
+               <div class="col-sm-10  ">
+
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"  name="shared_have" value="1">全部
+                   </label>
+
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"  checked name="shared_have" value="2">非共享
+                   </label>
+               </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+
+<!--支持经停航班-->
+       <div class="form-group" style="display:none;">
+           <label class="col-sm-2 control-label">支持经停航班</label>
+               <div class="col-sm-10  ">
+
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"  checked name="stopping_have" value="1">全部
+                   </label>
+
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"   name="stopping_have" value="2">经停
+                   </label>
+
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"   name="stopping_have" value="3">非经停
+                   </label>
+               </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+
+<!--自动出票-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label">是否禁售</label>
+               <div class="col-sm-10  ">
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"  name="automatic_drawer" value="1">是
+                   </label>
+
+                   <label class="checkbox-inline i-checks" >
+                       <input type="radio" checked name="automatic_drawer" value="2">否
+                   </label>
+               </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+
+<!--返点留钱类型-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label">返点留钱类型</label>
+               <div class="col-sm-10  ">
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"  checked name="rebates_type"  value="1"/>政策返点留钱设置
+                   </label>
+               </div>
+      </div>
+           <div class="hr-line-dashed"></div>
+
+<!--出票速度-->
+       <div class="form-group" style="display:none;">
+           <label class="col-sm-2 control-label">出票速度</label>
+               <div class="col-sm-10 form-inline">
+                   <input type="text" class="form-control" placeholder="10" name="drawer_speed" value="10">
+                     分钟
+                   <span class=" col_gray "> (支持正整数录入，如 60，表示60分钟后出票)</span>
+               </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+
+<!--CPA返点-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label">CPA返点</label>
+               <div class="col-sm-10 form-inline">
+                   <input type="text" class="form-control" placeholder="2" name="cpa_rebates" value="2">
+                     %
+                   <span class=" col_gray ">(只支持数字录入，精确到2位数 如 15.20，表示返点15.20)</span>
+               </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+
+<!--CPA留钱-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label">CPA留钱</label>
+               <div class="col-sm-10 form-inline">
+                   <input type="text" class="form-control" placeholder="-4" name="cpa_keepmoney" value="-4">
+                    元
+                   <span class=" col_gray ">(只支持正负数输入)</span>
+               </div>
+       </div>
+       <div class="hr-line-dashed" ></div>
+
+<!--CPA报价类型-->
+       <div class="form-group" style="display:none;">
+           <label class="col-sm-2 control-label">CPA报价类型</label>
+               <div class="col-sm-10  ">
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"checked name="cpa_offer_type" value="1">投放
+                   </label>
+
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"  name="cpa_offer_type" value="2">特供
+                   </label>
+               </div>
+       </div>
+           <div class="hr-line-dashed" style="display:none;"></div>
+
+<!--CPA投放类型-->
+       <div class="form-group" style="display:none;">
+           <label class="col-sm-2 control-label">CPA投放类型</label>
+               <div class="col-sm-10  ">
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio" checked name="cpa_put_type" value="1">指定金额
+                   </label>
+
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"  name="cpa_put_type" value="2">下浮比例
+                   </label>
+               </div>
+       </div>
+           <div class="hr-line-dashed" style="display:none;"></div>
+
+<!--CPA投放标价-->
+       <div class="form-group" style="display:none;">
+           <label class="col-sm-2 control-label">CPA投放标价</label>
+               <div class="col-sm-10 form-inline">
+                   <input type="text" class="form-control" placeholder="" name="cpa_put_money" value="0">
+                   元
+                   <span class=" col_gray ">(航空公司允许的最低价格，支持数字录入)</span>
+               </div>
+       </div>
+           <div class="hr-line-dashed" style="display:none;"></div>
+
+<!--CPC返点-->
+       <div class="form-group" style="display:none;">
+           <label class="col-sm-2 control-label"><span class="col_red">*</span>CPC返点</label>
+               <div class="col-sm-10 form-inline">
+                   <input type="text" class="form-control" placeholder="0" name="cpc_rebates" value="0">
+                   元
+                   <span class=" col_gray ">(只支持数字录入，精确到2位数 如 15.20，表示返点15.20)</span>
+               </div>
+       </div>
+           <div class="hr-line-dashed" style="display:none;"></div>
+
+<!--CPC留钱-->
+       <div class="form-group" style="display:none;">
+           <label class="col-sm-2 control-label"><span class="col_red">*</span>CPC留钱</label>
+           <div class="col-sm-10 form-inline">
+               <input type="text" class="form-control" placeholder="500" name="cpc_keepmoney" value="500">
+               元
+               <span class=" col_gray ">(只支持正负整数输入)</span>
+           </div>
+       </div>
+           <div class="hr-line-dashed" style="display:none;"></div>
+
+<!--是否生成PNP-->
+       <div class="form-group" style="display:none;">
+           <label class="col-sm-2 control-label">是否生成PNP</label>
+               <div class="col-sm-10 form-inline ">
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio" checked  name="generate_pnp" value="1">是
+                   </label>
+
+                   <label class="checkbox-inline i-checks">
+                           <input type="radio"  name="generate_pnp" value="2">否
+                   </label>
+                   <span class="col_red">(注：不生成PNP会进行AV校验，舱位开放，该政策才会生效)</span>
+               </div>
+       </div>
+           <div class="hr-line-dashed" style="display:none;"></div>
+
+<!--是否可以支付-->
+       <div class="form-group" style="display:none;">
+           <label class="col-sm-2 control-label">是否可以支付</label>
+               <div class="col-sm-10   ">
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio" checked name="can_pay" value="1">是
+                   </label>
+
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"  name="can_pay" value="2">否
+                   </label>
+               </div>
+        </div>
+           <div class="hr-line-dashed" style="display:none;"></div>
+
+<!--预定office号-->
+       <div class="form-group" style="display:none;">
+           <label class="col-sm-2 control-label">预定office号</label>
+               <div class="col-sm-10  ">
+                       <label class="checkbox-inline i-checks">
+                           <input type="radio" checked name="reservation_offic" value="1">不限
+                       </label>
+
+                       <label class="checkbox-inline i-checks">
+                           <input type="radio"  name="reservation_offic" value="2">csx531
+                       </label>
+
+                       <label class="checkbox-inline i-checks">
+                           <input type="radio" name="reservation_offic" value="3">csx107
+                       </label>
+               </div>
+       </div>
+           <div class="hr-line-dashed" style="display:none;"></div>
+
+<!--搭桥offic号-->
+       <div class="form-group" style="display:none;">
+           <label class="col-sm-2 control-label">搭桥offic号</label>
+               <div class="col-sm-10 form-inline">
+                   <input type="text" class="form-control " placeholder="0" name="bypass_offic" value="520"/>
+                   <span class=" col_gray"> (最多为两个，中间用“，”隔开，如 BJS001,BJS002)</span>
+               </div>
+       </div>
+           <div class="hr-line-dashed" style="display:none;"></div>
+
+<!--是否进行PAT：A校验-->
+       <div class="form-group" style="display:none;">
+           <label class="col-sm-2 control-label">是否进行PAT：A校验</label>
+               <div class="col-sm-10  ">
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio" checked name="pat_a_check" value="1">是
+                   </label>
+
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"   name="pat_a_check" value="2">否
+                   </label>
+               </div>
+       </div>
+           <div class="hr-line-dashed" style="display:none;"></div>
+
+<!--适用舱位-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label"><span class="col_red">*</span>适用舱位</label>
+               <div class="col-sm-10 form-inline">
+                   <input type="text" class="form-control " placeholder="E" name="apply_space" value="U"/>
+                    <span class="col_gray">
+                        (仅普通政策允许多个舱位，多个舱位不需要分隔符，如：FCX)
+                   </span>
+               </div>
+       </div>
+           <div class="hr-line-dashed" ></div>
+
+<!--票面价类型-->
+       <div class="form-group" style="display:none;">
+           <label class="col-sm-2 control-label"><span class="col_red">*</span>票面价类型</label>
+               <div class="col-sm-10 form-inline ">
+                       <select  class="form-control " name="pay_type" id="pay_type">
+                           <option value="1">指定票面价</option>
+                           <option value="2">20</option>
+                           <option value="3">10</option>
+                       </select>
+               </div>
+       </div>
+           <div class="hr-line-dashed" style="display:none;"></div>
+
+<!--指定票面价格-->
+       <div class="form-group" style="display:none;"> 
+           <label class="col-sm-2 control-label"><span class="col_red">*</span>指定票面价格</label>
+               <div class="col-sm-10 form-inline">
+                   <input type="text" class="form-control" placeholder="520" name="specified_pay" value="520">
+                   <span class="col_gray">(必须为10的整数)</span>
+               </div>
+       </div>
+           <div class="hr-line-dashed" style="display:none;"></div>
+
+<!--CPA退票改签说明-->
+      <div class="form-group">
+           <label class="col-sm-2 control-label"><span class="col_red"></span>价格限制</label>
+               <div class="col-sm-10 form-inline">
+                       大于：<input type="text" class="form-control" placeholder="0" name="cpa_refund" value="0">
+                       小于：<input type="text" class="form-control" placeholder="0" name="cpa_endorse" value="0">
+                  
+                    <!--    <textarea rows="6" cols="40" name="cpa_instructions" class="form-control" value=""></textarea>--> 
+               </div>
+       </div>
+
+           <div class="hr-line-dashed" ></div>
+
+<!--CPC退票改签说明-->
+       <div class="form-group" style="display:none;">
+           <label class="col-sm-2 control-label"> <br/><br/></br></br></br><span class="col_red">*</span>CPC退票改签说明</label>
+               <div class="col-sm-10 form-inline">
+                   退票：<input type="text" class="form-control" placeholder="0" name="cpc_refund" value="0">
+                   改期：<input type="text" class="form-control" placeholder="0" name="cpc_endorse" value="0">
+                   <label class="i-checks">
+                       <input type="checkbox"  checked name="cpc_over[]" value="1">是否允许转期
+                   </label></br></br>
+                       <textarea rows="6" cols="40" name="cpc_instructions" class="form-control" value=""></textarea>
+               </div>
+       </div>
+           <div class="hr-line-dashed" style="display:none;"></div>
+
+
+
+<!--舱位说明-->
+       <div class="form-group" style="display:none;">
+           <label class="col-sm-2 control-label"><br/><br/><br/>舱位说明</label>
+               <div class="col-sm-10 form-inline" style="display:none;">
+                       <textarea rows="6" cols="40" name="space_instructions" class="form-control" ></textarea>
+                       <br/>
+                     <span class="col_gray">剩余255个字符,此项不展示给用户,仅代理商订单详情页可见</span>
+               </div>
+       </div>
+           <div class="hr-line-dashed" style="display:none;"></div>
+
+<!--特殊票务说明-->
+       <div class="form-group" style="display:none;">
+           <label class="col-sm-2 control-label"> <br/> <br/> <br/>特殊票务说明</label>
+           <div class="col-sm-10   " style="display:none;">
+               <label class="checkbox-inline i-checks">
+                   <input type="checkbox"   checked name="ticket_instructions[]" value="1">[1002]机场无法打印行程单,如需报销请选择快递行程单
+               </label >
+               <br/>
+               <label class="checkbox-inline i-checks">
+                   <input type="checkbox"  checked name="ticket_instructions[]" value="2">[1004]姓名不能超过6个字
+               </label>
+               <br/>
+               <label class="checkbox-inline i-checks">
+                   <input type="checkbox"  checked name="ticket_instructions[]" value="3">[1005]不支持外宾预定
+               </label>
+               <br/>
+               <label class="checkbox-inline i-checks">
+                   <input type="checkbox"  checked name="ticket_instructions[]" value="4">[1006]不支持英文名字或中文名字中含字母的乘客预定
+               </label>
+               <br/>
+               <label class="checkbox-inline i-checks">
+                   <input type="checkbox"  name="ticket_instructions[]" value="5">[1007]特殊产品,出票慢
+               </label>
+               <br/>
+               <label class="checkbox-inline i-checks">
+                   <input type="checkbox" name="ticket_instructions[]" value="6">[1008]特殊产品,将为您提供旅行套餐发票作为报销凭证
+               </label>
+               <br/>
+               最多选择4条规则
+           </div>
+       </div>
+           <div class="hr-line-dashed" style="display:none;"></div>
+
+<!--政策状态-->
+       <div class="form-group">
+           <label class="col-sm-2 control-label">政策状态</label>
+           <div class="col-sm-10 form-inline" >
+                     <select  class="form-control " name="state" id="state">
+                           <option value="1">有效</option>
+                           <option value="2">无效</option>
+                
+                       </select>
+           </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+           
+<!--推送经济舱价格还是官网直享价格-->
+        <div class="form-group">
+           <label class="col-sm-2 control-label"><span class="col_red">*</span>政策适用平台</label>
+               <div class="col-sm-10  ">
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio" checked name="push_jinji"  value="1">官网直享
+                   </label>
+
+                   <label class="checkbox-inline i-checks">
+                       <input type="radio"  name="push_jinji"  value="2">经济舱
+                   </label>
+               </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+           
+<!--最大余位、余位扣除-->
+      <div class="form-group">
+           <label class="col-sm-2 control-label"><span class="col_red"></span>余位</label>
+               <div class="col-sm-10 form-inline">
+                       最大余位：<input type="text" class="form-control" placeholder="0" name="max_remain" value="0">
+                       余位扣除：<input type="text" class="form-control" placeholder="0" name="dif_remain" value="0">
+               </div>
+       </div>
+           <div class="hr-line-dashed"></div>
+           
+
+       <button class="btn btn-primary button_location center-block" type="submit"> {if $doaction == 'insert'}提交{elseif $doaction == 'update'}修改{/if}</button>
+
+   </form>
+
+
+{literal}
+    <script type="text/javascript" src="http://tajs.qq.com/stats?sId=9051096" charset="UTF-8"></script>
+     <script src="js/plugins/layer/laydate/laydate.js"></script>
+     <script src="js/jquery.min.js?v=2.1.4"></script>
+     <script src="js/bootstrap.min.js?v=3.3.6"></script>
+     <script src="js/content.min.js?v=1.0.0"></script>
+     <script src="js/plugins/iCheck/icheck.min.js"></script>
+   <script>
+       $(document).ready(function(){$(".i-checks").iCheck({checkboxClass:"icheckbox_square-green",radioClass:"iradio_square-green",})});
+   </script>
+   
+   <script>
+       laydate({elem:"#ban_str",event:"focus"});laydate({elem:"#ban_end",event:"focus"});
+       laydate({elem:"#travel_str",event:"focus"});laydate({elem:"#travel_end",event:"focus"});
+       var start={elem:"#ban_str",format:"YYYY/MM/DD hh:mm:ss",min:laydate.now(),max:"2099-06-16 23:59:59",istime:true,istoday:false,choose:function(datas){end.min=datas;end.start=datas}};
+       var end={elem:"#ban_end",format:"YYYY/MM/DD hh:mm:ss",min:laydate.now(),max:"2099-06-16 23:59:59",istime:true,istoday:false,choose:function(datas){start.max=datas}};laydate(start);laydate(end);
+       var start={elem:"#travel_str",format:"YYYY/MM/DD hh:mm:ss",min:laydate.now(),max:"2099-06-16 23:59:59",istime:true,istoday:false,choose:function(datas){end.min=datas;end.start=datas}};
+       var end={elem:"#travel_end",format:"YYYY/MM/DD hh:mm:ss",min:laydate.now(),max:"2099-06-16 23:59:59",istime:true,istoday:false,choose:function(datas){start.max=datas}};laydate(start);laydate(end);
+   </script>
+   <script type="text/javascript">
+
+     window.onload = function()
+ {
+    document.getElementById("choose_airlines").value = "{/literal}{$choose_airlines}{literal}";
+ }
+//   $("[name='choose_airlines']").attr("value", "{/literal}{$choose_airlines}{literal}");
+   $(":input[name='choose_airlines']").prop("value","{/literal}{$choose_airlines}{literal}");
+   $(":input[name='policy_code']").prop("value","{/literal}{$policy_code}{literal}");
+   $(":input[name='ban_time']").prop("value","{/literal}{$ban_time}{literal}");
+   $(":input[name='sales_start']").prop("value","{/literal}{$sales_start}{literal}");
+   $(":input[name='sales_end']").prop("value","{/literal}{$sales_end}{literal}");
+   $(":input[name='travel_start']").prop("value","{/literal}{$travel_start}{literal}");
+   $(":input[name='travel_end']").prop("value","{/literal}{$travel_end}{literal}");
+   $(":input[name='apply_time']").prop("value","{/literal}{$apply_time}{literal}");
+   $(":input[name='flight_off']").prop("value","{/literal}{$flight_off}{literal}");
+   $(":input[name='latest_time_drawer']").prop("value","{/literal}{$latest_time_drawer}{literal}");
+   $(":input[name='first_time_drawer']").prop("value","{/literal}{$first_time_drawer}{literal}");
+ //  $(":input[name='schedule_limit']").prop("value","{/literal}{$schedule_limit}{literal}");
+   $(":radio[name='itinerary_have'][value='{/literal}{$itinerary_have}{literal}']").prop("checked", "checked");
+   $(":radio[name='integral_hava'][value='{/literal}{$integral_hava}{literal}']").prop("checked", "checked");
+   $(":radio[name='certificate_type'][value='{/literal}{$certificate_type}{literal}']").prop("checked", "checked");
+   $(":input[name='best_age']").prop("value","{/literal}{$best_age}{literal}");
+   $(":input[name='small_age']").prop("value","{/literal}{$small_age}{literal}");
+   $(":input[name='takeoff_airport']").prop("value","{/literal}{$takeoff_airport}{literal}");
+   $(":input[name='theend_airport']").prop("value","{/literal}{$theend_airport}{literal}");
+  // $(":input[name='flight_numbre']").prop("value","{/literal}{$flight_numbre}{literal}");
+$(":radio[name='flight_numbre'][value='{/literal}{$flight_numbre}{literal}']").prop("checked", "checked");
+   //$(":input[name='shared_have']").prop("value","{/literal}{$shared_have}{literal}");
+   $(":radio[name='shared_have'][value='{/literal}{$shared_have}{literal}']").prop("checked", "checked");
+   //$(":input[name='stopping_have']").prop("value","{/literal}{$stopping_have}{literal}");
+   $(":radio[name='stopping_have'][value='{/literal}{$stopping_have}{literal}']").prop("checked", "checked");
+   //$(":input[name='automatic_drawer']").prop("value","{/literal}{$automatic_drawer}{literal}");
+   $(":radio[name='automatic_drawer'][value='{/literal}{$automatic_drawer}{literal}']").prop("checked", "checked");
+   //$(":input[name='rebates_type']").prop("value","{/literal}{$rebates_type}{literal}");
+   $(":radio[name='rebates_type'][value='{/literal}{$rebates_type}{literal}']").prop("checked", "checked");
+
+
+   $(":input[name='drawer_speed']").prop("value","{/literal}{$drawer_speed}{literal}");
+   $(":input[name='cpa_rebates']").prop("value","{/literal}{$cpa_rebates}{literal}");
+   $(":input[name='cpa_keepmoney']").prop("value","{/literal}{$cpa_keepmoney}{literal}");
+  // $(":input[name='cpa_offer_type']").prop("value","{/literal}{$cpa_offer_type}{literal}");
+     $(":radio[name='cpa_offer_type'][value='{/literal}{$cpa_offer_type}{literal}']").prop("checked", "checked");
+  // $(":input[name='cpa_put_type']").prop("value","{/literal}{$cpa_put_type}{literal}");
+     $(":radio[name='cpa_put_type'][value='{/literal}{$cpa_put_type}{literal}']").prop("checked", "checked");
+
+   $(":input[name='cpa_put_money']").prop("value","{/literal}{$cpa_put_money}{literal}");
+   $(":input[name='cpc_rebates']").prop("value","{/literal}{$cpc_rebates}{literal}");
+   $(":input[name='cpc_keepmoney']").prop("value","{/literal}{$cpc_keepmoney}{literal}");
+
+ //  $(":input[name='generate_pnp']").prop("value","{/literal}{$generate_pnp}{literal}")
+ $(":radio[name='generate_pnp'][value='{/literal}{$generate_pnp}{literal}']").prop("checked", "checked");
+ //  $(":input[name='can_pay']").prop("value","{/literal}{$can_pay}{literal}");
+ $(":radio[name='can_pay'][value='{/literal}{$can_pay}{literal}']").prop("checked", "checked");
+ //  $(":input[name='reservation_offic']").prop("value","{/literal}{$reservation_offic}{literal}");
+ $(":radio[name='reservation_offic'][value='{/literal}{$reservation_offic}{literal}']").prop("checked", "checked");
+   $(document).ready(function(){
+      var r1 = '{/literal}{$cpa_over}{literal}';
+      var r2 = '{/literal}{$cpc_over}{literal}';
+     //alert(r1);
+      if(r1=='1'){
+$(":input[name='cpa_over[]']").iCheck("check");
+}else{
+$(":input[name='cpa_over[]']").iCheck("uncheck");
+}
+if(r2=='1'){
+  $(":input[name='cpc_over[]']").iCheck("check");
+}else{
+  $(":input[name='cpc_over[]']").iCheck("uncheck");
+}
+    
+  });
+   
+   
+   $(document).ready(function(){
+	   var r1 = '{/literal}{$flight_numbre}{literal}';
+	     // var r2 = '{/literal}{$cpc_over}{literal}';
+	      if(r1==1){
+	    	  $(":input[name='flight_numbre'][value='1']").prop("checked","checked");
+	      }else if(r1==2){
+	    	  $(":input[name='flight_numbre'][value='2']").prop("checked","checked");
+	    	  $(":input[name='for_numbre']").prop("value","{/literal}{$flight_numbre_n}{literal}");
+	      }else{
+	    	  $(":input[name='flight_numbre'][value='3']").prop("checked","checked");
+	    	  $(":input[name='for_numbre']").prop("value","{/literal}{$flight_numbre_n}{literal}");
+	      }
+	   
+   });
+
+   $(":input[name='bypass_offic']").prop("value","{/literal}{$bypass_offic}{literal}");
+   $(":radio[name='pat_a_check'][value='{/literal}{$pat_a_check}{literal}']").prop("checked","checked");
+   $(":input[name='apply_space']").prop("value","{/literal}{$apply_space}{literal}");
+   $("#pay_type").prop("value","{/literal}{$pay_type}{literal}");
+   $(":input[name='specified_pay']").prop("value","{/literal}{$specified_pay}{literal}");
+   $(":input[name='cpa_refund']").prop("value","{/literal}{$cpa_refund}{literal}");
+   $(":input[name='cpa_endorse']").prop("value","{/literal}{$cpa_endorse}{literal}");
+  // $(":input[name='cpa_over']").prop("value","{/literal}{$cpa_over}{literal}");
+   $(":input[name='cpa_instructions']").prop("value","{/literal}{$cpa_instructions}{literal}");
+   $(":input[name='cpc_refund']").prop("value","{/literal}{$cpc_refund}{literal}");
+   $(":input[name='cpc_endorse']").prop("value","{/literal}{$cpc_endorse}{literal}");
+   //$(":input[name='cpc_over']").prop("value","{/literal}{$cpc_over}{literal}");
+   $(":input[name='cpc_instructions']").prop("value","{/literal}{$cpc_instructions}{literal}");
+   $(":input[name='space_instructions']").prop("value","{/literal}{$space_instructions}{literal}");
+ //  $(":input[name='ticket_instructions']").prop("value","{/literal}{$ticket_instructions}{literal}");
+   $("#state").prop("value","{/literal}{$state}{literal}");
+   
+   $(document).ready(function(){
+	    var r = '{/literal}{$ticket_instructions}{literal}';
+ 
+	    var result = r.split(",");
+	    for(var i=0;i<result.length;i++){
+	      $(":input[name='ticket_instructions[]'][value='"+result[i]+"']").iCheck("check");
+	  }
+	});
+   
+   $(document).ready(function(){
+	    var r = '{/literal}{$schedule_limit}{literal}';
+    
+	    var result = r.split(",");
+	    for(var i=0;i<result.length;i++){
+	      $(":input[name='schedule_limit[]'][value='"+result[i]+"']").iCheck("check");
+	  }
+	});
+   
+   $(":radio[name='push_jinji'][value='{/literal}{$push_jinji}{literal}']").prop("checked","checked");
+   $(":input[name='max_remain']").prop("value","{/literal}{$max_remain}{literal}");
+   $(":input[name='dif_remain']").prop("value","{/literal}{$dif_remain}{literal}");
+ 
+   
+   </script>
+{/literal}
+
+</body>
+</html>
+
+
+

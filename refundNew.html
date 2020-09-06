@@ -1,0 +1,4302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="../vue/vue.js"></script>
+    <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+    <style>
+        body, h1, h2, h3, h4, h5, h6, hr, p, blockquote, /* structural elements 结构元素 */
+        dl, dt, dd, ul, ol, li, /* list elements 列表元素 */
+        pre, /* text formatting elements 文本格式元素 */
+        form, fieldset, legend, button, input, textarea, /* form elements 表单元素 */
+        th, td /* table elements 表格元素 */
+        {
+            margin: 0;
+            padding: 0;
+        }
+
+        body,
+        button, input, select, textarea /* for ie */
+        {
+            font: 12px/1.5 tahoma, arial, \5b8b\4f53, sans-serif;
+        }
+
+        ul, ol {
+            list-style: none;
+        }
+
+        button, input, select, textarea {
+            font-size: 100%;
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        #tableDiv {
+            /*margin-top: 50px;*/
+        }
+
+        table {
+            width: 100%;
+            /*border: 1px silver solid;*/
+        }
+
+        tbody > tr {
+            height: 40px;
+        }
+
+        table tr > th {
+            margin-left: 5px;
+            border-bottom: 1px #DCDEE2 solid;
+            /*border-left: 1px #DCDEE2 solid;*/
+            /*border-top: 1px #DCDEE2 solid;*/
+        }
+
+        table tr > td {
+            border: 1px #DCDEE2 solid;
+            text-align: center;
+        }
+
+        tbody > tr:hover {
+            background-color: #F0FAFF;
+        }
+
+        .TableHead > th {
+            padding: 10px 4px;
+            /*color: #cc0000;*/
+        }
+
+        .butt {
+            background-color: #F0FAFF;
+            cursor: pointer;
+            display: inline-block;
+            margin: 1px 0 1px 0;
+            padding: 0 5px;
+            border: 1px silver solid;
+        }
+
+        .butt:hover {
+            background-color: orange;
+        }
+
+        .butt:active {
+            background-color: cornflowerblue;
+        }
+
+        /*.bijia>div{*/
+        /*display: flex;*/
+        /*justify-content: center;*/
+        /*margin-top: 2px;*/
+        /*}*/
+        /*.bijia>div>div{*/
+        /*margin-left: 4px;*/
+        /*}*/
+        div[data-red='red'] {
+            color: red;
+            /*background-color: red;*/
+        }
+
+        td[data-red='red'] {
+            color: #cc0000;
+        }
+
+        .tableDiv {
+            margin: 40px 0px;
+        }
+
+        .pageInput {
+            margin: 10px;
+            width: 40px;
+            height: 15px;
+            padding: 2px;
+            display: inline;
+        }
+    </style>
+    <style type="text/css">
+        /*查找标签样式*/
+        .searchclass {
+            display: inline-block;
+            position: fixed;
+            right: 190px;
+            top: 1px;
+            z-index: 1;
+        }
+
+        .searchdiv {
+            display: inline-block;
+            position: absolute;
+            left: -24px;
+            border-style: solid;
+            border-color: #2D8CF0 transparent transparent;
+            border-width: 25px 25px 0px;
+            cursor: pointer;
+            /*transform:rotate(90deg);*/
+        }
+
+        .picture {
+            position: absolute;
+            top: 1px;
+            left: -10px;
+            width: 20px;
+            height: 20px;
+            background-image: url('../images/font/f3.png');
+            background-size: 100% 100%;
+            cursor: pointer;
+            z-index: 3;
+        }
+
+        /*查找的主体样式*/
+        .foundwindow {
+            position: absolute;
+            top: 20%;
+            left: 35%;
+            /*transform: translate(-50%,-50%);*/
+            /*margin-top: -30%;*/
+            /*margin-left: -40%;*/
+            width: 300px;
+            height: auto;
+            z-index: 1;
+            background-color: white;
+            box-shadow: 0px 0px 7px;
+            padding: 10px;
+            /*margin: 0 auto;*/
+        }
+
+        .foundwindow, .form-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+
+        }
+
+        .foundwindow > #add, .form-group > * {
+            margin-top: 4px;
+        }
+
+        .foundwindow > #add, .form-group > * {
+            /*width: 100px;*/
+            width: 80%;
+        }
+
+        .foundwindow button {
+            margin: 10px 0px 0px 8px;
+            float: right;
+        }
+
+        /*单独生成订单的按钮样式*/
+        .artificialRefundOrder:nth-child(3) > button {
+            position: absolute;
+            top: 4px;
+            left: 560px;
+            z-index: 1;
+        }
+
+        .artificialRefundOrder:nth-child(2) > button {
+            position: absolute;
+            top: 4px;
+            left: 620px;
+            z-index: 1;
+        }
+
+        /*日志的主体框样式*/
+        .logwindow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: auto;
+            height: auto;
+            /*z-index: 9;*/
+            background-color: white;
+            box-shadow: 0px 0px 7px;
+            padding: 10px;
+            /*overflow-y: scroll;*/
+        }
+
+        #logwindow {
+
+        }
+
+        /*金额框的主体样式*/
+        .moneywindow {
+            position: fixed;
+            top: 100px;
+            left: 400px;
+            width: auto;
+            height: auto;
+            z-index: 1;
+            background-color: white;
+            box-shadow: 0px 0px 7px;
+            padding: 10px;
+        }
+
+        /*不同选项卡*/
+        .buttble {
+            display: inline-block;
+            position: absolute;
+            left: 15%;
+            width: 150px;
+            height: 30px;
+            z-index: 1;
+        }
+
+        .buttble > button {
+            background-color: white;
+            border: 1px silver solid;
+            padding: 0px 8px;
+        }
+
+        /*主体table样式*/
+        .table th, .table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .theadA {
+            border: 0.1px solid;
+            border-color: #E7EAEC;;
+            background: linear-gradient(#dee5ff, white);
+        }
+
+        .refundtable {
+            position: relative;
+
+        }
+
+        .refundtable tbody tr:hover {
+            /*background: radial-gradient(#dee5ff,white);*/
+            background-color: #F0FAFF;
+        }
+
+        .tablebutt { /*table里面的button*/
+            background-color: inherit;
+            border: 0.5px silver solid;
+        }
+
+        .tablebutt:hover {
+            background-color: #dee5ff;
+        }
+
+        .tablebutt2:hover {
+            background-color: lightskyblue;
+        }
+
+        /*状态里面两个div值得并排*/
+        .tdstatus > div {
+            /*background-color: red;*/
+            display: flex;
+            justify-content: center;
+            /*float: left;*/
+        }
+
+        /*日志按钮样式*/
+        .logbutton {
+            cursor: pointer;
+            box-shadow: 0px 0px 1px 0px gray;
+            margin: 0px 5px;
+            text-align: center;
+        }
+
+        .logbutton:hover {
+            cursor: pointer;
+            /*box-shadow: 1px 1px 1px 1px gray;*/
+            /*border:1px solid orange;*/
+            background-color: #2C8CF0;
+            color: honeydew;
+        }
+
+        /*报表样式*/
+        .statement {
+            position: fixed;
+            top: 52%;
+            left: 50%;
+            width: 900px;
+            height: auto;
+            background-color: white;
+            /*border: 1px silver solid;*/
+            box-shadow: 0px 0px 10px 1px;
+            transform: translate(-50%, -50%);
+            /*margin-left:-30%;*/
+            /*margin-top:-200px;*/
+            max-height: 546px;
+            /*overflow-y: hidden;*/
+        }
+
+        #statementChild {
+            padding: 5px;
+        }
+
+        #statementChild > div {
+            margin-top: 4px;
+            /*width: 200px;*/
+        }
+
+        .stateWindcss .ivu-modal-body {
+            padding: 0px 16px 0px 10px;
+        }
+
+        .stateWindcss .ivu-modal-header {
+            padding: 10px 16px;
+        }
+
+        .stateWindcss .ivu-modal-footer {
+            padding: 1px 3px
+        }
+
+        /*乘机人table*/
+        .stamentTable {
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .childOne {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        .childOne > div {
+            /*width: 29%;*/
+            margin: 5px 0px 0px 5px;
+        }
+
+        .SizeBlue {
+            /*display: flex;*/
+            color: #4084BF;
+        }
+
+        /*航变（取编）页面分割线*/
+        tr[data-borderbottom="1"] {
+            border-bottom: 1px solid black;
+            /*background-color: #0d8ddb;*/
+        }
+
+        /*分页样式*/
+        .classpage {
+            padding: 0px 3px;
+            color: black;
+            cursor: pointer;
+            display: inline-block;
+            border: 1px white solid;
+        }
+
+        .classpage:active {
+            border: 1px silver solid;
+        }
+
+        .page {
+            float: right;
+            margin: 10px 10px;
+        }
+
+        /*动画*/
+        .demo-spin-icon-load {
+            animation: ani-demo-spin 1s linear infinite;
+        }
+
+        @keyframes ani-demo-spin {
+            from {
+                transform: rotate(0deg);
+            }
+            50% {
+                transform: rotate(180deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .searchanima-enter, .searchanima-leave-to {
+            transition: all 2s;
+            /*background-color: red;*/
+            transform: translate(0px, -200px);
+        }
+
+        .searchanima-leave-active, .searchanima-enter-to {
+            transition: all 1.5s;
+            transform: translate(0px, 0px);
+            /*background-color: red;*/
+        }
+
+        /*动画高度更改*/
+        .ivu-spin-fix {
+            height: 120%;
+        }
+
+        .ivu-input {
+            color: black;
+        }
+
+        /*改变高度的伪元素*/
+        .height:after {
+            height: 1px;
+            /*content: "1111";*/
+        }
+
+        .height2:after {
+            height: 2px;
+            content: "2222";
+        }
+    </style>
+    <style>
+        .flight > div > div {
+            display: inline-block;
+            margin-left: 3px;
+        }
+
+        .ticketNums {
+            /*height: 15px;*/
+            margin: 0 auto;
+            width: 150px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            text-align: center;
+        }
+
+        div[data-tim='1'] {
+            background-color: red;
+        }
+
+        div[data-tim='2'] {
+            background-color: orange;
+        }
+
+        div[data-red='1'] {
+            color: red;
+        }
+
+        /*个人锁单与未锁单两个按钮的样式*/
+        .CssPersonTicket {
+            display: inline-block;
+            position: absolute;
+            right: 1%;
+            z-index: 99;
+            top: -28px
+        }
+
+        /*单独查找样式*/
+        .aloneFind {
+            width: 240px;
+            position: absolute;
+            margin-top: 3px;
+            right: 300px;
+        }
+
+        .aloneFind .ivu-input-group .ivu-input {
+            border-color: rgba(87, 163, 243, 0.7)
+        }
+
+        /*取位页面 单独订单与全部订单*/
+        .aloneOrder {
+            height: 26px;
+            position: absolute;
+            margin-top: -28px;
+            right: 10px;
+        }
+
+        /*取消编码弹窗内部样式*/
+        .uncodeWindow {
+            margin-top: 3px;
+        }
+
+        /*表格中td作为点击button的样式*/
+        .thButton {
+            cursor: pointer
+        }
+
+        .thButton:hover {
+            color: rgb(45, 140, 240);
+        }
+
+        /*表格中td作为点击button的样式*/
+        .tdButton {
+            cursor: pointer;
+        }
+
+        .tdButton:hover {
+            color: deepskyblue;
+        }
+
+        /*td中部分信息省略显示样式*/
+        .tdDivEllipsis {
+            overflow: hidden;
+            width: 100px;
+            white-space: nowrap;
+            margin: 0 auto;
+            text-overflow: ellipsis
+        }
+
+        /*航变弹窗*/
+        .ivu-modal-body > div {
+            margin: 3px 0px;
+        }
+    </style>
+</head>
+<body>
+
+<div>
+    <div id="vuedom">
+        <Col class="demo-spin-col" span="8">
+        <Spin fix v-if="animaFlag">
+            <Icon type="ios-loading" size=large class="demo-spin-icon-load"></Icon>
+            <div>Loading</div>
+        </Spin>
+        </Col>
+        <Tabs v-model="nameValue" type="card" :animated="false">
+            <Tab-Pane label="半自动未退票" name="undetable" style="min-height: 900px">
+                <keep-alive>
+                    <undetable v-if="nameValue=='undetable'" :name-value.sync="nameValue"></undetable>
+                </keep-alive>
+            </Tab-Pane>
+            <Tab-Pane label="半自动已处理" name="detable" style="min-height: 900px">
+                <keep-alive>
+                    <detable v-if="nameValue=='detable'"></detable>
+                </keep-alive>
+            </Tab-Pane>
+            <Tab-Pane label="手工未退票" name="not9cundetable" style="min-height: 900px">
+                <keep-alive>
+                    <not9c-temp-table v-if="nameValue=='not9cundetable'"
+                                      :name-value.sync="nameValue">
+                    </not9c-temp-table>
+                </keep-alive>
+            </Tab-Pane>
+            <Tab-Pane label="手工已处理" name="not9cdetable" style="min-height: 900px">
+                <keep-alive>
+                    <not9c-temp-table-ok v-if="nameValue=='not9cdetable'"
+                    ></not9c-temp-table-ok>
+                </keep-alive>
+            </Tab-Pane>
+            <Tab-Pane label="取位页面" name="changeflight" style="min-height: 900px">
+                <keep-alive>
+                    <change-flight v-if="nameValue=='changeflight'"></change-flight>
+                </keep-alive>
+            </Tab-Pane>
+        </Tabs>
+        <div class="artificialRefundOrder">
+            <button @click="aririficialOrderFun">生成订单</button>
+        </div>
+        <div class="artificialRefundOrder">
+            <button @click="airChangeWindowFun">航变录入</button>
+        </div>
+        <!--航班录入-->
+        <Modal
+                title="航变录入"
+                v-model="airChangeWindowFlag"
+                @on-ok="airChangeWindowOk"
+                @on-cancel="airChangeWindowCancel"
+                draggable
+        >
+            <div>
+                <i-Input v-model="airChangeWindowObj.start">
+                    <span slot="prepend">出发</span>
+                </i-Input>
+            </div>
+            <div>
+                <i-Input v-model="airChangeWindowObj.arr">
+                    <span slot="prepend">到达</span>
+                </i-Input>
+            </div>
+            <div>
+                <i-Input v-model="airChangeWindowObj.flight">
+                    <span slot="prepend">航班号</span>
+                </i-Input>
+            </div>
+            <!--日期-->
+            <Date-picker
+                    v-model="airChangeWindowObj.flyTime"
+                    type="datetime"
+                    placement="bottom-end"
+                    placeholder="日期"
+                    @on-change="flyTimeFun"
+            >
+            </Date-picker>
+            <div>
+                <i-Input v-model="airChangeWindowObj.flight_change">
+                    <span slot="prepend">航变内容</span>
+                </i-Input>
+            </div>
+        </Modal>
+        <statewind :report-id.sync="aritificialOrderFlag" v-if="aritificialOrderFlag"></statewind>
+    </div>
+</div>
+
+<!--9c未处理-->
+<template id="undetable">
+    <div class="refundtable" style="padding:1px;margin-top: -17px">
+        <!--快捷订单号搜索-->
+        <div class="aloneFind">
+            <i-input size="small" search enter-button="订单号搜索"
+                     @on-enter="undetableFoundFun({},undetableSearchObj.platformOrder)"
+                     @on-search="undetableFoundFun({},undetableSearchObj.platformOrder)"
+                     v-model="undetableSearchObj.platformOrder" style="margin-top: -32px;"/>
+        </div>
+        <!--搜索三角形-->
+        <div class="searchclass" @click="undetableFlagFund">
+            <div style="position: relative">
+                <div class="searchdiv"></div>
+                <div class="picture"></div>
+            </div>
+        </div>
+        <!--个人锁单-->
+        <div class="CssPersonTicket">
+            <Radio-group @on-change="undetablePersonTicket" v-model="personValue">
+                <radio :label=1>
+                    <span>个人锁单</span>
+                </radio>
+                <radio :label=2>
+                    <span>未锁单</span>
+                </radio>
+            </Radio-group>
+        </div>
+        <!--日志-->
+        <log :id.sync="id" v-if="id" @closelog="undetableCloseLog"></log>
+        <!--搜索框-->
+        <foundwin
+                @foundwinfun="undetableFoundFun"
+                v-if="undetableFlagVal"
+                :modal-flag.sync="undetableFlagVal"
+                :obj="undetableSearchObj"
+        ></foundwin>
+        <!--备注弹窗-->
+        <refund-remarks-window :remarks-obj="remarksObj" @remarksupdatafun="undealFun"></refund-remarks-window>
+        <!--主体展示dom-->
+        <table style="text-align:center; font-size: 12px;">
+            <colgroup>
+                <col style="width:auto"><!--序号-->
+                <!--<col  style="width:auto">&lt;!&ndash;订单来源&ndash;&gt;-->
+                <col style="width:10%"><!--订单号-->
+                <col style="width:auto"><!--是否降舱-->
+                <col style="width:40px"><!--改期 v-if="timeFlag"-->
+                <col style="width:40px"><!--改期-->
+                <col style="width:10%"><!--申请时间-->
+                <col style="width:auto"><!--自创pnr-->
+                <col style="width:auto"><!--退票乘客-->
+                <col style="width:auto"><!--票号-->
+                <col style="width:auto"><!--出票时间-->
+                <col style="width:auto"><!--航班-->
+                <col style="width:auto"><!--乘客退票类型-->
+                <!--<col  style="width:auto"> &lt;!&ndash;航班时间&ndash;&gt;-->
+                <col style="width:6%"><!--紧急状态-->
+                <col style="width:auto"><!--操作-->
+                <col style="width:auto"><!--状态-->
+                <col style="width:auto"><!--处理人-->
+            </colgroup>
+            <thead>
+            <tr class="TableHead">
+                <th>序号</th>
+                <!--<th>订单来源</th>-->
+                <th>
+                    <button @click="NineAnd9cData('aq')">9元</button>
+                    订单号
+                    <button @click="NineAnd9cData('9c')">9c</button>
+                </th>
+                <th>降舱</th>
+                <!-- v-if="timeFlag"-->
+                <th>改期</th>
+                <th>航变</th>
+                <th class="thButton" @click="sortTimeFun">
+                    申请时间
+                    <Icon type="md-arrow-dropup" size="14"/>
+                </th>
+                <th>自创pnr</th>
+                <th>退票乘客</th>
+                <!--当只有在是个人锁单情况下 才能展示自愿非自愿-->
+                <th>
+                    <button @click="willTypeFun(0)" v-if="personValue==1">自愿</button>
+                    票号
+                    <button @click="willTypeFun(1)" v-if="personValue==1">非自愿</button>
+                </th>
+                <th>出票时间</th>
+                <th>航班信息</th>
+                <!--<th>航班时间</th>-->
+                <th>类型</th>
+                <th>紧急</th>
+                <th>操作</th>
+                <th>状态</th>
+                <th>处理人</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(orr,index) in refundTable" :key="orr.id">
+                <!--序号-->
+                <td>{{(20 * (num - 1)) + index + 1}}</td>
+                <!--订单号-->
+                <td>
+                    <div>{{orr.platformOrder}}</div>
+                    <div>
+                        <span>{{orr.ticketTable}}</span>&nbsp;&nbsp;&nbsp;&nbsp;
+                        <span v-if="orr.paySubjects==='绿翼会员'" style="color: #39AC5C">{{orr.paySubjects}}</span>
+                    </div>
+                </td>
+                <!--是否降舱-->
+                <td>
+                    <!--<div v-if="orr.is_jc==='0'"></div>-->
+                    <div v-if="orr.is_jc==='1'" style="color: red">是</div>
+                </td>
+                <!--改期  v-if="timeFlag"-->
+                <td>
+                    <div v-if="orr.processor || username=='蒋励'||username=='陈啸'">
+                        <div v-if="orr.drop_tank==0">否</div>
+                        <div v-else-if="orr.drop_tank==1">是</div>
+                    </div>
+                </td>
+                <!--是否通知过航变-->
+                <td>
+                    <div v-if="isShow || orr.processor!==null">
+                        <div style="color: red" v-if="orr.name">
+                            <Tooltip :content="orr.name+' '+orr.creat_time">
+                                {{orr.flight_change | change9cFlightFilter}}
+                            </Tooltip>
+                        </div>
+                        <div style="color: red" v-else>
+                            {{orr.flight_change | change9cFlightFilter}}
+                        </div>
+                    </div>
+                </td>
+                <!--申请时间-->
+                <td>
+                    <div @click="undetableLog(orr.id)" class="logbutton">{{orr.applytime | timefilter}}</div>
+                    <Tooltip
+                            v-show="orr.correlation_order"
+                            :content="orr.correlation_order"
+                            max-width="700"
+                            style="
+                            white-space: normal;
+                            color: red;
+                            overflow: hidden;
+                            width: 100px;
+                            height: 16px"
+                    >{{orr.correlation_order}}
+                    </Tooltip>
+                </td>
+                <td>{{orr.smartNumber}}</td><!--自创pnr-->
+                <!--退票乘客 隐藏-->
+                <td>
+                    <div style="display: flex;justify-content:space-between;align-items: center;">
+                        <div :title="orr.refundPassengers"
+                             style="margin:0 auto;display: inline-block;width: 70px;height: 18px;overflow: hidden;text-overflow:ellipsis;white-space:nowrap;">
+                            {{orr.refundPassengers}}
+                        </div>
+                        <div v-if="isShow || orr.processor!==null" style="font-size: 0">
+                            <div v-if="orr.orderMarkes" :title="orr.orderMarkes"
+                                 style="display: inline-block;color: red;width: 40px;height: 18px;overflow: hidden;text-overflow:ellipsis;white-space:nowrap;font-size: 12px">
+                                {{orr.orderMarkes}}
+                            </div>
+                        </div>
+                    </div>
+                    <!--{{orr.orderMarkes}}-->
+                </td>
+                <!--票号-->
+                <td class="tdButton">
+                    <div @click="remarksFun(orr.id,orr.remark)" v-if="isShow || orr.processor!==null" title="填写备注">
+                        <div v-if="orr.flightTable==='9C'">{{orr.recode}}</div>
+                        <div v-else class="tdDivEllipsis" :title="orr.ticketNums">{{orr.ticketNums}}</div>
+                        <div class="tdDivEllipsis" :title="orr.ticketNums">{{orr.remark}}</div>
+                    </div>
+                </td>
+                <!--出票时间-->
+                <td>
+                    <div>{{orr.payTime}}</div>
+                </td>
+                <!--航班号-->
+                <td>
+                    <span v-if="isShow || orr.processor!==null">{{orr.flight}}</span>
+                    <span>{{orr.start}}</span>
+                    <span>{{orr.arr}}</span>
+                    <span>{{orr.position}}</span>
+                    <div v-if="isShow || orr.processor!==null">{{orr.flyTime | timefilter}}</div>
+                    <span style="color: #ff0000">{{orr.realFlyTime}}</span>
+                </td>
+                <!--类型-->
+                <td
+                >
+                    <div v-if="orr.processor || username=='蒋励'||username=='陈啸'">
+                        <div v-if="orr.willType==0">自愿</div>
+                        <div v-else-if="orr.willType==1">非自愿</div>
+                        <div v-else-if="orr.willType==2">不详</div>
+                    </div>
+                </td>
+                <!--紧急-->
+                <td>
+                    <div style="background-color: red;color: white" v-if="orr.overtime==1">{{orr.residuetime}}小时</div>
+                    <div style="background-color: orange;color: white" v-else-if="orr.overtime==2">已超时</div>
+                    <div v-else-if="orr.overtime==0"></div>
+                </td>
+                <!--操作-->
+                <td>
+                    <div class="logbutton"
+                         @click="lock9COrderFun(orr.id)"
+                         v-if="orr.processor==null||orr.processor==''"
+                    >锁单
+                    </div><!--  processor锁单人-->
+                    <div class="logbutton"
+                         @click="nineCrefund(orr.id,orr.willType)"
+                         v-else-if="orr.processor==username"
+                    >退票
+                    </div>
+                </td>
+                <td><!--状态-->
+                    <div v-if="orr.refundStatus==0">未退票</div>
+                    <div v-else-if="orr.refundStatus==1">已退票</div>
+                    <div v-else-if="orr.refundStatus==2">部分退票</div>
+                    <div v-else="orr.refundStatus==3">拒绝</div>
+                </td>
+                <!--处理人-->
+                <td>
+                    <div v-if="orr.processor==username"><!--username当前登录的用户-->
+                        <div class="logbutton" @click="unlock(orr.id)">解锁</div>
+                    </div>
+                    <div v-else-if="orr.processor==null">
+                        <!--<button>锁定</button>-->
+                    </div>
+                    <div v-else>{{orr.processor}}</div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="page">
+            <div>
+                <button @click="firstpage">首页</button>
+                <button @click="uppage">上一页</button>
+                共<span>{{pages}}</span>页&nbsp;&nbsp;
+                第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;"
+                              v-model="num" ref="num">&nbsp;页&nbsp;&nbsp;
+                <button type="button" title="确定" @click="gotopage">转到</button>
+                <button @click="downpage">下一页</button>
+                <button @click="llastpage">末页</button>
+            </div>
+        </div>
+    </div>
+</template>
+<!--9c已处理-->
+<template id="detable">
+    <div class="refundtable" style="padding:1px;margin-top: -17px">
+        <!--快捷订单号搜索-->
+        <div class="aloneFind">
+            <i-input size="small" search enter-button="订单号搜索"
+                     @on-enter="detableFoundFun({},detableSearchObj.platformOrder)"
+                     @on-search="detableFoundFun({},detableSearchObj.platformOrder)"
+                     v-model="detableSearchObj.platformOrder" style="margin-top: -32px;"/>
+        </div>
+        <!--日志-->
+        <log :id.sync="id" v-if="id" @closelog="detableCloseLog"></log>
+        <!--报表弹出-->
+        <statewind :report-id.sync="reportId" v-if="reportId" @statewindupdatafun="dealFun"></statewind>
+        <!--搜索三角形-->
+        <div class="searchclass" @click="detableFlagFun">
+            <div style="position: relative">
+                <div class="searchdiv"></div>
+                <div class="picture"></div>
+            </div>
+        </div>
+        <!--搜索框-->
+        <foundwin
+                @foundwinfun="detableFoundFun"
+                v-if="detableFlagVal"
+                :modal-flag.sync="detableFlagVal"
+                :obj="detableSearchObj"
+        ></foundwin>
+        <!--导出-->
+        <div class="CssPersonTicket">
+            <button @click="textOut('detable')">导出</button>
+        </div>
+        <!--主体展示dom-->
+        <table style="text-align:center; font-size: 12px;">
+            <colgroup>
+                <col style="width:auto"><!--序号-->
+                <col style="width:auto"><!--订单来源-->
+                <col style="width:10%"><!--订单号-->
+                <col style="width:10%"><!--申请时间-->
+                <col style="width:auto"><!--自创pnr-->
+                <col style="width:auto"><!--退票乘客-->
+                <col style="width:auto"><!--票号-->
+                <col style="width:auto"><!--航班-->
+                <col style="width:auto"> <!--航班时间-->
+                <col style="width:auto"><!--退票时间-->
+                <col style="width:auto"><!--退票时间-->
+                <col style="width:auto"><!--退票状态-->
+                <col style="width:auto"><!--处理人-->
+            </colgroup>
+            <!--class="theadA"-->
+            <thead>
+            <tr class="TableHead">
+                <th>序号</th>
+                <th>订单来源</th>
+                <th>订单号</th>
+                <th>申请时间</th>
+                <th>自创pnr</th>
+                <th>退票乘客</th>
+                <th>票号</th>
+                <th>航班</th>
+                <th>航班时间</th>
+                <th>退票时间</th>
+                <th>平台退款</th>
+                <th>状态</th>
+                <th>退票状态</th>
+                <th>处理人</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(orr,index) in refundTable" :key="orr.id">
+                <td>{{(20 * (num - 1)) + index + 1}}</td><!--序号-->
+                <td>{{orr.ticketTable}}</td><!--订单来源-->
+                <td>{{orr.platformOrder}}</td><!--订单号-->
+                <td>
+                    <div @click="detableLog(orr.id)" class="logbutton">{{orr.applytime | timefilter}}</div>
+                </td><!--申请时间-->
+                <td>{{orr.smartNumber}}</td><!--自创pnr-->
+                <!--退票乘客-->
+                <td :title="orr.refundPassengers">
+                    <div style="margin:0 auto;width: 80px;height: 18px;overflow: hidden;text-overflow:ellipsis;white-space:nowrap">
+                        {{orr.refundPassengers}}
+                    </div>
+                </td>
+                <!--票号-->
+                <td>
+                    <div v-if="orr.recode">{{orr.recode}}</div>
+                    <div v-else style="overflow: hidden;width:100px;white-space: nowrap;text-overflow: ellipsis"
+                         :title="orr.ticketNums">{{orr.ticketNums}}
+                    </div>
+                </td>
+                <td>
+                    <span>{{orr.flight}}</span>
+                    <span>{{orr.start}}</span>
+                    <span>{{orr.arr}}</span>
+                    <span>{{orr.position}}</span>
+                </td> <!--航班号-->
+                <td>{{orr.flyTime | timefilter}}</td><!--时间-->
+                <td><!--退票时间-->
+                    {{orr.refundtime | timefilter}}
+                </td>
+                <!--退款功能-->
+                <td>
+                    <div v-if="orr.platformStatus==0?true:false">
+                        <div v-if="(permission==1||username==orr.processor)&&orr.refundStatus!=3">
+                            <div @click="TbDeal(orr.id,index)" class="logbutton tablebutt2"
+                                 v-if="orr.ticketTable=='淘宝9C'?true:false">退款
+                            </div>
+                        </div>
+                        <div v-else>未退款</div>
+                    </div>
+                    <div v-else-if="orr.platformStatus==1?true:false">已退</div>
+                    <div v-else>失败</div>
+                </td>
+                <!--乘客退票状态-->
+                <td>
+                    <div v-if="orr.willType==0">自愿</div>
+                    <div v-else-if="orr.willType==1">非自愿</div>
+                    <div v-else-if="orr.willType==2">不详</div>
+                </td>
+                <!--状态-->
+                <td class="tdstatus"><!--状态-->
+                    <div @click="stataFun(orr.id)" class="logbutton">
+                        <div>
+                            <div v-if="orr.refundStatus==0">未退</div>
+                            <div v-else-if="orr.refundStatus==1">已退</div>
+                            <div v-else-if="orr.refundStatus==2">部分退</div>
+                            <div v-else="orr.refundStatus==3">拒绝</div>
+                        </div>
+                        <div>
+                            <div v-if="orr.refundType==1">/自动</div>
+                            <div v-else-if="orr.refundType==2">/手工</div>
+                            <div v-else-if="orr.refundType==3?true:false">/拒绝</div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div>{{orr.processor}}</div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <!--分页按钮-->
+        <div class="page">
+            <div>
+                <button @click="firstpage">首页</button>
+                <button @click="uppage">上一页</button>
+                共<span>{{pages}}</span>页&nbsp;&nbsp;
+                第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;"
+                              v-model="num" ref="num">&nbsp;页&nbsp;&nbsp;
+                <button type="button" title="确定" @click="gotopage">转到</button>
+                <button @click="downpage">下一页</button>
+                <button @click="llastpage">末页</button>
+            </div>
+        </div>
+    </div>
+</template>
+<!--非9c未处理-->
+<template id="not9c-undetable">
+    <div class="refundtable" style="margin-top: -18px">
+        <!--日志弹窗-->
+        <log :id.sync="id" v-if="id" @closelog="closeLog"></log>
+        <!--备注弹窗-->
+        <refund-remarks-window :remarks-obj="remarksObj" @remarksupdatafun="Not9cUnrefund"></refund-remarks-window>
+        <!--快捷订单号搜索-->
+        <div class="aloneFind">
+            <i-input size="small" search enter-button="订单号搜索"
+                     @on-enter="not9cUnDealFindFun({},not9cUnDealSearchObj.platformOrder)"
+                     @on-search="not9cUnDealFindFun({},not9cUnDealSearchObj.platformOrder)"
+                     v-model="not9cUnDealSearchObj.platformOrder" style="margin-top: -32px;"/>
+        </div>
+        <!--搜索三角形-->
+        <div class="searchclass" @click="not9cUnDealSearchFun">
+            <div style="position: relative">
+                <div class="searchdiv"></div>
+                <div class="picture"></div>
+            </div>
+        </div>
+        <!--搜索窗口-->
+        <foundwin
+                @foundwinfun="not9cUnDealFindFun"
+                v-if="not9cUnDealSearchFlag"
+                :modal-flag.sync="not9cUnDealSearchFlag"
+                :obj="not9cUnDealSearchObj"
+        ></foundwin>
+        <!--个人锁单-->
+        <div class="CssPersonTicket">
+            <Radio-group @on-change="Not9cUndealPerson" v-model="artificialNotDealPersonFlagValue">
+                <radio :label=1>
+                    <span>个人锁单</span>
+                </radio>
+                <radio :label=2>
+                    <span>未锁单</span>
+                </radio>
+            </Radio-group>
+        </div>
+        <table style="width: 100%">
+            <colgroup>
+                <col width="40px"> <!--序号-->
+                <col width="65px"> <!--订单来源-->
+                <col width="auto"> <!--订单号-->
+                <col width="55px"> <!--改期  v-if="timeFlag"-->
+                <col width="55px"> <!--航变-->
+                <col width="120px"> <!--申请时间/出票时间-->
+                <col width="80px"> <!--乘客信息-->
+                <col width="auto"> <!--票号-->
+                <col width="100px"> <!--起飞时间-->
+                <col width="130px"> <!--航班-->
+                <col width="50px"> <!--退票类型-->
+                <col width="140px"> <!--操作-->
+                <col width="50px"> <!--状态-->
+                <col width="90px"> <!--处理人-->
+                <col width="50px"> <!--紧急时间-->
+            </colgroup>
+            <thead>
+            <tr class="TableHead">
+                <!--<th>id</th>-->
+                <th>序号</th>
+                <th>来源</th>
+                <th>订单号</th>
+                <!--v-if="timeFlag"-->
+                <th>改期</th>
+                <th>航变</th>
+                <th class="thButton" @click="sortTimeFun">
+                    申请/出票
+                    <Icon type="md-arrow-dropup" size="14"/>
+                </th>
+                <th>乘客信息</th>
+                <th>
+                    <button @click="volunteerFun(1)" v-if="artificialNotDealPersonFlagValue==1">自愿</button>
+                    票号
+                    <button @click="volunteerFun(2)" v-if="artificialNotDealPersonFlagValue==1">非自愿</button>
+                </th>
+                <th>起飞</th>
+                <th>航班号</th>
+                <th>类型</th>
+                <th>操作</th>
+                <th>状态</th>
+                <th>处理人</th>
+                <th>紧急</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(ele,index) in artificiallRefundTableObj" :key="index">
+                <!--序号-->
+                <td>{{(20 * (num - 1)) + index + 1}}</td>
+                <!--订单来源-->
+                <td>
+                    <div>{{ele.ticketTable}}</div>
+                    <div v-if="ele.pnrstate== 1">取位成功</div>
+                    <div v-else-if="ele.pnrstate== 2">取位失败</div>
+                    <div v-else></div>
+                </td>
+                <!--订单号-->
+                <td>
+                    <div>{{ele.platformOrder}}</div>
+                    <div v-if="ele.ticketObject=='B2B' && ele.processor==username">
+                        <span>{{ele.officeBelow}}</span>&nbsp;&nbsp;&nbsp;&nbsp;
+                        <span v-if="ele.paySubjects==='绿翼会员'" style="color: #39AC5C">{{ele.paySubjects}}</span>
+                    </div>
+                    <div v-else-if="ele.processor==username">
+                        <span>{{ele.ticketObject}}</span>&nbsp;&nbsp;&nbsp;&nbsp;
+                        <span v-if="ele.paySubjects==='绿翼会员'" style="color: #39AC5C">{{ele.paySubjects}}</span>
+                    </div>
+                </td>
+                <!--改期 v-if="timeFlag"-->
+                <td>
+                    <div v-if="ele.processor || username=='蒋励'||username=='陈啸'">
+                        <div v-if="ele.drop_tank==0">否</div>
+                        <div v-else-if="ele.drop_tank==1">是</div>
+                    </div>
+                </td>
+                <!--航变-->
+                <td>
+                    <div style="color: red" v-if="ele.name">
+                        <Tooltip :content="ele.name+' '+ele.creat_time">
+                            {{ele.flight_change | change9cFlightFilter}}
+                        </Tooltip>
+                    </div>
+                    <div style="color: red" v-else>
+                        {{ele.flight_change | change9cFlightFilter}}
+                    </div>
+                    <Tooltip v-show="ele.correlation_order"
+                             :content="ele.correlation_order"
+                             max-width="700"
+                             style="
+                            white-space: normal;
+                            color: red;
+                            overflow: hidden;
+                            width: 50px;
+                            height: 16px"
+                    >{{ele.correlation_order}}
+                    </Tooltip>
+                </td>
+                <!--申请时间/出票时间-->
+                <td>
+                    <div class="logbutton" @click="log(ele.id)">{{ele.applytime | timeFilter}}</div>
+                    <!--  <div>{{ele.applytime | timeFilter}}</div>-->
+                    <div>{{ele.payTime | timeFilter}}</div>
+                </td>
+                <!--乘客信息-->
+                <td :title="ele.refundPassengers">
+                    <div style="
+                    width: 70px;
+                    overflow: hidden;
+                    height: 20px;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    text-align: center"
+                    >
+                        {{ele.refundPassengers}}
+                    </div>
+                    <div v-if="isShow || ele.processor!==null" style="font-size: 0">
+                        <div v-if="ele.orderMarkes" :title="ele.orderMarkes"
+                             style=" display:inline-block;color: red;width: 40px;height: 18px;overflow: hidden;text-overflow:ellipsis;white-space:nowrap;clear:both;font-size: 12px">
+                            {{ele.orderMarkes}}
+                        </div>
+                    </div>
+
+                </td>
+                <!--票号-->
+                <td class="tdButton">
+                    <div :title="ele.ticketNums" @click="remarksFun(ele.id,ele.remark)"
+                         v-if="isShow || ele.processor!==null">
+                        <div class="ticketNums">{{ele.ticketNums}}</div>
+                        <div class="ticketNums">{{ele.remark}}</div>
+                    </div>
+                </td>
+                <!--起飞时间-->
+                <td>
+                    <div>{{ele.flyTime | timeFilter}}</div>
+                    <div>{{ele.flyTimeBack | timeFilter}}</div><!--返程起飞时间-->
+                </td>
+                <!--航班号-->
+                <td class="flight">
+                    <div v-if="isShow || ele.processor!==null">
+                        <div style=" display: flex; justify-content: space-around; align-items: center;">
+                            <div>{{ele.start}}</div><!--出发-->
+                            <div>{{ele.arr}}</div><!--到达-->
+                            <div>{{ele.flight}}</div>
+                            <div>{{ele.position}}</div><!--舱位-->
+                            <div style="color: red">{{ele.realFlyTime}}</div><!--舱位-->
+                        </div>
+                        <div v-if="ele.flightBack">
+                            <div>{{ele.flightBack}}</div> <!--返程航班号-->
+                            <div>{{ele.positionBack}}</div><!--返程舱位-->
+                            <div>{{ele.realFlyTime}}</div><!--返程舱位-->
+                        </div>
+                    </div>
+
+                </td>
+                <!--退票类型-->
+                <td>
+                    <div v-if="ele.processor||username=='蒋励'||username=='陈啸'">
+                        <div v-if="ele.willType==0">自愿</div>
+                        <div v-else-if="ele.willType==1">非自愿</div>
+                        <div v-else-if="ele.willType==2">不详</div>
+                    </div>
+                    <div v-if="isShow || ele.processor!==null">{{ele.pnr}}</div>
+                </td>
+                <!--操作-->
+                <td>
+                    <div v-if="ele.processor==null||ele.processor==''">
+                        <i-button size="small" type="primary" @click="Not9cOrdlock(ele.id,index)">锁单</i-button>
+                    </div>
+                    <div v-else-if="ele.processor==username">
+                        <i-button size="small" type="warning" @click="changeFlightold(ele.id)">取位</i-button>
+                        <!--<i-button size="small" type="info" @click="changeOrderDealName(ele.id)">转单</i-button>-->
+                        <i-button size="small" @click="ordRefund(ele.id,index,ele.willType)">退票</i-button>
+                        <i-button size="small" type="info" @click="ordRefuse(ele.id)">拒绝</i-button>
+                        <i-button v-if="ele.flight.slice(0,2) == 'PN'" size="small" type="warning"
+                                  @click="ticket_status(ele.id)">验真
+                        </i-button>
+                    </div>
+                </td>
+                <!--状态-->
+                <td>
+                    <div v-if="ele.refundStatus==0">未退</div>
+                    <div v-else>其他</div>
+                </td>
+                <!--处理人-->
+                <td>
+                    {{ele.processor}}
+                    <i-button
+                            size="small"
+                            type="success"
+                            v-if="ele.processor==username"
+                            @click="Not9cUnlock(ele.id,index)"
+                    >解锁
+                    </i-button>
+                </td>
+                <!--紧急--><!--紧急时间-->
+                <td>
+                    <div :data-tim="ele.overtime" v-if="ele.overtime==1">{{ele.residuetime}}</div>
+                    <div :data-tim="ele.overtime" v-else-if="ele.overtime==2">超时</div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="page">
+            <button @click="firstpage">第一页</button>
+            <button @click="uppage">上一页</button>
+            共<span>{{pages}}</span>页&nbsp;&nbsp;
+            第&nbsp;<input type="text" :value="num" class="pageInput" ref="num">&nbsp;页&nbsp;&nbsp;
+            <button @click="gotopage">转到</button>
+            <button @click="downpage">下一页</button>
+            <button @click="lastpage">最后一页</button>
+        </div>
+    </div>
+</template>
+<!--非9c已处理-->
+<template id="not9c-detable">
+    <div class="refundtable" style="margin-top: -18px">
+        <!--导出-->
+        <div class="CssPersonTicket">
+            <button @click="textOut('not9cdetable')">导出</button>
+        </div>
+        <log :id.sync="id" v-if="id" @closelog="closeLog"></log>
+        <statewind
+                @statewindupdatafun="not9cDealFun"
+                :report-id.sync="reportId"
+                v-if="reportId"></statewind>
+        <!--快捷订单号搜索-->
+        <div class="aloneFind">
+            <i-input size="small" search enter-button="订单号搜索"
+                     @on-enter="not9cDealFindFun({},not9cDealSearchObj.platformOrder)"
+                     @on-search="not9cDealFindFun({},not9cDealSearchObj.platformOrder)"
+                     v-model="not9cDealSearchObj.platformOrder" style="margin-top: -32px;"/>
+        </div>
+        <!--搜索三角形-->
+        <div class="searchclass" @click="not9cDealSearchFun">
+            <div style="position: relative">
+                <div class="searchdiv"></div>
+                <div class="picture"></div>
+            </div>
+        </div>
+        <!--搜索窗口-->
+        <foundwin
+                @foundwinfun="not9cDealFindFun"
+                v-if="not9cDealSearchFlag"
+                :modal-flag.sync="not9cDealSearchFlag"
+                :obj="not9cDealSearchObj"
+        ></foundwin>
+        <table style="width: 100%">
+            <colgroup>
+                <col width="40px"> <!--序号-->
+                <col width="70px"> <!--订单来源-->
+                <col width="auto"> <!--订单号-->
+                <col width="150px"> <!--申请时间-->
+                <col width="150px"> <!--乘客-->
+                <col width="auto"> <!--票号-->
+                <!--<col width="auto"> &lt;!&ndash;舱位&ndash;&gt;-->
+                <!--<col width="60px"> &lt;!&ndash;处理类型&ndash;&gt;-->
+                <col width="100px"> <!--退票时间-->
+                <col width="60px"> <!--退票状态-->
+                <col width="100px"> <!--起飞时间-->
+                <col width="150px"> <!--航班-->
+                <!--<col width="100px"> &lt;!&ndash;出发&ndash;&gt;-->
+                <!--<col width="50px"> &lt;!&ndash;到达&ndash;&gt;-->
+                <!--<col width="60px"> &lt;!&ndash;返程航班号&ndash;&gt;-->
+                <!--<col width="60px"> &lt;!&ndash;返程舱位&ndash;&gt;-->
+                <!--<col width="80px"> &lt;!&ndash;返程起飞时间&ndash;&gt;-->
+                <col width="60px"> <!--申请类型-->
+                <col width="50px"> <!--操作人-->
+                <!--<col width="60px"> &lt;!&ndash;紧急&ndash;&gt;-->
+            </colgroup>
+            <thead>
+            <tr class="TableHead">
+                <!--<th>id</th>-->
+                <th>序号</th>
+                <th>订单来源</th>
+                <th>订单号</th>
+                <th>申请时间</th>
+                <th>乘客</th>
+                <th>票号</th>
+                <!--<th>处理</th>-->
+                <th>退票时间</th>
+                <th>状态</th>
+                <th>起返时间</th>
+                <th>航班信息</th>
+
+                <!--<th>舱位</th>-->
+                <!--<th>出发</th>-->
+                <!--<th>到达</th>-->
+                <!--<th>返程航班号</th>-->
+                <!--<th>返程舱位</th>-->
+                <!--<th>返程起飞时间</th>-->
+                <th>申请</th>
+                <th>操作人</th>
+                <!--<th>紧急</th>-->
+                <!--<th>紧急时间</th>-->
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(ele,index) in tableObj" :key="index">
+                <!--序号-->
+                <td>{{(20 * (num - 1)) + index + 1}}</td>
+                <!--订单来源-->
+                <td>{{ele.ticketTable}}</td>
+                <!--订单号-->
+                <td>{{ele.platformOrder}}</td>
+                <!--申请时间-->
+                <td>
+                    <div class="logbutton" @click="log(ele.id)">{{ele.applytime | timeFilter}}</div>
+                </td>
+                <!--乘客-->
+                <td :title="ele.refundPassengers">
+                    <div class="ticketNums">{{ele.refundPassengers}}</div>
+                </td>
+                <!--票号-->
+                <td :title="ele.ticketNums">
+                    <div class="ticketNums">{{ele.ticketNums}}</div>
+                </td>
+                <!--处理类型-->
+                <!--<td>-->
+                <!--<div v-if="ele.refundType==0">未处理</div>-->
+                <!--<div v-else-if="ele.refundType==1">手工退</div>-->
+                <!--<div v-else-if="ele.refundType==2">机器退</div>-->
+                <!--<div v-else="ele.refundType==3">拒绝</div>-->
+                <!--</td>-->
+                <!--退票时间-->
+                <td>{{ele.refundtime | timeFilter}}</td>
+                <!--退票状态-->
+                <td>
+                    <div v-if="ele.refundStatus==1">已退</div>
+                    <div v-else-if="ele.refundStatus==2">部分退</div>
+                    <div v-else="ele.refundStatus==3">拒绝</div>
+                </td>
+                <!--起飞时间/返程时间-->
+                <td>
+                    <div>{{ele.flyTime | timeFilter}}</div>
+                    <div>{{ele.flyTimeBack | timeFilter}}</div>
+                </td>
+                <!--航班号-->
+                <td class="flight">
+                    <div>
+                        <div>{{ele.start}}</div><!--出发-->
+                        <div>{{ele.arr}}</div><!--到达-->
+                        <div>{{ele.flight}}</div>
+                        <div>{{ele.position}}</div><!--舱位-->
+                    </div>
+                    <div v-if="ele.flightBack">
+                        <div>{{ele.flightBack}}</div> <!--返程航班号-->
+                        <div>{{ele.positionBack}}</div><!--返程舱位-->
+                        <!--<div>{{ele.flyTimeBack}}</div>&lt;!&ndash;返程起飞时间&ndash;&gt;-->
+                    </div>
+                </td>
+                <!--申请类型-->
+                <td>
+                    <div @click="not9cStataFun(ele.id)" class="logbutton">
+                        <div v-if="ele.willType==0">自愿</div>
+                        <div v-else-if="ele.willType==1">非自愿</div>
+                        <div v-else="ele.willType==2">不详</div>
+                    </div>
+                </td>
+                <!--操作人-->
+                <td>{{ele.processor}}</td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="page">
+            <div>
+                <button @click="firstpage">第一页</button>
+                <button @click="uppage">上一页</button>
+                共<span>{{pages}}</span>页&nbsp;&nbsp;
+                第&nbsp;<input type="text" :value="num" class="pageInput" ref="num">&nbsp;页&nbsp;&nbsp;
+                <button @click="gotopage">转到</button>
+                <button @click="downpage">下一页</button>
+                <button @click="lastpage">最后一页</button>
+            </div>
+        </div>
+    </div>
+</template>
+<!--航变-->
+<template id="change-flight">
+    <div class="tableDiv" style="margin-top: -18px">
+        <!--快捷订单号搜索-->
+        <div class="aloneFind">
+            <i-input size="small" search enter-button="订单号搜索"
+                     @on-enter="changeFlightInitialize()"
+                     @on-search="changeFlightInitialize()"
+                     v-model="changeFlightSearchObj.platformOrder" style="margin-top: -32px;"/>
+        </div>
+        <i-button size="small" class="aloneOrder" @click="aloneAllButtonFun">
+            {{aloneAllButtonObj.all | aloneAllButtonObjFilter}}
+        </i-button>
+        <!--报表弹窗-->
+        <statewind
+                @statewindupdatafun="changeFlightInitialize"
+                :report-id.sync="reportId"
+                :report-obj.sync="reportObj"
+                v-if="reportId"></statewind>
+        <!--备注弹窗-->
+        <refund-remarks-window :remarks-obj="changeFlightRemarksObj"
+                               @remarksupdatafun="changeFlightInitialize"></refund-remarks-window>
+        <table style="width: 100%">
+            <colgroup>
+                <col width="40px"> <!--序号-->
+                <col width="65px"> <!--订单来源-->
+                <col width="auto"> <!--订单号-->
+                <col width="35px"> <!--改期 v-if="timeFlag"-->
+                <col width="150px"> <!--申请时间/出票时间-->
+                <col width="70px"> <!--乘客信息-->
+                <col width="auto"> <!--票号-->
+                <!--<col width="auto"> &lt;!&ndash;出票时间&ndash;&gt;-->
+                <col width="100px"> <!--起飞时间-->
+                <col width="200px"> <!--航班-->
+                <!--<col width="100px"> &lt;!&ndash;出发&ndash;&gt;-->
+                <!--<col width="50px"> &lt;!&ndash;到达&ndash;&gt;-->
+                <!--<col width="60px"> &lt;!&ndash;返程航班号&ndash;&gt;-->
+                <!--<col width="60px"> &lt;!&ndash;返程舱位&ndash;&gt;-->
+                <!--<col width="80px"> &lt;!&ndash;返程起飞时间&ndash;&gt;-->
+                <col width="50px"> <!--退票类型-->
+                <col width="150px"> <!--操作-->
+                <!--<col width="50px"> &lt;!&ndash;状态&ndash;&gt;-->
+                <col width="70px"> <!--处理人-->
+                <col width="70px"> <!--紧急时间-->
+            </colgroup>
+            <thead>
+            <tr class="TableHead">
+                <!--<th>id</th>-->
+                <th>序号</th>
+                <th>订单来源</th>
+                <th>订单号</th>
+                <!--v-if="timeFlag"-->
+                <th>改期</th>
+                <th>申请/出票</th>
+                <th>乘客信息</th>
+                <th>票号</th>
+                <!--<th>出票</th>-->
+                <th>起飞</th>
+                <th>航班号</th>
+                <!--<th>出发</th>-->
+                <!--<th>到达</th>-->
+                <!--<th>返程航班号</th>-->
+                <!--<th>返程舱位</th>-->
+                <!--<th>返程起飞时间</th>-->
+                <th>取位</th>
+                <th>操作</th>
+                <!--<th>状态</th>-->
+                <th>处理人</th>
+                <th>紧急</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(ele,index) in tableObj" :key="index" :data-borderbottom="ele.borderBottem">
+                <!--序号-->
+                <td>{{(20 * (num - 1)) + index + 1}}</td>
+                <!--订单来源-->
+                <td>{{ele.ticketTable}}</td>
+                <!--订单号-->
+                <td>{{ele.platformOrder}}</td>
+                <!--改期-->
+                <!-- v-if="timeFlag"-->
+                <td>
+                    <div v-if="ele.drop_tank==0">否</div>
+                    <div v-else-if="ele.drop_tank==1">是</div>
+                </td>
+                <!--申请时间/出票时间-->
+                <td>
+                    <div>{{ele.applytime | timeFilter}}</div>
+                    <div>{{ele.payTime | timeFilter}}</div>
+                </td>
+                <!--乘客信息-->
+                <td :title="ele.refundPassengers">
+                    <div style="
+                    width: 70px;
+                    overflow: hidden;
+                    height: 20px;
+                    text-overflow: ellipsis;
+                    white-space: nowrap">{{ele.refundPassengers}}
+                    </div>
+                </td>
+                <!--票号-->
+                <td :title="ele.ticketNums" class="tdButton" @click="changeFlightRemarksFun(ele.id,ele.remark)">
+                    <div>{{ele.ticketNums}}</div>
+                    <div>{{ele.remark}}</div>
+                </td>
+                <!--起飞时间-->
+                <td>
+                    <div>{{ele.flyTime | timeFilter}}</div>
+                    <div>{{ele.flyTimeBack | timeFilter}}</div><!--返程起飞时间-->
+                </td>
+                <!--航班号-->
+                <td class="flight">
+                    <div>
+                        <div>{{ele.start}}</div><!--出发-->
+                        <div>{{ele.arr}}</div><!--到达-->
+                        <div>{{ele.flight}}</div>
+                        <div>{{ele.position}}</div><!--舱位-->
+                    </div>
+                    <div v-if="ele.flightBack">
+                        <div>{{ele.flightBack}}</div> <!--返程航班号-->
+                        <div>{{ele.positionBack}}</div><!--返程舱位-->
+                    </div>
+                </td>
+                <!--退票类型
+                0：等待取位 1：取位成功 2：取位失败
+                -->
+                <td>
+                    <div v-if="ele.pnrstate==0">等待</div>
+                    <div v-else-if="ele.pnrstate==1">成功</div>
+                    <div v-else-if="ele.pnrstate==2">失败</div>
+                    <div v-else></div>
+                </td>
+                <!--操作-->
+                <td>
+                    <div v-if="ele.processor==username">
+                        <i-button size="small" type="warning" @click="UnencodeFun(ele.id,ele.pnrstate)">定时取位</i-button>
+                        <i-button size="small" @click="flightChangeOrdRefund(ele.id,index,ele.flight,ele.willType)"
+                                  v-if="!(ele.ticketType==0)">退票
+                        </i-button>
+                        <i-button size="small" @click="changeFlightFun(ele.id)" v-else>查看</i-button>
+                        <i-button size="small" type="info" @click="ordRefuse(ele.id)">拒绝</i-button>
+                        <i-button size="small" type="info" @click="cancelNum(ele.id,ele.platformOrder)">立即取位</i-button>
+                    </div>
+                </td>
+                <!--状态-->
+                <!--<td>
+                    <div v-if="ele.refundStatus==0">未退</div>
+                    <div v-else>其他</div>
+                </td>-->
+                <!--处理人-->
+                <td>
+                    {{ele.processor}}
+                </td>
+                <!--<td></td>-->
+                <!--紧急--><!--紧急时间-->
+                <td>
+                    <div :data-tim="ele.overtime" v-if="ele.overtime==1">{{ele.residuetime}}</div>
+                    <div :data-tim="ele.overtime" v-else-if="ele.overtime==2">超时</div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="page">
+            <div class="">
+                <div>
+                    <button @click="firstpage">第一页</button>
+                    <button @click="uppage">上一页</button>
+                    共<span>{{pages}}</span>页&nbsp;&nbsp;
+                    第&nbsp;<input type="text" v-model="num" class="pageInput">&nbsp;页&nbsp;&nbsp;
+                    <button @click="gotopage">转到</button>
+                    <button @click="downpage">下一页</button>
+                    <button @click="lastpage">最后一页</button>
+                </div>
+            </div>
+        </div>
+        <Modal
+                v-model="changeWindow"
+                title="取消编码弹框"
+                :mask-closable="false"
+                :loading="loading"
+                @on-ok="windowOk"
+                @on-cancel="windowCancel">
+            <div class="uncodeWindow">
+                <i-input v-model="settingPnr" placeholder="PNR输入"/>
+            </div>
+            <div class="uncodeWindow" style="display: inline-block">
+                <date-picker type="datetime" format="yyyy-MM-dd HH:mm:ss" style="width: 200px"
+                             v-model="settingDate"></date-picker>
+            </div>
+            <div class="uncodeWindow" style="display: inline-block">
+                <i-select v-model="setting" style="width:200px">
+                    <i-option value="CSX107">CSX107</i-option>
+                    <i-option value="CSX513">CSX513</i-option>
+                    <i-option value="CSX127">CSX127</i-option>
+                </i-select>
+            </div>
+        </Modal>
+    </div>
+</template>
+
+<!--备注框-->
+<template id="refundRemarksWindow">
+    <Modal
+            v-model="flag"
+            title="备注信息"
+            draggable
+            width="300"
+            @on-ok="sureMarkeFun"
+    >
+        <textarea style="width: 260px" v-model="remarkValue"></textarea>
+    </Modal>
+</template>
+<!--搜索框-->
+<template id="foundwin">
+    <div>
+        <Modal
+                :value=true
+                draggable
+                scrollable
+                title="搜索"
+                @on-cancel="cancelfun"
+                @on-ok="checkfun"
+                width="370"
+                :styles="{top: '20px'}"
+        >
+            <div id="add">
+                <div class="form-group">
+                    <!--订单号-->
+                    <i-input v-model="obj.platformOrder">
+                        <span slot="prepend">订单号：</span>
+                    </i-input>
+                    <!--自创pnr-->
+                    <i-input v-model="obj.pnr">
+                        <span slot="prepend">自创PNR：</span>
+                    </i-input>
+                    <!--票号-->
+                    <i-input v-model="obj.recode">
+                        <span slot="prepend">票号：</span>
+                    </i-input>
+                    <!--处理人-->
+                    <i-input v-model="obj.processor">
+                        <span slot="prepend">处理人：</span>
+                    </i-input>
+                    <!--航司-->
+                    <i-input v-model="obj.airCompany">
+                        <span slot="prepend">航司筛选：</span>
+                    </i-input>
+                    <!--采购平台-->
+                    <i-input v-model="obj.srcPlatform">
+                        <span slot="prepend">采购平台：</span>
+                    </i-input>
+                    <!--出票类型-->
+                    <i-input v-model="obj.ticketObject">
+                        <span slot="prepend">出票类型：</span>
+                    </i-input>
+                    <!--初始日期-->
+                    <div>
+                        <span>初始日期：</span>
+                        <Date-Picker type="date"
+                                     placeholder="申请初始日期"
+                                     style="width: 200px"
+                                     v-model="obj.starttime"
+                                     @on-change="startTime"
+                        >
+                        </Date-Picker>
+                    </div>
+                    <!--状态-->
+                    <div class="m-b">
+                        <label>状&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;态：</label>
+                        <i-select style="width: 100px;padding: 3px;border-radius:3px;border-color:#DCDEE2"
+                                  v-model="obj.refundStatus">
+                            <i-option value="0" selected="selected" v-if="dealflag">未退票</i-option>
+                            <i-option value="" v-if="!dealflag">全选</i-option>
+                            <i-option value="2" v-if="!dealflag">部分退票</i-option>
+                            <i-option value="1" v-if="!dealflag">已退票</i-option>
+                            <i-option value="3" v-if="!dealflag">拒绝</i-option>
+                        </i-select>
+                    </div>
+                    <!--结束日期-->
+                    <div>
+                        <span>结束日期：</span>
+                        <Date-Picker type="date"
+                                     placeholder="申请结束日期"
+                                     style="width: 200px"
+                                     v-model="obj.endtime"
+                                     @on-change="endTime"
+                        >
+                        </Date-Picker>
+                    </div>
+                    <!--出票日期-->
+                    <div>
+                        <span>出票日期：</span>
+                        <Date-Picker type="date"
+                                     placeholder="出票日期"
+                                     style="width: 200px"
+                                     v-model="obj.bDate"
+                                     @on-change="payOrderTimeFun"
+                        >
+                        </Date-Picker>
+                    </div>
+                    <!--起飞日期-->
+                    <div>
+                        <span>起飞日期：</span>
+                        <Date-Picker type="date"
+                                     placeholder="出票日期"
+                                     style="width: 200px"
+                                     v-model="obj.flytime"
+                                     @on-change="flytimeFun"
+                        >
+                        </Date-Picker>
+                    </div>
+                </div>
+            </div>
+        </Modal>
+    </div>
+</template>
+<!--日志-->
+<template id="log">
+    <div class="logwindow">
+        <div style="font-weight: bold;height: 30px;display: flex;justify-content: center;font-size: 15px">订单日志</div>
+        <div id="logwindow">
+            <i-Table height="380" width="650" :columns="columns1" :data="logtable"></i-Table>
+        </div>
+        <button @click="windoflagfun" style="float: right">关闭</button>
+    </div>
+</template>
+<!--报表-->
+<template id="statewind">
+    <div>
+        <Modal v-model="reportFlag" title="报表" draggable
+               width="900"
+               height="550"
+               class="stateWindcss"
+               @on-cancel="close"
+               footer-hide
+        >
+            <div id="statementChild">
+                <div>
+                    <div class="childOne">
+                        <div class="SizeBlue">
+                            <span>所属平台</span>
+                            <i-select v-model="stataObj.ticketTable" style="width:200px;" size="small">
+                                <i-option v-for="item in ticketTable" :value="item.value" :key="item.value">
+                                    {{ item.label }}
+                                </i-option>
+                            </i-select>
+                        </div>
+                        <div class="SizeBlue">
+                            平台订单
+                            <input v-if="reportId==-1?false:true"
+                                   style="width: 200px;height: 29px;border:1px solid #dcdee2;border-radius:4px"
+                                   v-model="stataObj.platformOrder"/>
+                            <input v-else @change="orderFun"
+                                   style="width: 200px;height: 29px;border:1px solid #dcdee2;border-radius:4px"
+                                   v-model="stataObj.platformOrder"/>
+                        </div>
+                        <!--提交类型-->
+                        <div class="SizeBlue">
+                            <span>提交类型</span>
+                            <i-select v-model="stataObj.willType" style="width:200px;" size="small">
+                                <i-option value="0" key="0">自愿</i-option>
+                                <i-option value="1" key="1">非自愿</i-option>
+                            </i-select>
+                        </div>
+                        <!--乘机日期-->
+                        <div class="SizeBlue">
+                            <span>乘机日期</span>
+                            <i-input required style="width: 200px;" v-model="stataObj.flyTime"/>
+                        </div>
+                        <!--提交日期-->
+                        <div>
+                            <span>提交日期</span>
+                            <i-input required style="width: 200px;" v-model="stataObj.applytime" readonly/>
+                        </div>
+                        <!--销售合计  required-->
+                        <div class="SizeBlue">
+                            <span>销售合计</span>
+                            <i-input required style="width: 200px;" v-model="stataObj.saleTotal"/>
+                        </div>
+                        <!--出发城市-->
+                        <div>
+                            <span>出发城市</span>
+                            <i-input required style="width: 200px;" v-model="stataObj.start"/>
+                        </div>
+                        <!--到达城市-->
+                        <div>
+                            <span>到达城市</span>
+                            <!--<input type="text" v-model="stataObj.arr"/>-->
+                            <i-input required style="width: 200px;" v-model="stataObj.arr"/>
+                        </div>
+                        <!--航班号-->
+                        <div>
+                            <span>航班号&#12288;</span>
+                            <!--<input type="text" v-model="stataObj.flight"/>-->
+                            <i-input required style="width: 200px;" v-model="stataObj.flight"/>
+
+                        </div>
+                        <!--舱位-->
+                        <div>
+                            <span>舱位&#12288;&#12288;</span>
+                            <!--<input type="text" v-model="stataObj.position"/>-->
+                            <i-input required style="width: 200px;" v-model="stataObj.position"/>
+
+                        </div>
+                        <!--退票费用 required-->
+                        <div class="SizeBlue">
+                            <span>退票费用</span>
+                            <!--<input type="text" v-model="stataObj.refundCost"/>-->
+                            <i-input required style="width: 200px;" v-model="stataObj.refundCost"/>
+                        </div>
+                        <!--平台退款   required-->
+                        <div class="SizeBlue">
+                            <span>平台退款</span>
+                            <!--<input type="text" v-model="platformRefund" readonly/>-->
+                            <i-input required style="width: 200px;" v-model="stataObj.platformRefund" readonly/>
+                        </div>
+                        <!--退票单号-->
+                        <div style="margin-right: auto;margin-left: 23px">
+                            <span>退票单号</span>
+                            <i-input style="width: 200px;" v-model="stataObj.platformId"/>
+                        </div>
+                        <!--账号密码-->
+                        <div>
+                            <span>账号</span>
+                            <span>{{stataObj.username}}</span>
+                            <span>密码</span>&nbsp;&nbsp;&nbsp;
+                            <span>{{stataObj.password}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+
+                    <!--<p>旅客信息</p>-->
+                    <div class="stamentTable">
+                        <table class="table" style="text-align: center">
+                            <colgroup style="width:auto"></colgroup><!--选择-->
+                            <colgroup style="width:auto"></colgroup><!--姓名-->
+                            <colgroup style="width:auto"></colgroup><!--票号-->
+                            <colgroup style="width:auto"></colgroup><!--航班证件号号-->
+                            <colgroup style="width:auto"></colgroup><!--状态-->
+                            <thead class="theadA">
+                            <tr>
+                                <th>添加</th>
+                                <th class="SizeBlue">姓名</th>
+                                <th class="SizeBlue">票号</th>
+                                <th>删除</th>
+                            </tr>
+                            </thead>
+                            <tbody class="tbodyHeight">
+                            <tr v-for="(obj,inde) in stataObj.passengers" :key="inde">
+                                <td class="">
+                                    <!--<button @click="add">添加新旅客</button>-->
+                                    <i-button size="small" @click="add" type="warning" shape="circle">添加新旅客</i-button>
+                                </td>
+                                <td class="SizeBlue">
+                                    <input type="text" v-model="obj.man"/>
+                                </td>
+                                <td class="SizeBlue">
+                                    <input type="text" v-model="obj.ticketNum"/>
+                                </td>
+                                <td class="">
+                                    <i-button size="small" @click="delet(obj.delet,inde)" type="primary" shape="circle">
+                                        删除该旅客
+                                    </i-button>
+                                    <!--<button @click="delet(obj.delet,inde)">删除该旅客</button>-->
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div>
+                    <!--<p style="border-bottom:1px solid #0d8ddb">退票信息</p>-->
+                    <div class="childOne">
+                        <div class="SizeBlue">
+                            <span>自创PNR</span>
+                            <i-input required style="width: 200px;" v-model="stataObj.smartNumber"/>
+
+                        </div>
+                        <div class="SizeBlue">
+                            <span>出票类型</span>
+                            <i-select v-model="stataObj.seller" style="width:200px;" size="small">
+                                <i-option value="京东" key="京东">京东</i-option>
+                                <i-option value="B2B" key="B2B">B2B</i-option>
+                                <i-option value="BSP" key="BSP">BSP</i-option>
+                                <i-option value="航司官网" key="航司官网">航司官网</i-option>
+                                <i-option value="BOP" key="BOP">BOP</i-option>
+                                <i-option value="返踩" key="返踩">返踩</i-option>
+                                <i-option value="外开" key="外开">外开</i-option>
+                                <i-option value="电话订票" key="电话订票">电话订票</i-option>
+                            </i-select>
+                        </div>
+                        <div class="SizeBlue">
+                            <span>提交类型</span>
+                            <i-select v-model="stataObj.submitAirlineType" style="width:200px;" size="small">
+                                <i-option value="0" key="0">自愿</i-option>
+                                <i-option value="1" key="1">非自愿</i-option>
+                                <i-option value="2" key="2">作废</i-option>
+                            </i-select>
+                        </div>
+                        <div>
+                            <span>提交日期</span>
+                            <i-input required style="width: 200px;" v-model="stataObj.refundtime" readonly/>
+
+                        </div>
+                        <div class="SizeBlue">
+                            <span>采购总价</span>
+                            <i-input required style="width: 200px;" v-model="stataObj.totalMoney"/>
+
+                        </div>
+                        <div class="SizeBlue">
+                            <span>航司退费</span>
+                            <i-input required style="width: 200px;" v-model="stataObj.deductionFee"/>
+
+                        </div>
+                        <div class="SizeBlue">
+                            <span>航司退款</span>
+                            <i-input required style="width: 200px;" v-model="refund" readonly/>
+
+                        </div>
+                        <div>
+                            <span>客票状态</span>
+                            <i-select v-model="stataObj.ticketType" style="width:200px;" size="small">
+                                <i-option value="0" key="0">已挂起</i-option>
+                                <i-option value="1" key="1">未挂起</i-option>
+                                <i-option value="2" key="2">已退票</i-option>
+                                <i-option value="3" key="3">审核通过</i-option>
+                            </i-select>
+                        </div>
+                        <div>
+                            <span>提交人员</span>
+                            <i-input required style="width: 200px;" v-model="stataObj.submitUser"/>
+
+                        </div>
+                        <div>
+                            <span>应扣金额</span>
+                            <i-input required style="width: 200px;" v-model="stataObj.shouldDeducted"/>
+
+                        </div>
+                        <div>
+                            <span>退票利润合计</span>
+                            <i-input required style="width: 200px;" v-model="refundProfitTotal" readonly/>
+                        </div>
+
+                        <div style="width: 250px">
+                            <i-input type="textarea" :autosize="true" v-model="stataObj.remark" placeholder="备注"/>
+                        </div>
+                    </div>
+                </div>
+                <div slot="footer" style="display: flex;justify-content: flex-end;">
+                    <i-button size="small" @click="saveOrd(stataObj.id)" type="primary" style="margin-right: 10px">保存
+                    </i-button>
+                    <i-button size="small" @click="close">关闭</i-button>
+                </div>
+                <!--<div style="display: flex;justify-content: flex-end;margin-top: 10px">
+                    <i-button size="small" @click="saveOrd(stataObj.id)" type="success" shape="circle" style="margin-right: 10px">保存</i-button>
+                    <i-button size="small" @click="close" type="primary" shape="circle">关闭</i-button>
+                </div>-->
+            </div>
+            <!--<div class="statement">
+
+            </div>-->
+        </Modal>
+    </div>
+</template>
+
+<script src="../vue/axios.min.js"></script>
+<script src="../vue/vue-router.js"></script>
+<script src="../vue/vuex.js"></script>
+<script src="../resource/iview/iviewJs.js"></script>
+<script src="../bingo/js/calc.min.js"></script>
+
+<script type="text/javascript">
+    Vue.config.devtools = true;
+    const store = new Vuex.Store({
+        state: {
+            //动画开关
+            animaFlag: true,
+        },
+        mutations: {
+            //将obj深拷贝成cloneobj
+            cloneRefundObjFun(state, num) {
+                state.obj.starttime = num[0];
+                state.obj.endtime = num[1];
+            },
+        }
+    });
+
+    //9c未处理组件 半自动未退
+    Vue.component('undetable', {
+        template: '#undetable',
+        props: [],
+        data: function () {
+            return {
+                isShow: true,
+                timer: "",//定义一个定时器的变量
+                currentTime: new Date(), // 获取当前时间
+                //未处理信息载体
+                refundTable: null,
+                //当前登录用户
+                username: null,
+                //总页数
+                pages: null,
+                //最高权限
+                permission: null,
+                //当前时间单量总数
+                count: null,
+                num: 1,
+                //显隐降舱开关 据时间
+                // timeFlag:true,
+                //航变信息table栏开关
+                // changeFlightFlag:false,
+                //搜索开关
+                undetableFlagVal: false,
+                //搜索对象
+                undetableSearchObj: {},
+                //单独展示不同的航司数据
+                air: undefined,
+                //自愿与非自愿单独展示 0自愿 1非自愿
+                willTypeValue: undefined,
+                //个人锁单 0全部 1锁单 未锁单2 注意 此personVal 与主体的personVal 不是同一个变量
+                personValue: 0,
+                //log日志的id
+                id: null,
+                //备注对象
+                remarksObj: {
+                    //备注id
+                    id: undefined,
+                    //备注原值
+                    oldRemarks: undefined
+                },
+                //备注开关 用于传给备注弹窗组件作watch监督用
+                //可能会出现一个单点击后，又关闭弹窗，再点击情况。此时id和备注是同一值，所以不会触发watch。
+                //所以此处使用flag做取反，每次触发都传不同值，从而触发监听。
+                remarksFlag: false,
+                //申请时间排序。true是排序，false是不排序
+                applicationTimeSortVal: false,
+            }
+        },
+        methods: {
+            //三种不同的请求函数
+            //第一种 主体未处理的请求数据
+            undealFun(page = this.num) {
+                this.$store.state.animaFlag = true;
+                this.undetableCloseLog();
+                let obj = this.undetableSearchObj;
+                obj.page = page;
+                obj.air = this.air;
+                if (this.personValue == 0 || this.personValue == 2) {
+                    //防止在点击完个人锁单后 点击自愿非自愿 保留了值 再去点击未锁单，从而导致实际获取的是 自愿或非自愿的单
+                    this.willTypeValue = undefined;
+                }
+                obj.willType = this.willTypeValue;
+                obj.person = this.personValue;
+                obj.sortTime = this.applicationTimeSortVal;
+                axios({
+                    url: '../bingo/order_refund.php?action=order_refund',
+                    method: 'post',
+                    data: obj,
+                }).then(response => {
+                    this.refundTable = response.data.data;
+                    this.username = response.data.username;
+                    this.pages = response.data.max_page;
+                    this.count = response.data.count;
+                    this.permission = response.data.permission;
+                    this.processor = response.data.permission;
+                    //航变开关重置，每次翻页或重新请求，由for循环改值。
+                    // this.changeFlightFlag = false;
+                    let leng = this.refundTable.length;
+                    let typeFlag = false;
+                    for (let a = 0; a < leng; a++) {
+                        let flag = this.refundTable[a].flight.slice(0, 2);
+                        this.refundTable[a].flightTable = flag;
+                        flag = undefined;
+                        //航变开关
+                        let changflag = this.refundTable[a].flight_change * 1;
+                        // if(isNaN(changflag)){
+                        //     //为true 则为 字符串
+                        //     if(this.refundTable[a].flight_change.trim().length){
+                        //         this.changeFlightFlag = true;
+                        //     }
+                        // }else{
+                        //     //为false 为数字
+                        //     if(changflag){
+                        //         //为 0 则不展示 其他数字展示
+                        //         this.changeFlightFlag = true;
+                        //     }
+                        // };
+                    }
+                    this.$store.state.animaFlag = false;
+
+                    //时间限制
+                    var _this = this;
+                    _this.currentTime = response.data.datetime;
+                    currentTime = new Date(_this.currentTime).getTime();
+                    //开始时间
+                    _this.bTime =
+                        new Date(_this.currentTime).getFullYear() +
+                        "-" +
+                        (new Date(_this.currentTime).getMonth() + 1) +
+                        "-" +
+                        new Date(_this.currentTime).getDate() +
+                        " " +
+                        "1:0:0";
+                    bTime = new Date(_this.bTime).getTime();
+                    //结束时间
+                    _this.eTime =
+                        new Date(_this.currentTime).getFullYear() +
+                        "-" +
+                        (new Date(_this.currentTime).getMonth() + 1) +
+                        "-" +
+                        new Date(_this.currentTime).getDate() +
+                        " " +
+                        "7:50:0"
+                    eTime = new Date(_this.eTime).getTime()
+                    if (currentTime > bTime && currentTime < eTime) {
+                        _this.isShow = true;
+                    } else {
+                        _this.isShow = false;
+                    }
+                }).catch(error => {
+                    console.log(error);
+                })
+            },
+            //开启日志
+            undetableLog: function (id) {
+                this.id = id;
+            },
+            //关闭日志
+            undetableCloseLog: function () {
+                this.id = null
+            },
+            //搜索开关函数
+            undetableFlagFund() {
+                this.undetableFlagVal = !this.undetableFlagVal;
+            },
+            //传入搜索函数
+            undetableFoundFun(obj, platformOrder) {
+                this.undetableSearchObj = obj;
+                if (platformOrder) {
+                    this.$set(this.undetableSearchObj, 'platformOrder', platformOrder);
+                }
+                this.undealFun(1);
+            },
+            //锁单按钮
+            lock9COrderFun(id) {
+                axios({
+                    url: '../bingo/order_refund.php?action=no9C_refund_lock',
+                    method: 'get',
+                    params: {
+                        id
+                    }
+                }).then(res => {
+                    if (!res.data.sus) {
+                        this.$Message.error({
+                            content: '锁单失败',
+                            duration: 15,
+                            closable: true,
+                        });
+                    } else {
+                        this.undealFun()
+                    }
+                }).catch(err => {
+                    this.$Message.error({
+                        content: err,
+                        duration: 15,
+                        closable: true,
+                    });
+                })
+            },
+            //退票处理函数 跳转到处理页面的函数 后期应该做成路由形式
+            nineCrefund: function (ind, willType) {
+                let searchObj = this.undetableSearchObj;
+                let obj = {};
+                obj.page = this.num;
+                obj.air = this.air;
+                obj.willType = this.willTypeValue;
+                obj.person = this.personValue;
+                obj.sortTime = this.applicationTimeSortVal;
+                obj = JSON.stringify(obj);
+                searchObj = JSON.stringify(searchObj);
+                window.sessionStorage.setItem('9cTable', obj);
+                window.sessionStorage.setItem('9cSearchObj', searchObj);
+                axios({
+                    url: '../bingo/order_refund.php?action=apply_refund',
+                    method: 'get',
+                    params: {
+                        id: ind,
+                        jump: true
+                    }
+                }).then(res => {
+                    if (res.data.sus) {
+                        window.sessionStorage.setItem('nameValue', 'undetable')
+                        window.location.href = 'refund_dealNew.html?willType=' + willType + '&id=' + ind;
+                    } else {
+                        this.$Message.error({
+                            content: res.data.data,
+                            duration: 10,
+                            closable: true
+                        })
+                    }
+                }).catch(err => {
+                    console.log(err);
+                })
+            },
+            //解锁按钮的函数
+            unlock: function (id) {
+                axios({
+                    url: '../bingo/order_refund.php?action=unlock_order',
+                    methods: 'get',
+                    params: {
+                        id
+                    }
+                }).then(res => {
+                    if (res.data.sus) {
+                        this.$Message.error({
+                            content: '解锁成功',
+                            duration: 10,
+                            closable: true
+                        });
+                        this.undealFun()
+                    } else {
+                        this.$Message.error({
+                            content: '解锁失败',
+                            duration: 10,
+                            closable: true
+                        });
+                    }
+                }).catch(error => console.log(error))
+            },
+            //切换展示9元或9c数据
+            NineAnd9cData(val) {
+                this.air = val;
+                this.num = 1;
+                this.undealFun(1)
+            },
+            //自愿非自愿单独展示
+            willTypeFun(willType) {
+                this.willTypeValue = willType;
+                this.num = 1;
+                this.undealFun(1)
+            },
+            //添加备注函数
+            remarksFun(id, remarks) {
+                this.remarksFlag = !this.remarksFlag;
+                this.$set(this.remarksObj, 'id', id);
+                this.$set(this.remarksObj, 'remarksFlag', this.remarksFlag);
+                this.$set(this.remarksObj, 'oldRemarks', remarks);
+            },
+            //申请时间排序方法
+            sortTimeFun() {
+                //true是排序，false是不排序
+                this.applicationTimeSortVal = !this.applicationTimeSortVal;
+                this.undealFun(1);
+            },
+            //个人锁单按钮
+            undetablePersonTicket() {
+                //此时通过v-model 已经修改personValue的值 所以直接调用初始化数据请求函数
+                this.undealFun(1);
+            },
+            //分页函数
+            //向后转页面 —
+            uppage: function () {
+                if (this.num > 1) {
+                    this.num -= 1;
+                } else if (this.num < 1) {
+                    alert('没有该页码')
+                } else {
+                    return
+                }
+                this.axfun(this.num);
+            },
+            //向前转页面 +
+            downpage: function () {
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if (this.num < this.pages) {
+                    this.num = this.num + 1;
+                } else {
+                    return
+                }
+                ;
+                this.axfun(this.num)
+            },
+            //直接去某页面
+            gotopage: function () {
+                let val = this.$refs.num.value;
+                if (val > this.pages || val < 1) {
+                    //页数框页码重置
+                    this.$refs.num.value = this.num;
+                    alert('没有该页码');
+                } else {
+                    this.num = Math.round(this.num);
+                    this.num = val;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去首页
+            firstpage: function () {
+                this.num = 1;
+                this.axfun(this.nnum)
+            },
+            //直接去末尾页
+            llastpage: function () {
+                this.num = this.pages;
+                this.axfun(this.num)
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun: function (page) {
+                this.$store.state.animaFlag = true;
+                //根据不同的值 来做ajax对于未处理 已处理 未退票三个页面 以及查询按钮的不同请求
+                this.undealFun(page);
+                //更改vuex中的num 从而改index序号
+                this.$store.state.animaFlag = false;
+            },
+        },
+        filters: {
+            indefun: function (data) {
+                let n = (store.state.num - 1) * 20;
+                return data + n
+            },
+            timefilter: function (data) {
+                if (data) {
+                    data = data.replace(/(^[0-9]{2})/, '')
+                    data = data.replace(/(:[0-9]{2}$)/, '')
+                    return data
+                }
+            },
+            change9cFlightFilter(data) {
+                if (!(isNaN(data * 1))) {
+                    data *= 1;
+                }
+                switch (data) {
+                    case 0:
+                        return '';
+                    case 1:
+                        return '延误';
+                    case 2:
+                        return '取消';
+                    case 3:
+                        return '调整';
+                    case 4:
+                        return '提前';
+                    case 5:
+                        return '航变'
+                    default:
+                        return data
+                }
+            },
+        },
+        created() {
+            let obj = window.sessionStorage.getItem('9cTable');
+            let searchObj = window.sessionStorage.getItem('9cSearchObj');
+            if (obj) {
+                obj = JSON.parse(obj);
+                for (let item in obj) {
+                    switch (item) {
+                        case 'page':
+                            this.num = obj.page;
+                            break;
+                        case 'air':
+                            this.air = obj.air;
+                            break;
+                        case 'willType':
+                            this.willTypeValue = obj.willType;
+                            break;
+                        case 'person':
+                            this.personValue = obj.person;
+                            break;
+                        case 'sortTime':
+                            this.applicationTimeSortVal = obj.sortTime;
+                            break;
+                    }
+                }
+                ;
+            }
+            if (searchObj) {
+                searchObj = JSON.parse(searchObj);
+                this.undetableSearchObj = searchObj;
+            }
+            window.sessionStorage.removeItem('9cTable')
+            window.sessionStorage.removeItem('9cSearchObj')
+        },
+        activated() {
+            this.undealFun(this.num);
+        },
+        deactivated() {
+            //离开时关闭诸多弹窗
+            this.remarksFlag = false;
+            this.undetableFlagVal = false;
+            this.id = null
+        },
+        beforeMount() {
+            //调用初始化函数
+            // let date = new Date();
+            //判断是否当前小时时间是否大等于8点 如果当前小时为8点 则这个窗口关闭
+            /*date = date.getHours();
+            if(date>=8){
+                this.timeFlag = false;
+            };
+            date = null;*/
+        },
+        mounted() {
+        }
+    });
+    //半自动已处理
+    Vue.component('detable', {
+        template: '#detable',
+        data: function () {
+            return {
+                //未处理信息载体
+                refundTable: null,
+                //当前登录用户
+                username: null,
+                //总页数
+                pages: null,
+                //最高权限
+                permission: null,
+                //当前时间单量总数
+                count: null,
+                //默认第一次的页数
+                num: 1,
+                //log日志的id
+                id: null,
+                //报表的id
+                reportId: null,
+                //    搜索开关
+                detableFlagVal: false,
+                //搜索对象
+                detableSearchObj: {},
+            }
+        },
+        methods: {
+            //table已处理的请求数据
+            dealFun(page = this.num) {
+                this.$store.state.animaFlag = true;
+                this.id = null;
+                this.reportId = null;
+                this.detableFlagVal = false;
+                axios({
+                    url: '../bingo/order_refund.php?action=refund_ok',
+                    method: 'post',
+                    data: {
+                        ...this.detableSearchObj,
+                        page
+                    }
+                }).then(response => {
+                    this.refundTable = response.data.data;
+                    this.username = response.data.username;
+                    this.permission = response.data.permission;
+                    this.count = response.data.count;
+                    this.pages = response.data.max_page;
+
+                    this.$store.state.animaFlag = false;
+                }).catch(error => {
+                    console.log(error);
+                })
+            },
+            //搜索弹出开启函数
+            detableFlagFun() {
+                this.detableFlagVal = !this.detableFlagVal;
+            },
+            //确定搜索函数
+            detableFoundFun(obj, platformOrder) {
+                this.detableSearchObj = obj;
+                this.$set(this.detableSearchObj, 'platformOrder', platformOrder)
+                this.num = 1;
+                this.dealFun(1);
+            },
+            //开启日志
+            detableLog: function (id) {
+                this.id = id;
+            },
+            //关闭日志
+            detableCloseLog: function () {
+                this.id = null
+            },
+            //报表功能
+            stataFun: function (id) {
+                this.reportId = id
+            },
+            //退款功能
+            TbDeal(id, index) {
+                if (window.confirm('是否确认退票？')) {
+                    this.$store.state.animaFlag = true;
+                    axios({
+                        url: '../bingo/order_refund.php?action=tb_deal',
+                        method: 'get',
+                        params: {
+                            id
+                        }
+                    }).then(res => {
+                        if (res.data.sus) {
+                            alert('成功');
+                            this.refundTable[index].platformStatus = 1;
+                            // console.log(this.refundTable[index].platformStatus)
+                        } else {
+                            alert(res.data.data);
+                            this.refundTable[index].platformStatus = 2;
+                            // console.log(this.refundTable[index].platformStatus)
+                        }
+                        this.$store.state.animaFlag = false;
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                }
+            },
+            //分页函数
+            //向后转页面 —
+            uppage: function () {
+                if (this.num > 1) {
+                    this.num -= 1;
+                } else if (this.num < 1) {
+                    alert('没有该页码')
+                } else {
+                    return
+                }
+                this.axfun(this.num);
+            },
+            //向前转页面 +
+            downpage: function () {
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if (this.num < this.pages) {
+                    this.num = this.num + 1;
+                } else {
+                    return
+                }
+                this.axfun(this.num)
+            },
+            //直接去某页面
+            gotopage: function () {
+                let val = this.$refs.num.value; //获取页数框当前的人为填入的页数
+                if (val > this.pages || val < 1) {
+                    this.$refs.num.value = this.num;
+                    alert('没有该页码');
+                } else {
+                    this.num = Math.round(this.num);
+                    this.num = val;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去首页
+            firstpage: function () {
+                this.num = 1;
+                this.axfun(this.nnum)
+            },
+            //直接去末尾页
+            llastpage: function () {
+                this.num = this.pages;
+                this.axfun(this.num)
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun: function (page) {
+                this.dealFun(page)
+            },
+        },
+        watch: {},
+        computed: {},
+        filters: {
+            indefun: function (data) {
+                return data
+            },
+            timefilter: function (data) {
+                if (data) {
+                    data = data.replace(/(^[0-9]{2})/, '')
+                    data = data.replace(/(:[0-9]{2}$)/, '')
+                    return data
+                }
+            }
+        },
+        created() {
+
+        },
+        activated() {
+            this.dealFun(this.page);
+        },
+        deactivated() {
+            //离开时关闭诸多弹窗
+            this.remarksFlag = false;
+            this.undetableFlagVal = false;
+            this.id = null
+        },
+    });
+    //非9c未处理页面 即手工未退票
+    Vue.component('not9c-temp-table', {
+        template: '#not9c-undetable',
+        //num当前的页数 默认为1 因为页面打开第一次总是为一
+        data() {
+            return {
+                isShow: true,
+                timer: "",//定义一个定时器的变量
+                currentTime: new Date(), // 获取当前时间
+                //非9c所有单载体对象
+                artificiallRefundTableObj: null,
+                //最大页数
+                pages: null,
+                //当前登录人
+                username: null,
+                //是否最高权限
+                permission: null,
+                //一共多少单
+                count: null,
+                num: 1,
+                //报表数据承接对象
+                not9cUnDealreportObj: null,
+                //手工处理自愿非自愿值
+                volunteerValue: 0,
+                //日志id
+                id: undefined,
+                //非9c个人锁单与未锁单标识(当前页面名字已改成手工未处理而不是非9c未处理)
+                //0为全部 1为个人锁单 2 为未锁单
+                artificialNotDealPersonFlagValue: 0,
+                remarksObj: {
+                    //备注id
+                    id: undefined,
+                    //备注原值
+                    oldRemarks: undefined
+                },
+                //备注开关 用于传给备注弹窗组件作watch监督用
+                //可能会出现一个单点击后，又关闭弹窗，再点击情况。此时id和备注是同一值，所以不会触发watch。
+                //所以此处使用flag做取反，每次触发都传不同值，从而触发监听。
+                remarksFlag: false,
+                //申请时间排序 true排序 false不排序
+                artificialApplicationTimeSortVal: false,
+                //搜索对象
+                not9cUnDealSearchObj: {},
+                //搜索弹窗开关
+                not9cUnDealSearchFlag: false,
+            }
+        },
+        watch: {},
+        methods: {
+
+            //该函数即为初始化函数
+            //非9c个人锁单 未锁单 未退票三种ajax请求函数
+            //非9c未退票请求函数
+            Not9cUnrefund(page = this.num) {
+                //关闭众多弹窗
+                this.remarksFlag = false;
+                this.id = null
+                //开启缓冲动画
+                this.$store.state.animaFlag = true;
+                //定义一个函数内部变量，在ajax时候动态改变请求的地址
+                let Not9cUnrefundUrl = undefined;
+                if (this.artificialNotDealPersonFlagValue == 0 || this.artificialNotDealPersonFlagValue == 2) {
+                    //防止在点击完个人锁单后 点击自愿非自愿 保留了值 再去点击未锁单，从而导致实际获取的是 自愿或非自愿的单
+                    this.volunteerValue = 0;
+                }
+                let obj = this.not9cUnDealSearchObj;
+                obj.page = page;
+                obj.volunteer = this.volunteerValue;
+                obj.sortTime = this.artificialApplicationTimeSortVal;
+
+
+                if (this.artificialNotDealPersonFlagValue == 0) {
+                    Not9cUnrefundUrl = '../bingo/order_refund.php?action=no9C_refund';
+                } else if (this.artificialNotDealPersonFlagValue == 1) {
+                    Not9cUnrefundUrl = '../bingo/order_refund.php?action=no9C_refund&person=1'
+                } else {
+                    Not9cUnrefundUrl = '../bingo/order_refund.php?action=no9C_refund&nolock=1'
+                }
+                axios({
+                    url: Not9cUnrefundUrl,
+                    method: 'post',
+                    data: obj
+                }).then(res => {
+                    if (res.data.data) {
+                        this.artificiallRefundTableObj = res.data.data;
+                        this.pages = res.data.max_page;
+                        this.username = res.data.username; //当前登录人
+                        this.permission = res.data.permission; //是否最高权限
+                        this.count = res.data.count; //一共多少单
+                        this.$store.state.animaFlag = false;
+                    } else {
+                        this.artificiallRefundTableObj = res.data.data;
+                        this.pages = 0;
+                        this.username = res.data.username; //当前登录人
+                        this.permission = res.data.permission; //是否最高权限
+                        this.count = 0; //一共多少单
+                        this.$store.state.animaFlag = false;
+                    }
+                    //时间限制
+                    var _this = this;
+                    _this.currentTime = res.data.datetime;
+                    currentTime = new Date(_this.currentTime).getTime();
+                    //开始时间
+                    _this.bTime =
+                        new Date(_this.currentTime).getFullYear() +
+                        "-" +
+                        (new Date(_this.currentTime).getMonth() + 1) +
+                        "-" +
+                        new Date(_this.currentTime).getDate() +
+                        " " +
+                        "1:0:0";
+                    bTime = new Date(_this.bTime).getTime();
+                    //结束时间
+                    _this.eTime =
+                        new Date(_this.currentTime).getFullYear() +
+                        "-" +
+                        (new Date(_this.currentTime).getMonth() + 1) +
+                        "-" +
+                        new Date(_this.currentTime).getDate() +
+                        " " +
+                        "7:50:0"
+                    eTime = new Date(_this.eTime).getTime()
+                    if (currentTime > bTime && currentTime < eTime) {
+                        _this.isShow = true;
+                    } else {
+                        _this.isShow = false;
+                    }
+                }).catch(err => {
+                    console.log(err)
+                });
+            },
+            //非9c锁定按钮
+            Not9cOrdlock(id, ind) {
+                this.$store.state.animaFlag = true;
+                //这里触发函数后，直接修改页面的操作人，没有等后台结果。如果失败，操作人又会重置为Null;
+                this.artificiallRefundTableObj[ind].processor = this.username;
+                axios({
+                    url: '../bingo/order_refund.php?action=no9C_refund_lock',
+                    method: 'get',
+                    params: {
+                        id
+                    }
+                }).then(res => {
+                    this.$store.state.animaFlag = false;
+                    if (!res.data.sus) {
+                        this.artificiallRefundTableObj[ind].processor = null;
+                        this.$Message.error({
+                            content: '锁单失败',
+                            duration: 15,
+                            closable: true,
+                        });
+                    }
+                }).catch(err => {
+                    this.$store.state.animaFlag = false;
+                    this.artificiallRefundTableObj[ind].processor = null;
+                    this.$Message.error({
+                        content: err,
+                        duration: 15,
+                        closable: true,
+                    });
+                })
+            },
+            //非9c解锁按钮
+            Not9cUnlock(id, ind) {
+                this.$store.state.animaFlag = true;
+                //在最高权限的时候记录当前单是那个用户 避免失败的时候改回用户改成最高权限人
+                let val = this.artificiallRefundTableObj[ind].processor;
+                this.artificiallRefundTableObj[ind].processor = null;
+                axios({
+                    url: '../bingo/order_refund.php?action=unlock_order',
+                    method: 'get',
+                    params: {
+                        id
+                    }
+                }).then(res => {
+                    this.$store.state.animaFlag = false;
+                    if (res.data.sus) {
+                        this.$Message.info({
+                            content: '解锁成功',
+                            duration: 15,
+                            closable: true,
+                        });
+                    } else {
+                        this.artificiallRefundTableObj[ind].processor = val;
+                        this.$Message.error({
+                            content: '解锁失败',
+                            duration: 15,
+                            closable: true,
+                        });
+                    }
+                }).catch(err => {
+                    this.$store.state.animaFlag = false;
+                    this.artificiallRefundTableObj[ind].processor = val;
+                    this.$Message.error({
+                        content: '解锁失败',
+                        duration: 15,
+                        closable: true,
+                    });
+                    console.log(err)
+                })
+            },
+            //非9c取位按钮
+            changeFlightold(id) {
+                axios({
+                    url: '../bingo/order_refund.php?action=air_change',
+                    method: 'post',
+                    data: {
+                        id,
+                    }
+                }).then(res => {
+                    if (res.data.sus) {
+                        this.$emit('update:nameValue', 'changeflight')
+                    } else {
+                        this.$Message.info({
+                            content: res.data.data,
+                            duration: 20,
+                            closable: true,
+                        })
+                    }
+                }).catch(err => {
+                    this.$Message.error({
+                        content: '操作失败',
+                        duration: 10,
+                        closable: true,
+                    })
+                    console.log(err)
+                })
+            },
+            //非9c转单功能
+            changeOrderDealName(id) {
+                axios({
+                    url: '../bingo/order_refund.php?action=changeUserName',
+                    method: 'post',
+                    data: {id},
+                }).then(res => {
+                    if (res.data.sus) {
+                        this.Not9cUnrefund();
+                    } else {
+                        this.$Message.error({
+                            content: '转单失败',
+                            duration: 10,
+                            closable: true,
+                        })
+                    }
+                }).catch(err => {
+                    this.$Message.error({
+                        content: err,
+                        duration: 10,
+                        closable: true,
+                    })
+                    console.log(err)
+                })
+            },
+            //非9c确认退票按钮
+            ordRefund(id, index, willType) {
+                window.sessionStorage.setItem('nameValue', 'not9cundetable')
+                //离开时关闭诸多弹窗
+                this.remarksFlag = false;
+                this.id = null;
+
+                let searchObj = this.not9cUnDealSearchObj;
+                let obj = {};
+                obj.page = this.num;
+                obj.volunteerValue = this.volunteerValue;
+                obj.artificialNotDealPersonFlagValue = this.artificialNotDealPersonFlagValue;
+                obj.artificialApplicationTimeSortVal = this.artificialApplicationTimeSortVal;
+                // obj.sortTime = this.applicationTimeSortVal;
+                obj = JSON.stringify(obj);
+                searchObj = JSON.stringify(searchObj);
+                window.sessionStorage.setItem('Not9cTable', obj);
+                window.sessionStorage.setItem('Not9cTableSearchObj', searchObj);
+
+                window.location.href = 'refund_artificialDeal.html?willType=' + willType + '&id=' + id;
+            },
+            //非9c拒绝退票按钮
+            ordRefuse(id) {
+                if (window.confirm('是否拒绝退票')) {
+                    this.$store.state.animaFlag = true;
+                    axios({
+                        url: '../bingo/order_refund.php?action=cancel_refund',
+                        method: 'get',
+                        params: {
+                            id
+                        }
+                    }).then(res => {
+                        this.$store.state.animaFlag = false;
+                        if (res.data.sus) {
+                            this.Not9cUnrefund()
+                        } else {
+                            this.$Message.info({
+                                content: res.data.data,
+                                duration: 10,
+                                closable: true,
+                            })
+                        }
+                    }).catch(err => {
+                        this.$Message.info({
+                            content: err,
+                            duration: 10,
+                            closable: true,
+                        })
+                        console.log(err)
+                    })
+                }
+            },
+            //非9c个人锁单按钮`
+            Not9cUndealPerson() {
+                //防止在点击完个人锁单后 点击自愿非自愿 保留了值 再去点击未锁单，从而导致实际获取的是 自愿或非自愿的单
+                this.volunteerValue = 0;
+                this.Not9cUnrefund(1)
+            },
+            //验真按钮
+            ticket_status(id) {
+                this.$store.state.animaFlag = true;
+                axios({
+                    url: '../bingo/order_refund.php?action=ticket_status',
+                    method: 'post',
+                    data: {
+                        id
+                    }
+                }).then(res => {
+                    if (res.data.sus) {
+                        this.$Message.info({
+                            content: res.data.data,
+                            duration: 20,
+                            closable: true,
+                        })
+                    } else {
+                        this.$Message.error({
+                            content: res.data.data,
+                            duration: 20,
+                            closable: true,
+                        })
+                    }
+                    this.$store.state.animaFlag = false;
+                }).catch(err => {
+                    this.$store.state.animaFlag = false;
+                    console.log(err)
+                })
+            },
+            //搜索框开启时的请求函数
+            //自愿非自愿请求函数
+            //自愿非自愿按钮
+            volunteerFun(val) {
+                this.volunteerValue = val;
+                this.num = 1;
+                this.Not9cUnrefund(1);
+            },
+            //开启日志
+            log: function (id) {
+                this.id = id;
+            },
+            //关闭日志
+            closeLog: function () {
+                this.id = null
+            },
+            //添加备注函数
+            remarksFun(id, remarks) {
+                this.remarksFlag = !this.remarksFlag;
+
+                this.$set(this.remarksObj, 'id', id);
+                this.$set(this.remarksObj, 'remarksFlag', this.remarksFlag);
+                this.$set(this.remarksObj, 'oldRemarks', remarks);
+
+            },
+            //申请时间排序方法
+            sortTimeFun() {
+                //true是排序，false是不排序
+                this.artificialApplicationTimeSortVal = !this.artificialApplicationTimeSortVal;
+                this.Not9cUnrefund(1);
+            },
+            //三角形搜索框触发函数
+            not9cUnDealSearchFun() {
+                this.not9cUnDealSearchFlag = true
+            },
+            //搜索确定函数 当搜索框点击确定时 会触发改函数 并传入搜索值
+            not9cUnDealFindFun(obj, plate) {
+                this.not9cUnDealSearchObj = obj;
+                if (plate) {
+                    this.$set(this.not9cUnDealSearchObj, 'platformOrder', plate);
+                }
+                this.Not9cUnrefund(1)
+            },
+            //分页函数
+            //向后转页面 —
+            uppage: function () {
+                if (this.num > 1) {
+                    this.num -= 1;
+                } else if (this.num < 1) {
+                    alert('没有该用页码')
+                } else {
+                    return
+                }
+                ;
+                this.axfun(this.num);
+            },
+            //向前转页面
+            downpage: function () {
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if (this.num < this.pages) {
+                    this.num = this.num + 1;
+                } else {
+                    return
+                }
+                ;
+                this.axfun(this.num)
+            },
+            //直接去某页面
+            gotopage: function () {
+                let val = this.$refs.num.value;
+                if (val > this.pages || val < 1) {
+                    this.$refs.num.value = this.num;
+                    alert('没有该页码');
+                } else {
+                    this.num = Math.round(this.num);
+                    this.num = val;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去首页
+            firstpage: function () {
+                this.num = 1;
+                this.axfun(this.num)
+            },
+            //直接去末尾页
+            lastpage: function () {
+                this.num = this.pages;
+                this.axfun(this.num)
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun: function (page) {
+                this.Not9cUnrefund(page);
+            },
+        },
+        filters: {
+            indexFilter(data) {
+                // let n = (store.state.num-1)*20;
+                // return data+n;
+                return data;
+            },
+            timeFilter(data) {
+                if (data) {
+                    data = data.replace(/(^[0-9]{2})/, '')
+                    data = data.replace(/(:[0-9]{2}$)/, '')
+                    return data
+                }
+            },
+            change9cFlightFilter(data) {
+                if (!(isNaN(data * 1))) {
+                    data *= 1;
+                }
+                switch (data) {
+                    case 0:
+                        return '';
+                    case 1:
+                        return '延误';
+                    case 2:
+                        return '取消';
+                    case 3:
+                        return '调整';
+                    case 4:
+                        return '提前';
+                    case 5:
+                        return '航变';
+                    default:
+                        return data
+                }
+            },
+        },
+        created() {
+            let obj = window.sessionStorage.getItem('Not9cTable');
+            let searchObj = window.sessionStorage.getItem('Not9cTableSearchObj');
+            if (obj) {
+                obj = JSON.parse(obj);
+                for (let item in obj) {
+                    switch (item) {
+                        case 'page':
+                            this.num = obj.page;
+                            break;
+                        case 'volunteerValue':
+                            this.volunteerValue = obj.volunteerValue;
+                            break;
+                        case 'artificialNotDealPersonFlagValue':
+                            this.artificialNotDealPersonFlagValue = obj.artificialNotDealPersonFlagValue;
+                            break;
+                        case 'artificialApplicationTimeSortVal':
+                            this.artificialApplicationTimeSortVal = obj.artificialApplicationTimeSortVal;
+                            break;
+                    }
+                }
+                ;
+            }
+            if (searchObj) {
+                searchObj = JSON.parse(searchObj);
+                this.not9cUnDealSearchObj = searchObj;
+            }
+            window.sessionStorage.removeItem('Not9cTable');
+            window.sessionStorage.removeItem('Not9cTableSearchObj');
+        },
+        beforeMount() {
+        },
+        activated() {
+            this.Not9cUnrefund(this.num);
+            /*let date = new Date();
+            date = date.getHours();
+            if(date>=8){
+                this.timeFlag = false;
+            };
+            date = null;*/
+        },
+        deactivated() {
+            //离开时关闭诸多弹窗
+            this.remarksFlag = false;
+            this.id = null;
+
+            let searchObj = this.not9cUnDealSearchObj;
+            let obj = {};
+            obj.page = this.num;
+            obj.volunteerValue = this.volunteerValue;
+            obj.artificialNotDealPersonFlagValue = this.artificialNotDealPersonFlagValue;
+            obj.artificialApplicationTimeSortVal = this.artificialApplicationTimeSortVal;
+            // obj.sortTime = this.applicationTimeSortVal;
+            obj = JSON.stringify(obj);
+            searchObj = JSON.stringify(searchObj);
+            window.sessionStorage.setItem('Not9cTable', obj);
+            window.sessionStorage.setItem('Not9cTableSearchObj', searchObj);
+
+            console.log('likai')
+        },
+    });
+    //非9c已处理
+    Vue.component('not9c-temp-table-ok', {
+        template: '#not9c-detable',
+        data() {
+            return {
+                //非9c所有单载体对象
+                tableObj: null,
+                //最大页数
+                pages: null,
+                //当前登录人
+                username: null,
+                //是否最高权限
+                permission: null,
+                //一共多少单
+                count: null,
+                num: 1,
+                //    查找框确认搜索按钮按下
+                //     dealflag:false,
+                //    报表id
+                reportId: undefined,
+                //    日志id
+                id: undefined,
+                //搜索对象
+                not9cDealSearchObj: {},
+                // 搜索弹窗开关
+                not9cDealSearchFlag: false,
+
+            }
+        },
+        watch: {},
+        computed: {},
+        methods: {
+            //不同的请求函数
+            //第一种 主体已处理的请求数据
+            not9cDealFun(page = this.num) {
+                this.$store.state.animaFlag = true;
+                let obj = this.not9cDealSearchObj;
+                //关闭查询开关
+                axios({
+                    url: '../bingo/order_refund.php?action=no9C_refund_ok',
+                    method: 'post',
+                    data: {
+                        ...obj,
+                        page
+                    }
+                }).then(res => {
+                    this.tableObj = res.data.data;
+                    this.pages = res.data.max_page;
+                    this.username = res.data.username; //当前登录人
+                    this.permission = res.data.permission; //是否最高权限
+                    this.count = res.data.count; //一共多少单
+
+
+                    this.$store.state.animaFlag = false;//动画
+                    //判断是否要是第一次触发查找，若是第一次，需要充值num为1
+
+                }).catch(error => {
+                    console.log(error);
+                })
+            },
+            //调用报表函数
+            not9cStataFun(id) {
+                this.reportId = id;
+            },
+            //开启日志
+            log: function (id) {
+                this.id = id;
+            },
+            //关闭日志
+            closeLog: function () {
+                this.id = null
+            },
+            //搜索函数
+            not9cDealFindFun(obj, plate) {
+                this.not9cDealSearchObj = obj;
+                this.$set(this.not9cDealSearchObj, 'platformOrder', plate);
+                this.not9cDealFun(1)
+            },
+            //搜索三角形 触发 搜索弹出开关的函数
+            not9cDealSearchFun() {
+                this.not9cDealSearchFlag = !this.not9cDealSearchFlag
+            },
+
+
+            //分页函数
+            //向后转页面 —
+            uppage: function () {
+                if (this.num > 1) {
+                    this.num -= 1;
+                } else if (this.num < 1) {
+                    alert('没有该用页码')
+                } else {
+                    return
+                }
+                ;
+                this.axfun(this.num);
+            },
+            //向前转页面 +
+            downpage: function () {
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if (this.num < this.pages) {
+                    this.num = this.num + 1;
+                } else {
+                    return
+                }
+                ;
+                this.axfun(this.num)
+            },
+            //直接去某页面
+            gotopage: function () {
+                let val = this.$refs.num.value;
+                if (val > this.pages || val < 1) {
+                    this.$refs.num.value = this.num;
+                    alert('没有该页码');
+                } else {
+                    this.num = Math.round(this.num);
+                    this.num = val;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去首页
+            firstpage: function () {
+                this.num = 1;
+                this.axfun(this.num)
+            },
+            //直接去末尾页
+            lastpage: function () {
+                this.num = this.pages;
+                this.axfun(this.num)
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun: function (page) {
+                this.not9cDealFun(page);
+            },
+        },
+        filters: {
+            indexFilter(data) {
+                //拿不到自己的this this指向window 所以拿state
+                // let n = (store.state.num-1)*20;
+                // return data+n
+                return data
+            },
+            timeFilter(data) {
+                if (data) {
+                    data = data.replace(/(^[0-9]{2})/, '')
+                    data = data.replace(/(:[0-9]{2}$)/, '')
+                    return data
+                }
+            }
+        },
+        created() {
+        },
+        activated() {
+            this.not9cDealFun(1);
+        },
+        deactivated() {
+            //离开时关闭诸多弹窗
+            this.closeLog();
+            this.reportId = undefined;
+        },
+    });
+    //航变组件 取位
+    Vue.component('change-flight', {
+        template: '#change-flight',
+        data() {
+            return {
+                //非9c所有单载体对象
+                tableObj: null,
+                //最大页数
+                pages: null,
+                //当前登录人
+                username: null,
+                //是否最高权限
+                permission: null,
+                //一共多少单
+                count: null,
+                num: 1,
+                //报表的id
+                reportId: null,
+                //报表数据承接对象
+                reportObj: null,
+                //时间开关显隐改期
+                // timeFlag:true,
+                //弹窗提醒框
+                changeWindow: false,
+                //view弹窗确定按钮loding状态
+                loading: true,
+                //弹窗功能要使用的数据id
+                windowId: undefined,
+                //弹窗默认值
+                settingPnr: undefined,
+                setting: "CSX107",
+                settingDate: undefined,
+                //    备注对象
+                changeFlightRemarksObj: {
+                    //备注id
+                    id: undefined,
+                    //备注原值
+                    oldRemarks: undefined
+                },
+                //    备注开关
+                remarksFlag: false,
+                //    搜索对象
+                changeFlightSearchObj: {
+                    platformOrder: null,
+                },
+                //    取位页面个人与所有订单切换按钮
+                aloneAllButtonObj: {
+                    //当为false 为只看个人的单 当为true 为全部单
+                    all: false,
+                }
+            }
+        },
+        watch: {},
+        computed: {
+            tableChange() {
+                return this.$store.state.tableChange;
+            },
+            findFlag() {
+                return this.$store.state.findFlag;
+            }
+        },
+        methods: {
+            //初始化函数
+            changeFlightInitialize(page = this.num) {
+                this.$store.state.animaFlag = true;
+                this.changeWindow = false;
+                this.reportId = undefined;
+                axios({
+                    url: '../bingo/order_refund.php?action=no9C_air_change',
+                    method: 'post',
+                    data: {
+                        page,
+                        platformOrder: this.changeFlightSearchObj.platformOrder,
+                        all: this.aloneAllButtonObj.all
+                    }
+                }).then(res => {
+                    this.tableObj = res.data.data;
+
+                    //未处理暂存
+                    let obja = [];
+                    //已处理暂存
+                    let objb = [];
+                    //做分割线处理
+                    let leng = this.tableObj.length;
+                    for (let a = 0; a < leng; a++) {
+                        // 4为未处理
+                        if (this.tableObj[a].refundStatus == 4) {
+                            obja.push(this.tableObj[a])
+                        } else {
+                            //    1 已处理
+                            objb.push(this.tableObj[a])
+                        }
+                    }
+                    ;
+                    let leng2 = obja.length;
+                    if (leng2) {
+                        obja[leng2 - 1].borderBottem = "1";
+                    }
+                    ;
+                    this.tableObj = [...obja, ...objb];
+
+                    this.pages = res.data.max_page;
+                    this.username = res.data.username; //当前登录人
+                    this.permission = res.data.permission; //是否最高权限
+                    this.count = res.data.count; //一共多少单
+
+                    this.$store.state.animaFlag = false;
+                    obja = objb = leng = leng2 = null;
+                }).catch(err => {
+                    console.log(err)
+                });
+            },
+            //取消编码函数（取编）
+            UnencodeFun(id, state) {
+                this.changeWindow = true;
+                //清空上次填入值
+                this.windowId = this.settingPnr = this.settingDate = undefined;
+                this.windowId = id;
+                if (state || state === 0) {
+                    axios({
+                        url: '../bingo/order_refund.php?action=check',
+                        method: 'post',
+                        data: {
+                            id,
+                        }
+                    }).then(res => {
+                        this.settingPnr = res.data.pnr;
+                        this.settingDate = res.data.cancelTime;
+                        this.setting = res.data.allocation;
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                }
+            },
+            //取编弹窗函数的确认按钮函数
+            windowOk() {
+                if (!this.settingDate) {
+                    this.$Message.error({
+                        content: '日期必须填写',
+                        duration: 10,
+                        closable: true
+                    });
+                    this.changeWindow = true;
+                    return
+                } else if (!this.settingPnr) {
+                    this.$Message.error({
+                        content: 'PNR必须填写',
+                        duration: 10,
+                        closable: true
+                    });
+                    this.changeWindow = true;
+                    return
+                }
+                let a = new Date(this.settingDate);
+                let year = a.getFullYear();
+                let month = (a.getMonth()) * 1 + 1;
+                let day = a.getDate();
+                /*let house = a.getHours();
+                let minu = a.getMinutes();
+                let seCondes = a.getSeconds();*/
+                let time = a.toTimeString();
+                time = (time.split(" "))[0];
+                this.settingDate = year + "-" + month + "-" + day + " " + time;
+                axios({
+                    url: '../bingo/order_refund.php?action=xepnr ',
+                    method: 'post',
+                    data: {
+                        cancelTime: this.settingDate,
+                        pnr: this.settingPnr,
+                        allocation: this.setting,
+                        id: this.windowId,
+                    }
+                }).then(res => {
+                    this.changeWindow = false;
+                    if (!res.data.sus) {
+                        this.$Message.error({
+                            content: res.data.data,
+                            duration: 10,
+                            closable: true
+                        });
+                    } else {
+                        this.changeFlightInitialize()
+                    }
+                    ;
+                }).catch(err => console.log(err))
+                a = year = month = day = time = null;
+            },
+            //取编弹窗函数的取消按钮函数
+            windowCancel() {
+            },
+            //航变确认退票按钮
+            flightChangeOrdRefund(id, index, flight, willType) {
+                let refundPassengers = this.tableObj[index].refundPassengers;
+                if (window.confirm('是否确认退票')) {
+                    flight = flight.slice(0, 2);
+                    if (flight == '9C' || flight == 'AQ') {
+                        window.sessionStorage.setItem('nameValue', 'changeflight')
+                        window.location.href = 'refund_dealNew.html?willType=' + willType + '&id=' + id;
+                    } else {
+                        axios({
+                            url: '../bingo/order_refund.php?action=no9C_notarize_refund',
+                            method: 'get',
+                            params: {id},
+                        }).then(res => {
+                            if (res.data.sus) {
+                                this.reportId = id;
+                                this.reportObj = res.data;
+                            } else {
+                                this.$Message.warning({
+                                    content: '数据库更改订单退票状态失败',
+                                    duration: 30,
+                                    closable: true
+                                });
+                            }
+                        }).catch(err => {
+                            this.$Message.warning({
+                                content: err,
+                                duration: 15,
+                                closable: true
+                            });
+                            console.log(err)
+                        })
+                    }
+                }
+            },
+            //航变拒绝退票按钮
+            ordRefuse(id) {
+                if (window.confirm('是否拒绝退票')) {
+                    this.$store.state.animaFlag = true;
+                    axios({
+                        url: '../bingo/order_refund.php?action=cancel_refund',
+                        method: 'get',
+                        params: {
+                            id
+                        }
+                    }).then(res => {
+                        this.$store.state.animaFlag = false;
+                        if (res.data.sus) {
+                            // alert('拒绝成功')
+                            this.changeFlightInitialize()
+                        } else {
+                            this.$Message.error({
+                                content: res.data.data,
+                                duration: 20,
+                                closable: true,
+                            });
+                        }
+                    }).catch(err => {
+                        this.$Message.error({
+                            content: err,
+                            duration: 20,
+                            closable: true,
+                        });
+                        console.log(err)
+                    })
+                }
+            },
+            //航变立即取消编码
+            cancelNum(id, orderno) {
+                axios({
+                    url: '../bingo/order_refund.php?action=xpnr',
+                    method: 'post',
+                    data: {
+                        id,
+                        orderno
+                    }
+                }).then(res => {
+                    if (res.data.sus) {
+                        alert('取位成功')
+                    } else {
+                        this.$Message.error({
+                            content: res.data.data,
+                            duration: 20,
+                            closable: true,
+                        });
+                    }
+                }).catch(err => {
+                    this.$Message.error({
+                        content: err,
+                        duration: 20,
+                        closable: true,
+                    });
+                    console.log(err)
+                })
+            },
+            //调用报表函数
+            //调用报表函数
+            changeFlightFun(id) {
+                this.reportId = id;
+            },
+            //航变备注函数
+            changeFlightRemarksFun(id, remarks) {
+                this.remarksFlag = !this.remarksFlag;
+                this.$set(this.changeFlightRemarksObj, 'id', id);
+                this.$set(this.changeFlightRemarksObj, 'remarksFlag', this.remarksFlag);
+                this.$set(this.changeFlightRemarksObj, 'oldRemarks', remarks);
+            },
+            //个人与全部订单的切换函数
+            aloneAllButtonFun() {
+                this.aloneAllButtonObj.all = !this.aloneAllButtonObj.all;
+                this.changeFlightInitialize()
+            },
+            //分页函数
+            //向后转页面 —
+            uppage: function () {
+                if (this.num > 1) {
+                    this.num -= 1;
+                } else if (this.num < 1) {
+                    alert('没有该用页码')
+                } else {
+                    return
+                }
+                ;
+                this.axfun(this.num);
+            },
+            //向前转页面 +
+            downpage: function () {
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if (this.num < this.pages) {
+                    this.num = this.num + 1;
+                } else {
+                    return
+                }
+                ;
+                this.axfun(this.num)
+            },
+            //直接去某页面
+            gotopage: function () {
+                let val = this.num;
+                if (val > this.pages || val < 1) {
+                    this.$refs.num.value = this.num;
+                    alert('没有该页码');
+                } else {
+                    this.num = Math.round(this.num);
+                    this.num = val;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去首页
+            firstpage: function () {
+                this.num = 1;
+                this.axfun(this.num)
+            },
+            //直接去末尾页
+            lastpage: function () {
+                this.num = this.pages;
+                this.axfun(this.num)
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun: function (page) {
+                this.changeFlightInitialize(page)
+            },
+        },
+        filters: {
+            indexFilter(data) {
+                // let n = (store.state.num-1)*20;
+                // return data+n
+                return data
+            },
+            timeFilter(data) {
+                if (data) {
+                    data = data.replace(/(^[0-9]{2})/, '')
+                    data = data.replace(/(:[0-9]{2}$)/, '')
+                    return data
+                }
+            },
+            aloneAllButtonObjFilter(data) {
+                if (data) {
+                    return '个人'
+                } else {
+                    return '全部'
+                }
+            }
+        },
+        created() {
+        },
+        activated() {
+            this.changeFlightInitialize(1);
+        },
+        deactivated() {
+        },
+    });
+
+
+    //搜索框
+    Vue.component('foundwin', {
+        template: '#foundwin',
+        props: ['modalFlag', 'obj'],
+        data: function () {
+            return {
+                // obj:{},
+                dealflag: true,
+            }
+        },
+        computed: {},
+        methods: {
+            //关闭搜索框函数
+            cancelfun() {
+                this.$emit('update:modalFlag', false);
+
+            },
+            //搜索弹窗确认按钮。
+            checkfun: function () {
+                this.$emit('update:modalFlag', false);
+                this.$emit('foundwinfun', this.obj);
+            },
+            startTime(data) {
+                this.obj.starttime = data;
+            },
+            endTime(data) {
+                this.obj.endtime = data;
+            },
+            flytimeFun(data) {
+                this.obj.flytime = data;
+            },
+            //    出票日期函数
+            payOrderTimeFun(data) {
+                this.obj.bDate = data;
+            }
+        },
+    });
+    //退票处理栏(即报表功能)
+    Vue.component('statewind', {
+        template: '#statewind',
+        data() {
+            return {
+                stataObj: {},
+                stataObjPermission: null,
+                ticketTable: [
+                    {
+                        value: '9C',
+                        label: '9C'
+                    },
+                    {
+                        value: '平安航旅',
+                        label: '平安航旅'
+                    },
+                    {
+                        value: '湘潭平安航服',
+                        label: '湘潭平安航服'
+                    },
+                    {
+                        value: 'pai',
+                        label: 'pai'
+                    },
+                    {
+                        value: 'xss',
+                        label: 'xss'
+                    },
+                    {
+                        value: 'xsg',
+                        label: 'xsg'
+                    },
+                    {
+                        value: 'ttr',
+                        label: 'ttr'
+                    },
+                    {
+                        value: '酷讯',
+                        label: '酷讯'
+                    },
+                    {
+                        value: '向上航服',
+                        label: '向上航服'
+                    },
+                    {
+                        value: '淘宝',
+                        label: '淘宝'
+                    },
+                    {
+                        value: '就旅行',
+                        label: '就旅行'
+                    },
+                    {
+                        value: '同程',
+                        label: '同程'
+                    },
+                    {
+                        value: '携程',
+                        label: '携程'
+                    },
+                    {
+                        value: '途牛',
+                        label: '途牛'
+                    },
+                    {
+                        value: 'B平台',
+                        label: 'B平台'
+                    },
+                    {
+                        value: '517',
+                        label: '517'
+                    },
+                    {
+                        value: '百拓',
+                        label: '百拓'
+                    },
+                    {
+                        value: '51BOOK',
+                        label: '51BOOK'
+                    },
+                    {
+                        value: '八千翼',
+                        label: '八千翼'
+                    },
+                    {
+                        value: '携程分销',
+                        label: '携程分销'
+                    },
+                ],
+                reportFlag: true
+            }
+        },
+        //reportId只用来做显隐开关
+        props: ['reportId', 'reportObj'],
+        watch: {
+            /*stataObj:function () {
+                //此出仅为样式服务代码，当css3高度奇数时，字体模糊用
+                this.$nextTick(()=>{
+                let statement = document.getElementsByClassName('statement')[0];
+                if(statement.offsetHeight%2!=0){
+                    statement.style.height = statement.offsetHeight+1+'px'
+                }
+                else{
+                    statement.style.height = statement.offsetHeight+'px'
+                }
+            })*/
+            reportId: {
+                handler(val, oldval) {
+                    this.reportFlag = !!this.reportId;
+                },
+                deep: true
+            }
+        },
+        //报表
+        computed: {
+            refundProfitTotal() {
+                if (this.stataObj.submitAirlineType == 1 || this.stataObj.submitAirlineType == 2) {
+                    return this.stataObj.refundProfitTotal = calc.sub(this.stataObj.totalMoney, this.platformRefund)
+                } else {
+                    return this.stataObj.refundProfitTotal = calc.sub(this.refund, this.platformRefund)
+                }
+            },
+            //航司退款
+            refund() {
+                return this.stataObj.refund = calc.sub(this.stataObj.totalMoney, this.stataObj.deductionFee)
+            },
+            //平台退款
+            platformRefund() {
+                return this.stataObj.platformRefund = calc.sub(this.stataObj.saleTotal, this.stataObj.refundCost)
+            },
+        },
+        methods: {
+            add: function () {
+                //创建一个新对象，里面加一个自己定义的名值对，但是原本已存在的是没有该值得
+                let a = {delet: 1};
+                this.stataObj.passengers.push(a);
+                /*this.$nextTick(()=>{
+                    let statement = document.getElementsByClassName('statement')[0];
+                    if(statement.offsetHeight%2!=0){
+                        statement.style.height = statement.offsetHeight+41+'px'
+                    }
+                    else{
+                        statement.style.height = statement.offsetHeight+40+'px'
+                    }
+                })*/
+            },
+            delet: function (flag, index) {
+                //利用上面定义的名值对，来删除自己新增的对象，默认已存在的对象（旅客），是没有该名值对的
+                if (flag == 1) {
+                    this.stataObj.passengers.splice(index, 1);
+                } else {
+                    alert('默认旅客不可删除')
+                }
+            },
+            //手动生成订单时，通过传入平台订单号，从后台获取数据
+            orderFun() {
+                let a = this.stataObj.platformOrder;
+                let today = new Date();//new 出当前时间
+                let y = today.getFullYear();//获取年
+                let m = today.getMonth() + 1;//获取月
+                let d = today.getDate();//获取日
+                let H = today.getHours();//获取时
+                let M = today.getMinutes();//获取分
+                let S = today.getSeconds();//获取秒
+                let now = y + "-" + m + "-" + d + " " + H + ":" + M + ":" + S; //返回 年-月-日 时:分:秒*/
+                axios({
+                    url: "../bingo/order_refund.php?action=default",
+                    method: "post",
+                    data: {
+                        platformOrder: this.stataObj.platformOrder,
+                    }
+                }).then(res => {
+                    this.stataObj = res.data;
+                    this.stataObj.platformOrder = a;
+                    this.stataObj.applytime = now;
+                    this.stataObjPermission = 1;
+                }).catch(err => {
+                    console.log(err)
+                });
+                // a = null;
+            },
+            //保存报表
+            saveOrd() {
+                let today = new Date();//new 出当前时间
+                let y = today.getFullYear();//获取年
+                let m = today.getMonth() + 1;//获取月
+                let d = today.getDate();//获取日
+                let H = today.getHours();//获取时
+                let M = today.getMinutes();//获取分
+                let S = today.getSeconds();//获取秒
+                let now = y + "-" + m + "-" + d + " " + H + ":" + M + ":" + S; //返回 年-月-日 时:分:秒*/
+                this.stataObj.refundtime = now;
+                for (let a = 0; a < this.stataObj.passengers.length; a++) {
+                    if (!this.stataObj.passengers[a].man) {
+                        this.stataObj.passengers.splice(a, 1);
+                        a--
+                    }
+                }
+                if (this.reportId == -1) {
+                    axios({
+                        url: '../bingo/order_refund.php?action=insert_statement',
+                        method: 'post',
+                        data: this.stataObj,
+                    }).then(res => {
+                        if (res.data.sus) {
+                            this.$Message.info({
+                                content: '保存成功',
+                                duration: 15,
+                                closable: true,
+                            });
+                            this.$emit('update:reportId', undefined)
+                        } else {
+                            this.$Message.error({
+                                content: "保存失败" + res.data.data,
+                                duration: 15,
+                                closable: true,
+                            });
+                        }
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                    return
+                }
+                ;
+                if (this.stataObjPermission) {
+                    let blu = document.getElementsByClassName('SizeBlue')
+                    for (let a = 0; a < blu.length; a++) {
+                        if (blu[a].getElementsByTagName('input')[0]) {
+                            if (!blu[a].getElementsByTagName('input')[0].value) {
+                                alert('蓝色必填项不能为空')
+                                return
+                            }
+                        } else if (blu[a].getElementsByTagName('select')[0]) {
+                            if (!blu[a].getElementsByTagName('select')[0].value) {
+                                alert('蓝色必填项不能为空')
+                                return
+                            }
+                        }
+                    }
+                    axios({
+                        url: '../bingo/order_refund.php?action=update_statement',
+                        method: "post",
+                        data: this.stataObj
+                    }).then(res => {
+                        if (res.data.sus) {
+                            this.$Message.info({
+                                content: '保存成功',
+                                duration: 15,
+                                closable: true,
+                            });
+                            this.$emit('statewindupdatafun');
+                        } else {
+                            this.$Message.error({
+                                content: "保存失败" + res.data.data,
+                                duration: 15,
+                                closable: true,
+                            });
+                        }
+                    }).catch(err => console.log(err))
+                } else if (!this.permission == 1) {
+                    this.$Message.error({
+                        content: "没有更改权限",
+                        duration: 15,
+                        closable: true,
+                    });
+                }
+            },
+            //关闭报表
+            close: function () {
+                // this.reportFlag = false;
+                this.$emit('update:reportId', undefined)
+            },
+        },
+        created() {
+            //航班和非9c会传入报表对象数据，直接使用传入的
+            if (this.reportObj) {
+                this.stataObj = this.reportObj.data;
+                this.stataObjPermission = 1;
+            }
+            //为-1的时候 即为业务员自己添加报表
+            else if (this.reportId === -1) {
+                this.stataObj = {
+                    applytime: "",
+                    arr: "",
+                    deductionFee: "",
+                    flight: "",
+                    flyTime: "",
+                    platformId: "",
+                    platformOrder: "",
+                    platformRefund: "",
+                    position: "",
+                    refund: "",
+                    refundCost: "",
+                    refundProfitTotal: "",
+                    refundtime: "",
+                    remark: "",
+                    saleTotal: "",
+                    seller: "",
+                    shouldDeducted: "",
+                    smartNumber: "",
+                    start: "",
+                    submitAirlineType: "",
+                    submitUser: "",
+                    ticketTable: "",
+                    ticketType: "",
+                    totalMoney: "",
+                    willType: "",
+                    passengers: [{}],
+                }
+            }
+                //当以上条件都不满足，去后台请求需要的报表数据
+            //且此处不会在已经开启弹窗后再请求，间件防止多次请求
+            else {
+                axios({
+                    url: '../bingo/order_refund.php?action=statement_infos',
+                    method: 'get',
+                    params: {
+                        id: this.reportId,
+                    }
+                }).then(res => {
+                    this.stataObj = res.data.data;
+                    this.stataObjPermission = res.data.permission;
+                }).catch(err => console.log(err))
+            }
+        },
+    });
+    //日志
+    Vue.component('log', {
+        template: '#log',
+        props: ['id'],
+        data() {
+            return {
+                logtable: [],
+                columns1: [
+                    {
+                        title: '操作人',
+                        key: 'operator',
+                    },
+                    {
+                        title: '时间',
+                        key: 'time',
+                    },
+                    {
+                        title: '操作',
+                        key: 'action',
+                        width: 300,
+                    }
+                ],
+            }
+        },
+        computed: {
+            // logWindowFlag(){
+            //     // return this.$store.state.logWindowFlag
+            // },
+            // logtable(){
+            //     // return this.$store.state.logtable;
+            // },
+        },
+        methods: {
+            windoflagfun: function () {
+                this.$emit('update:id', null)
+            }
+        },
+        created() {
+            axios({
+                url: '../bingo/order_refund.php?action=refund_log',
+                method: 'get',
+                params: {
+                    id: this.id
+                }
+            }).then(res => {
+                if (res.data.data) {
+                    this.logtable = res.data.data;
+                    //关闭查询框
+                    this.$store.state.foundwinFlag = false;
+                    //关闭查询开关
+                    this.$store.state.findFlag = false;
+                }
+            }).catch(err => console.log(err))
+        }
+    });
+    //备注
+    Vue.component('refundRemarksWindow', {
+        template: '#refundRemarksWindow',
+        props: ['remarks-obj'],
+        data() {
+            return {
+                //备注弹窗的开关
+                flag: false,
+                //业务原填写的备注值
+                remarkValue: null,
+            }
+        },
+        watch: {
+            remarksObj: {
+                handler: function () {
+                    this.flag = true;
+                    this.remarkValue = this.remarksObj.oldRemarks
+                },
+                deep: true,
+            }
+        },
+        computed: {},
+        methods: {
+            sureMarkeFun() {
+                axios({
+                    url: '../bingo/order_refund.php?action=remark',
+                    method: 'post',
+                    data: {
+                        id: this.remarksObj.id,
+                        remark: this.remarkValue,
+                    }
+                }).then(res => {
+                    if (res.data.sus) {
+                        this.$emit('remarksupdatafun');
+                    } else {
+                        this.$Message.error({
+                            content: "备注填写操作失败",
+                            duration: 15,
+                            closable: true,
+                        });
+                    }
+                }).catch(err => {
+                    console.log(err)
+                })
+            }
+        },
+    });
+
+
+    let domvue = new Vue({
+        el: '#vuedom',
+        store,
+        data() {
+            return {
+                //让整个页面第一次渲染时候 未处理组件为选中状态 iview的UI:tabls v-model的初始name值
+                //同时该值也会导致任意刷新后，总是跳转到固定选项卡
+                nameValue: 'undetable',
+                //手动生成订单弹窗的开关
+                aritificialOrderFlag: undefined,
+                <!--航班录入开关-->
+                airChangeWindowFlag: false,
+                //航变对象
+                airChangeWindowObj: {
+                    start: null,
+                    arr: null,
+                    flight: null,
+                    flyTime: null,
+                    flight_change: null,
+                },
+
+            }
+        },
+        computed: {
+            animaFlag() {
+                return this.$store.state.animaFlag;
+            },
+        },
+        watch: {},
+        methods: {
+
+            //导出功能
+            textOut(nameValue) {
+                if (nameValue == 'detable') {
+                    axios({
+                        url: "../bingo/order_refund.php?action=out",
+                        method: 'post',
+                        responseType: 'blob',
+                        data: this.$store.state.obj
+                    }).then(response => {
+                        if (response.data.size > 0) {
+                            let filename = '9C退票报表';
+                            let url = window.URL.createObjectURL(response.data);
+                            let link = document.createElement('a');
+                            link.style.display = 'none';
+                            link.href = url;
+                            link.setAttribute('download', filename + '.xls');
+                            document.body.appendChild(link);
+                            link.click();
+                        } else {
+                            alert('日期错误或暂无数据');
+                        }
+                    }).catch(err => {
+                        console.log(err);
+                    });
+                } else if (nameValue == 'not9cdetable') {
+                    axios({
+                        url: "../bingo/order_refund.php?action=not9Cout",
+                        method: 'post',
+                        responseType: 'blob',
+                        data: this.$store.state.obj
+                    }).then(response => {
+                        if (response.data.size > 0) {
+                            let filename = '非9C退票报表';
+                            let url = window.URL.createObjectURL(response.data);
+                            let link = document.createElement('a');
+                            link.style.display = 'none';
+                            link.href = url;
+                            link.setAttribute('download', filename + '.xls');
+                            document.body.appendChild(link);
+                            link.click();
+                        } else {
+                            alert('日期错误或暂无数据');
+                        }
+                    }).catch(err => {
+                        console.log(err);
+                    });
+                }
+            },
+            //手动生成订单弹窗
+            aririficialOrderFun() {
+                //原弹窗逻辑展示是据订单号来显示隐藏，所以此出只能前端自己造一个订单id，
+                //且可以保证在此后时间中程序运转不会与数据库id相冲突。虽然不一定要传id给后台。
+                this.aritificialOrderFlag = -1;
+            },
+            //    航变弹窗开关
+            airChangeWindowFun() {
+                this.airChangeWindowFlag = !this.airChangeWindowFlag;
+            },
+            airChangeWindowOk() {
+                axios({
+                    url: '../bingo/order_refund.php?action=flight_change',
+                    method: 'post',
+                    data: this.airChangeWindowObj
+                }).then(res => {
+                    if (!res.data.sus) {
+                        this.$Message.error({
+                            content: res.data.data,
+                            duration: 15,
+                            closable: true,
+                        })
+                    }
+                }).catch(err => {
+                    console.log(err)
+                })
+            },
+            airChangeWindowCancel() {
+                this.airChangeWindowFlag = !this.airChangeWindowFlag;
+            },
+            //日期格式更改方法
+            flyTimeFun(data) {
+                this.airChangeWindowObj.flyTime = data;
+            },
+        },
+        created() {
+
+
+        },
+        beforeMount() {
+            let a = window.sessionStorage.getItem('nameValue');
+            if (a) {
+                this.nameValue = a
+            }
+        },
+        mounted() {
+        },
+    });
+</script>
+
+</body>
+</html>

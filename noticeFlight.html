@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>航变通知</title>
+    <script src="../vue/vue.js"></script>
+    <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+    <link rel="stylesheet" href="../resource/css/tableCustom.css">
+
+    <style type="text/css">
+        /*搜索样式*/
+        #findWind{
+            width: 900px;
+            margin: 10px;
+            margin-left: 100px;
+            display: flex;
+            flex-wrap:wrap;
+            /*justify-content: space-around;*/
+            align-items: center;
+        }
+        #findWind>div{
+            margin: 10px 10px 5px 0px;
+        }
+        #findWind>div>select{
+            width: 150px;
+            border: 1px solid #dcdee2;
+            height: 27px;
+            border-radius: 3px;
+        }
+        #findWind>div>input{
+            width: 150px;
+            border: 1px solid #dcdee2;
+            height: 27px;
+            border-radius: 3px;
+        }
+        /*table最上面一排操作按钮*/
+        #handlebut{
+            display: flex;
+        }
+        #handlebut>*{
+            margin-left: 15px;
+        }
+        /*新增航变弹窗组件样式*/
+        .noticeFlightWindowClass{
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+        .noticeFlightWindowClass>div{
+            margin: 3px;
+            width: 200px;
+
+        }
+        .noticeFlightWindowClass>div>div{
+            margin: 3px 0;
+        }
+        .noticeFlightAlotClass>div{
+            width: 230px;
+        }
+        .order_noClass{
+            display: flex;
+            justify-content: space-around;
+        }
+        .order_noClass>:first-child{
+            /*flex: 1 1 100px;*/
+            width: 300px;
+
+        }
+        .noticeFlighTypeKeyClass{
+            margin: 3px 0;
+            display: flex;
+            height: 40px;
+            justify-content: space-around;
+            flex: 1 1 280px ;
+            line-height: 40px;
+        }
+        .noticeFlightWindButton{
+            margin-top: 4px;
+            display: flex;
+            justify-content:flex-end
+        }
+        /*分业样式*/
+        .page{
+            margin:10px;
+            float:right;
+        }
+
+    </style>
+    <style>
+        table>thead>tr>th{
+            /*border-collapse: collapse;*/
+            border: 1px silver solid;
+        }
+        .tableDiv{
+            overflow: auto;
+            /*overflow-x: scroll;*/
+        }
+        .tableDiv>table>tbody>tr>td{
+            border: 1px silver solid;
+            padding: 0 2px;
+            /*height: 50px;*/
+        }
+    </style>
+</head>
+<body>
+<div id="VueNoticeFlight">
+    <find-Window v-if="findFlag"></find-Window>
+    <noticeflight ref="noticeFlightTable"></noticeflight>
+</div>
+<!--查询框-->
+<template id="findWindow">
+    <div id="findWind">
+        <div>
+            <span>订单号</span>
+            <input type="text" v-model="order_no">
+        </div>
+        <div>
+            <span>航班号</span>
+            <input type="text" v-model="flightNum">
+        </div>
+        <div>
+            <span>航变类型</span>
+            <select v-model="typeKey" filterable style="width:150px">
+                <option value="0">全部</option>
+                <option value="1">变更</option>
+                <option value="2">取消,有保护航班</option>
+                <option value="2">取消,无保护航班</option>
+            </select>
+        </div>
+        <div>
+            <span>是否通知</span>
+            <select v-model="is_notice" filterable style="width:150px">
+                <option value="0">所有</option>
+                <option value="1">没有</option>
+                <option value="2">有</option>
+            </select>
+        </div>
+        <i-button @click="findFun" size="small">查询</i-button>
+    </div>
+</template>
+<!--主体展示table-->
+<template id="noticeflight">
+    <div>
+        <deal-noticeflight :new-add-window-flag.sync="newAddWindowFlag"></deal-noticeflight>
+        <alot-of-order></alot-of-order>
+        <div class="tableDiv">
+            <div id="handlebut">
+                <i-Button size="small"  style="margin: 0px 30px 0px 30px;cursor: pointer" @click="findshow">
+                    <span>查询框</span>
+                </i-Button>
+                <i-Button size="small"  @click="newAdd">新增</i-Button>
+            </div>
+            <table style="width: 100%;table-layout: fixed;word-break: break-all;">
+                <colgroup>
+                    <col width="60px"> <!--序号-->
+                    <col width="150px"> <!--订单号-->
+                    <col width="100px"> <!--航变类型-->
+                    <col width="60px"> <!--保护航班号-->
+                    <col width="100px"> <!--变更后 航信-->
+                    <col width="45px"> <!--航班号-->
+                    <col width="150px"> <!--变更前 航信-->
+                    <col width="60px"> <!--是否通知-->
+                    <col width="90px"> <!--创建时间-->
+                    <col width="90px"> <!--创建人-->
+                </colgroup>
+                <thead>
+                <tr class="TableHead">
+                    <th style="width: 40px">序号</th>
+                    <th>订单号</th>
+                    <th>航变类型</th>
+                    <th>保护航班号</th>
+                    <th>变更后 航信</th>
+                    <th>航班号</th>
+                    <th>变更前 航信</th>
+                    <th>是否通知</th>
+                    <th>创建时间</th>
+                    <th>创建人</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(ele,index) in tableObj" :key="ele.id" :data-lin="ele.is_effective">
+                    <!--序号-->
+                    <td>
+                        {{ele.id}}
+                    </td>
+                    <!--订单号-->
+                    <td>
+                        {{ele.order_no }}
+                    </td>
+                    <!--航变类型 1 变更 2 取消,有保护航班 3 取消,无保护航班-->
+                    <td>
+                        <div v-if="ele.typeKey==1">变更</div>
+                        <div v-else-if="ele.typeKey==2">取消,有保护航班</div>
+                        <div v-else="ele.typeKey==3">取消,无保护航班</div>
+                    </td>
+                    <!--保护航班号-->
+                    <td>{{ele.flightNumProtect}}</td>
+                    <!--变更后 航信-->
+                    <td>
+                        <div>
+                            <div>
+                                <!--变更后出发日期 时间-->
+                                {{ele.flightDate}} {{ele.dptTime}}
+                            </div>
+                           <div>
+                               <!--变更后到达日期 到达时间-->
+                               {{ele.arrDate}} {{ele.arrTime}}
+                           </div>
+                            <!--变更后 起飞机场--><!--变更后 到达机场-->
+                            {{ele.depAirport}}-{{ele.arrAirport}}
+                        </div>
+                    </td>
+                    <!--航班号-->
+                    <td>
+                        {{ele.flightNum}}
+                    </td>
+                    <!--变更前 航信-->
+                    <td>
+                        <div>
+                            <!--变更前 起飞日期-->
+                            {{ele.preDptDate}}
+                            <!--变更前 起飞时间--><!--变更前 到达时间-->
+                            {{ele.preDptTime}}-{{ele.preArrTime}}
+                            <!--变更前 起飞机场--><!--变更前 到达机场-->
+                            {{ele.preDptAirPort}}-{{ele.preArrAirPort}}
+                        </div>
+                    </td>
+                    <!--是否通知 1没有 2有-->
+                    <td>
+                        <div v-if="ele.is_notice==1">否</div>
+                        <div v-else-if="ele.is_notice==2">是</div>
+                    </td>
+                    <!--创建时间-->
+                    <td>{{ele.createtime}}</td>
+                    <!--创建人-->
+                    <td>{{ele.creater}}</td>
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--分页逻辑-->
+        <div class="page">
+            <div>
+                <button @click="firstpage">首页</button>
+                <button @click="uppage">上一页</button>
+                共<span>{{pages}}</span>页&nbsp;&nbsp;
+                第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" id="apage" v-model="num" ref="num" @click="saveNum(num)">&nbsp;页&nbsp;&nbsp;
+                <button type="button" title="确定"  @click="gotopage">转到</button>
+                <button @click="downpage">下一页</button>
+                <button @click="lastpage">末页</button>
+            </div>
+        </div>
+    </div>
+</template>
+<!--处理弹窗-->
+<template id="dealNoticeFlight">
+    <div>
+        <Modal
+                v-model="flag"
+                title="新增"
+                draggable
+                width="500"
+                :footer-hide="true"
+                :z-index="2"
+        >
+            <div >
+                <div class="order_noClass">
+                    <i-input  v-model.trim="noticeFlightObj.order_no">
+                        <span slot="prepend">订单号</span>
+                    </i-input>
+                    <i-button @click="findOrderInfo" size="small">查询</i-button>
+                </div>
+                <div class="noticeFlighTypeKeyClass">
+                    <span>航变类型&#8194;：</span>
+                    <radio-group v-model="noticeFlightObj.typeKey">
+                        <Radio label="1">
+                            <span>变更</span>
+                        </Radio>
+                        <Radio label="2">
+                            <span>取消，有保护航班</span>
+                        </Radio>
+                        <Radio label='3'>
+                            <span>取消，无保护航班</span>
+                        </Radio>
+                    </radio-group>
+                </div>
+                <div class="noticeFlightWindowClass">
+                    <div>
+                        <div>
+                            <i-input v-model.trim="noticeFlightObj.flightNum">
+                                <span slot="prepend">航班号</span>
+                            </i-input>
+                        </div>
+                        <div>
+                            <span>变更前起飞时间：</span>
+                            <time-picker type="time"  @on-change="preDptTimeFly"  v-model="noticeFlightObj.preDptTime" value-format="HH:mm" format="HH:mm"  placeholder="选择时间" placement="bottom-end" style="width: 200px"></time-picker>
+                        </div>
+                        <div>
+                            <span>变更前到达时间：</span>
+                            <time-picker type="time"  value-format="HH:mm" format="HH:mm" v-model="noticeFlightObj.preArrTime"  @on-change="preArrTimeFly" placeholder="选择时间" placement="bottom-end" style="width: 200px"></time-picker>
+                        </div>
+                        <div>
+                            <i-input v-model.trim="noticeFlightObj.preDptDate">
+                                <span slot="prepend">变更前起飞日期</span>
+                            </i-input>
+                        </div>
+                        <div>
+                            <i-input v-model.trim="noticeFlightObj.preDptAirPort">
+                                <span slot="prepend">变更前起飞机场</span>
+                            </i-input>
+                        </div>
+                        <div>
+                            <i-input v-model.trim="noticeFlightObj.preArrAirPort">
+                                <span slot="prepend">变更前到达机场</span>
+                            </i-input>
+                        </div>
+                        <i-button size="small" type="info" @click="findSameOrderFun">搜索相同订单</i-button>
+                    </div>
+                    <div>
+                        <div>
+                            <i-input v-model.trim="noticeFlightObj.flightNumProtect">
+                                <span slot="prepend">保护航班号</span>
+                            </i-input>
+                        </div>
+                        <div>
+                            <span>变更后起飞日期：</span>
+                            <date-picker type="date" placeholder="选择日期" split-panels @on-change="timeFly" placement="bottom-end"></date-picker>
+                        </div>
+                        <div>
+                            <span>变更后到达日期：</span>
+                            <date-picker type="date" placeholder="选择日期" split-panels @on-change="arrDateFly" placement="bottom-end"></date-picker>
+                        </div>
+                        <div>
+                            <span>变更后起飞时间：</span>
+                            <time-picker type="time"  @on-change="dptTimeFly"  value-format="HH:mm" format="HH:mm"  placeholder="选择时间" placement="bottom-end"></time-picker>
+                        </div>
+                        <div>
+                            <span>变更后到达时间：</span>
+                            <time-picker type="time"  value-format="HH:mm" format="HH:mm"  @on-change="arrTimeFly" placeholder="选择时间" placement="bottom-end"></time-picker>
+                        </div>
+                        <div>
+                            <i-input v-model.trim="noticeFlightObj.depAirport">
+                                <span slot="prepend">变更后起飞机场</span>
+                            </i-input>
+                        </div>
+                        <div>
+                            <i-input v-model.trim="noticeFlightObj.arrAirport">
+                                <span slot="prepend">变更后到达机场</span>
+                            </i-input>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="noticeFlightWindButton">
+                <i-button size="small" @click="dealNoticeFlightClose">取消</i-button>
+                <i-button size="small" type="primary" @click="dealNoticeFlightSure">确定</i-button>
+            </div>
+        </Modal>
+    </div>
+</template>
+<!--订单多选弹窗-->
+<template id="alotOfOrder">
+    <div>
+        <Modal
+                v-model="flag"
+                title="相同订单"
+                draggable
+                width="300"
+                :closable="false"
+                :footer-hide="true"
+                :styles="{top: '5px'}"
+                :z-index="10"
+        >
+            <div class="noticeFlightAlotClass">
+                <Checkbox-group v-model="sureList">
+                    <Checkbox :label="ele.platformOrder" v-for="(ele) in orderlist" :key="ele.platformOrder">
+                        <span>{{ele.platformOrder}}</span>
+                        <span>{{ele.platformStatus}}</span>
+                    </Checkbox>
+                </Checkbox-group>
+            </div>
+        </Modal>
+    </div>
+</template>
+
+<script type="text/javascript" src="../resource/iview-2.0/dist/iview.min.js"></script>
+<script type="text/javascript" src="../vue/vuex.js"></script>
+<script type="text/javascript" src="../vue/axios.min.js"></script>
+<script type="text/javascript" src="../vue/vue-router.js"></script>
+
+
+<script type="text/javascript">
+    let bus = new Vue;
+    const busData = Vue.observable({
+        list:[],
+        //被选中的checkbox
+        sureList:[],
+    })
+    //主体table
+    Vue.component('noticeflight',{
+        template:'#noticeflight',
+        data(){
+            return{
+                //政策主体数据
+                tableObj:null,
+                num:1,
+                //nnum用来保存num之前的页数
+                nnum:undefined,
+                pages:undefined,
+                findObj:null,
+                //新增弹窗开关
+                newAddWindowFlag:false,
+            }
+        },
+        methods:{
+            //初始化数据请求函数
+            tableData(page,findObj=null){
+                axios({
+                    url:'../bingo/notice_flight.php?action=all_noticeFlight',
+                    method:'post',
+                    data:{
+                        findObj,
+                        page,
+                    }
+                }).then(res=>{
+                    this.tableObj = res.data.list;
+                    this.pages = res.data.pages;
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //查询框按钮
+            findshow(){
+                this.$store.state.findFlag = ! this.$store.state.findFlag
+            },
+            //新增按钮  开启新增弹窗
+            newAdd(){
+                this.newAddWindowFlag = !this.newAddWindowFlag;
+            },
+            //分页函数
+            //保存num
+            saveNum(data){
+                this.nnum = data;
+            },
+            //向后转页面 —
+            uppage:function(){
+                if(this.num>1){
+                    this.num -= 1;
+                }else if(this.num<1){
+                    alert('没有该用页码')
+                }else{
+                    return
+                };
+                this.axfun(this.num);
+            },
+            //向前转页面 +
+            downpage:function(){
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if(this.num<this.pages){
+                    this.num = this.num + 1;
+                }else{
+                    return
+                };
+                this.axfun(this.num)
+            },
+            //直接去某页面
+            gotopage:function () {
+                let val = this.num;
+                if(val > this.pages||val<1){
+                    this.num = this.nnum;
+                    alert('没有该页码');
+                }else if(val==this.pages){
+                    //输入框当前页等于总页数的时候，是没必要做跳转的
+                    return
+                }else{
+                    this.num = Math.round(this.num);
+                    this.num = val;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去首页
+            firstpage:function () {
+                if(this.num == 1){
+                    return
+                }else{
+                    this.num = 1;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去末尾页
+            lastpage:function () {
+                if(this.num == this.pages){return}else {
+                    this.num = this.pages;
+                    this.axfun(this.num);
+                }
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun:function(page){
+                this.tableData(page,this.findObj)
+            },
+        },
+        created(){
+            this.tableData(1)
+        }
+    });
+    //搜索框
+    Vue.component('findWindow',{
+        template:'#findWindow',
+        data(){
+            return{
+                order_no:null,
+                typeKey:null,
+                flightNum:null,
+                is_notice:null
+            }
+        },
+        computed:{
+            findFlag(){
+                return this.$store.state.findFlag;
+            }
+        },
+        methods:{
+            handleChange(data){
+                this.dateValue = data
+            },
+            //查找方法
+            findFun(){
+                //实际调用的是table的请求数据的方法。
+                let findObj = {
+                    order_no:this.order_no,
+                    typeKey:this.typeKey,
+                    flightNum:this.flightNum,
+                    is_notice:this.is_notice,
+                };
+                return this.$parent.$refs.noticeFlightTable.tableData(1,findObj)
+            }
+        }
+    });
+    //新增弹窗
+    Vue.component('dealNoticeflight',{
+        template:'#dealNoticeFlight',
+        props:['newAddWindowFlag'],
+        data(){
+            return{
+                //是否显示处理窗口
+                noticeFlightObj:{
+                    order_no:"",
+                    //航变类型
+                    typeKey:"1",
+                    //原航班号
+                    flightNum:'',
+                    //变更后起飞日期
+                    flightDate:null,
+                    //变更后起飞时间
+                    dptTime:null,
+                    //变更后到达时间
+                    arrTime:null,
+                    //保护航班
+                    flightNumProtect:'',
+                    //变更后起飞机场
+                    depAirport:null,
+                    //变更后到达机场
+                    arrAirport:null,
+                    //变更后到达日期
+                    arrDate:null,
+                    //座位确认字段，为null即可
+                    ensureKey:null,
+                    //变更前起飞时间
+                    preDptTime:null,
+                    //变更前到达时间
+                    preArrTime:null,
+                    //变更前起飞日期
+                    preDptDate:null,
+                    //变更前起飞机场三字码
+                    preDptAirPort:null,
+                    //变更前到达机场三字码
+                    preArrAirPort:null,
+                },
+                flag:false,
+            }
+        },
+        computed:{
+        },
+        watch:{
+            newAddWindowFlag:{
+                handler(data){
+                    this.flag = data
+                }
+            }
+        },
+        methods:{
+            //处理页面的查询按钮
+            findOrderInfo(){
+                if(!this.noticeFlightObj.order_no){
+                    alert('订单号 没有填写')
+                    return
+                }
+                axios({
+                    url:'../bingo/notice_flight.php?action=pre',
+                    method:'post',
+                    data:{
+                        order_no:this.noticeFlightObj.order_no
+                    }
+                }).then(res=>{
+                    if(res.data.flightNum == null){
+                        alert("无该订单号");
+                        return;
+                    }else{
+                        this.noticeFlightObj.flightNum = res.data.flightNum;
+                        this.noticeFlightObj.preDptTime = res.data.preDptTime;
+                        this.noticeFlightObj.preArrTime = res.data.preArrTime;
+                        this.noticeFlightObj.preDptDate = res.data.preDptDate;
+                        this.noticeFlightObj.preDptAirPort = res.data.preDptAirPort;
+                        this.noticeFlightObj.preArrAirPort = res.data.preArrAirPort;
+                    }
+
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //搜索相同订单
+            findSameOrderFun(){
+                if(!this.noticeFlightObj.order_no){
+                    this.$Message.error({
+                        closable:true,
+                        content:'请先输入订单号',
+                        duration:10,
+                    })
+                    return
+                }
+                //同类订单
+                axios({
+                    url:'../bingo/notice_flight.php?action=get_order_list',
+                    method:'post',
+                    data:{
+                        dpt: this.noticeFlightObj.preDptAirPort,
+                        arr: this.noticeFlightObj.preArrAirPort,
+                        flyTime: this.noticeFlightObj.preDptDate+' '+ this.noticeFlightObj.preDptTime + ":00",
+                        flight: this.noticeFlightObj.flightNum,
+                    }
+                }).then(res=>{
+                    if(res.data.code == 100){
+                        busData.list = res.data.list;
+                    }else{
+                        this.$Message.error({
+                            closable:true,
+                            content:'无该订单号',
+                            duration:10,
+                        })
+                    }
+
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //处理政策页面的关闭按钮
+            dealNoticeFlightClose(){
+                this.$emit('update:newAddWindowFlag',false);
+                busData.list = [];
+                busData.sureList = [];
+            },
+            //起飞时间出发函数
+            timeFly(data){
+                this.noticeFlightObj.flightDate = data;
+            },
+            arrDateFly(data){
+                this.noticeFlightObj.arrDate =data;
+            },
+            dptTimeFly(data){
+                this.noticeFlightObj.dptTime = data;
+            },
+            preDptTimeFly(data){
+                this.noticeFlightObj.preDptTime = data;
+            },
+            preArrTimeFly(data){
+                this.noticeFlightObj.preArrTime = data;
+            },
+            arrTimeFly(data){
+                this.noticeFlightObj.arrTime = data;
+            },
+            //持票时间出发函数
+            parseDate(value,ruler){
+                let timeRuler = (value+'').match('')
+                if(timeRuler instanceof Array){
+                    console.error(value +' 检测到不正确符号' + timeRuler[0]);
+                    return
+                };
+                let time1 = new Date(value);
+                if(time1+''=='Invalid Date'){
+                    console.error(value +' 不是正确时间格式');
+                    return
+                }
+                let year = new Date(time1).getFullYear();
+                let month = (new Date(time1).getMonth())+1;
+                let day = new Date(time1).getDate();
+                let hour = new Date(time1).getHours();
+                let minutes = new Date(time1).getMinutes();
+                let seconds = new Date(time1).getSeconds();
+                if(month<10){
+                    month = '0'+month;
+                }
+                if(day<10){
+                    day = '0'+day;
+                }
+                if(!hour){
+                    hour = '00';
+                }else if(hour<10){
+                    hour = '0'+ hour;
+                }
+                if(!minutes){
+                    minutes = '00';
+                }
+                if(!seconds){
+                    seconds = '00';
+                }
+                let parseTime = year +"-"+ month +"-"+ day +' '+hour+':'+minutes +':'+seconds;
+
+                return parseTime
+            },
+            //页面确定按钮
+            dealNoticeFlightSure(){
+                //确定按钮的新增函数
+                let noticeFlightObj = JSON.parse(JSON.stringify(this.noticeFlightObj));
+                if(!noticeFlightObj.order_no) {
+                    alert('订单号 没有填写');
+                    return
+                }
+                if(noticeFlightObj.typeKey != '2'){
+                    //保护航班号为空字符
+                    noticeFlightObj.flightNumProtect = '';
+                }
+                else{
+                    if(!noticeFlightObj.flightNumProtect){
+                        alert('保护航班号 没有填写');
+                        return
+                    }
+                }
+
+                //noticeFlightObj.typeKey 为3 则 变更后数据操作员不同填写 传给后台数据需要传空值字符串
+                if(noticeFlightObj.typeKey == '3'){
+                    noticeFlightObj.dptTime = '';
+                    noticeFlightObj.arrTime = '';
+                    noticeFlightObj.depAirport = '';
+                    noticeFlightObj.arrAirport = '';
+                    noticeFlightObj.arrDate = '';
+                    noticeFlightObj.flightDate = '';
+                }
+                //确认必选项是否都已填上
+                /*if(!(noticeFlightObj.flightNum&&noticeFlightObj.depAirport&&noticeFlightObj.arrAirport
+                    &&noticeFlightObj.arrDate&&noticeFlightObj.preArrAirPort&&noticeFlightObj.preDptAirPort&&noticeFlightObj.preDptDate&&noticeFlightObj.preDptAirPort&&noticeFlightObj.preArrAirPort)){
+
+                }*/
+                switch(true){
+                    case !noticeFlightObj.flightNum:alert('航班号 没有填写');return;
+                    case !noticeFlightObj.preDptTime:alert('变更前起飞时间 没有填写');return;
+                    case !noticeFlightObj.preArrTime:alert('变更前到达时间 没有填写');return;
+                    case !noticeFlightObj.preDptDate:alert('变更前起飞日期 没有填写');return;
+                    case !noticeFlightObj.preDptAirPort:alert('变更前起飞机场三字码 没有填写');return;
+                    case !noticeFlightObj.preArrAirPort:alert('变更前到达机场三字码 没有填写');return;
+                }
+                switch(true){
+                    //当类型为3 业务员是不用填写变更后数据的
+                    case (noticeFlightObj.typeKey == '3'):
+                        break;
+                    case !noticeFlightObj.dptTime:
+                        alert('变更后起飞时间 没有填写');
+                        return;
+                    case !noticeFlightObj.arrTime:
+                        alert('变更后到达时间 没有填写')
+                        return;
+                    case !noticeFlightObj.depAirport:
+                        alert('变更后起飞机场 没有填写');return;
+                    case !noticeFlightObj.arrAirport:
+                        alert('变更后到达机场 没有填写');return;
+                    case !noticeFlightObj.arrDate:
+                        alert('变更后到达日期 没有填写');return;
+                    case !noticeFlightObj.flightDate:
+                        alert('变更后起飞日期 没有填写');return;
+                }
+                if(noticeFlightObj.preDptAirPort.length!=3){
+                    alert('变更前起飞机场三字码长度为3位')
+                    return
+                };
+                if(noticeFlightObj.preArrAirPort.length!=3){
+                    alert('变更前到达机场三字码长度为3位')
+                    return
+                };
+                if(!busData.sureList.length){
+                    let arrlist = [];
+                    noticeFlightObj.list = arrlist;
+                    noticeFlightObj.list[0] = this.noticeFlightObj.order_no
+                }else{
+                    noticeFlightObj.list = busData.sureList;
+                }
+                axios({
+                    url:'../bingo/notice_flight.php?action=confirm',
+                    method:'post',
+                    data:noticeFlightObj
+                }).then(res=>{
+                    if(res.data.code == 100){
+                        this.$Message.info({
+                            content:'新增成功',
+                            duration:5,
+                            closable:true
+                        })
+                        window.location.reload(true);
+                    }else{
+                        this.$Message.error({
+                            content:res.data.msg,
+                            duration:10,
+                            closable:true
+                        })
+                    }
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+        },
+        mounted(){
+
+        },
+        created(){
+        }
+    });
+    //多选订单弹窗
+    Vue.component('alotOfOrder',{
+        template:'#alotOfOrder',
+        data(){
+            return{
+                alotOrderflag:false,
+                //相同订单
+                orderlist:[],
+            }
+        },
+        computed:{
+            flag:{
+                get(){
+                    if(busData.list.length){
+                        this.orderlist = busData.list
+                        return true
+                    }else{
+                        return false
+                    }
+                },
+                set(){}
+            },
+            sureList:{
+                get(){
+                    return busData.sureList
+                },
+                set(data){
+                    busData.sureList = data;
+                }
+            }
+        },
+        watch:{
+        },
+        methods:{
+
+        },
+    });
+    const store = new Vuex.Store({
+        state:{
+            //查找传开关
+            findFlag:false,
+            //开启操作政策弹窗后调用不同函数体的开关，新增和修改都是开启弹窗，但是两种调用的函数不同
+            //初始值为true,表总是新增
+            noticeFlightFunctionFlag:true,
+            //政策弹窗的数据载体
+            dealnoticeFlightObj:null,
+            //    保存已经勾选的序号
+            idList:[],
+            //当单个政策需要修改的时候，用来传给后台的id
+            ordId:undefined,
+        },
+        mutations:{
+        }
+    });
+    let a = new Vue({
+        el:'#VueNoticeFlight',
+        store,
+        data:{
+
+        },
+        computed:{
+            findFlag(){
+                return this.$store.state.findFlag;
+            },
+            dealNoticeFlight(){
+                return this.$store.state.dealNoticeFlight;
+            },
+        },
+
+    })
+</script>
+</body>
+</html>

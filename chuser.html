@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>春秋账号管理</title>
+    <link href="../bingo/css/bootstrap.min14ed.css" rel="stylesheet">
+	<style>
+		#chuser{
+			padding:40px 20px 20px;
+		}
+		 /*分页样式*/
+        .classpage{
+            padding: 0px 3px;
+            color: black;
+            cursor: pointer;
+            display: inline-block;
+            border: 1px white solid;
+        }
+        .classpage:active{
+            border: 1px silver solid;
+        }
+        .searchanima-enter,.searchanima-leave-to{
+            transition:all 2s;
+            /*background-color: red;*/
+            transform: translate(0px,-200px);
+        }
+        .searchanima-leave-active,.searchanima-enter-to{
+            transition:all 1.5s;
+            transform: translate(0px,0px);
+            /*background-color: red;*/
+        }
+        .san{
+            display: inline-block;
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            border-style: solid;
+            border-width: 30px 0px 0px 40px;
+            border-color: #CBE3FB transparent transparent transparent;
+            cursor: pointer;
+        }
+        .san:hover{
+            display: inline-block;
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            border-style: solid;
+            border-width: 30px 0px 0px 40px;
+            border-color: #EECBAD transparent transparent transparent;
+            cursor: pointer;
+        }
+		.mb-l{
+			margin-left:100px;
+		}
+		label.form-control>input{
+			border:none;
+		}
+		label.form-control>a{
+			cursor:pointer;
+		}
+		.radioCheck{
+			margin-left:30px;
+		}
+	</style>
+</head>
+<body>
+<div id="chuser">
+	<div id="loading"></div>
+    <ul id="myTab"  class="nav nav-tabs">
+		<li class="active"><a href="#now" data-toggle="tab" @click="changeTab(1)">正在使用</a></li>
+		<li><a href="#unused" data-toggle="tab"  @click="changeTab(2)"  >未使用</a></li>
+		<li><a href="#test" data-toggle="tab" @click="changeTab(3)"  >测试账号</a></li>
+		<li><a href="#pollution" data-toggle="tab"  @click="changeTab(4)" >已污染</a></li>
+
+		<li class="mb-l " v-show="Reason">
+			<select class="form-control" id="ReasonValue">
+				<option value="0"></option>
+				<option value="1">跳高价</option>
+				<option value="2">密码错误</option>
+				<option value="3">会员或IP限制</option>
+			</select>
+		</li>
+
+		<li class="mb-l " v-show="nowAccount"><button type="button"  @click="turnToPollution()" class="btn btn-default btn-sm">拉黑</button></li>
+		<li class="mb-l " v-show="unusedAccount"><button type="button"  @click="turnToUse()" class="btn btn-default btn-sm">转为使用</button></li>
+		<li class="mb-l " v-show="pollutionAccount" ><button type="button"  @click="returnToUse()" class="btn btn-default btn-sm">还原已污染</button></li>
+		<li class="mb-l "><button type="button"  @click="changeAccount()" class="btn btn-warning btn-sm">一键切换</button></li>
+		<li class=" radioCheck">
+		<label>
+		<input type="radio" name='radioCheck' checked @click="selectNum = 1"/>前匹配
+		</label>
+		</li>
+		<li class=" radioCheck">
+		<label>
+		<input type="radio" name="radioCheck" @click="selectNum = 2"/>后匹配
+		</label></li>
+		<li class="mb-l "><label class="form-control"><input type="text" v-model="searchItem" placeholder="账号"  ><a href="javascript:;" @click="search()">查找</a></label></li>
+	</ul>
+
+	<div id="myTabContent" class="tab-content">
+		<table class="table table-condensed">
+		  <thead>
+			<tr>
+			  <th><input type="checkbox" id="checkbox" v-model="checked" @change="changeAllChecked()"></th>
+			  <th>账号</th>
+			  <th>密码</th>
+			  <th>姓名</th>
+			  <th>手机号</th>
+			  <th>使用次数</th>
+			  <th>状态</th>
+				<th>渠道</th>
+				<th>日期</th>
+			</tr>
+		  </thead>
+		  <tbody>
+			<tr v-for="(row,index) in list" :key="index">
+			  <td><input type="checkbox" :value="row.id" v-model="ids"></td>
+			  <td>{{row.username}}</td>
+			  <td>{{row.password}}</td>
+			  <td>{{row.name}}</td>
+			  <td>{{row.contactphone}}</td>
+			  <td>{{row.ccount}}</td>
+			  <td>{{row.state}}</td>
+				<td>{{row.src}}</td>
+				<td>{{row.createtime}}</td>
+			</tr>
+		  </tbody>
+		</table>
+		 <!--分页逻辑-->
+		<div  class="form-group form-inline" style="padding-bottom: 35px;margin-right: 20px">
+			<div class="col-sm-12" >
+				<div style="float: right">
+					<a class="classpage" @click="firstpage"><span class="glyphicon glyphicon-step-backward"></span></a>
+					<a class="classpage" @click="uppage"><span class="glyphicon glyphicon-backward"></span></a>
+					共<span>{{pages}}</span>页&nbsp;&nbsp;
+					 <span>{{count}}</span>条数据&nbsp;&nbsp;
+					第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" id="apage" :value="num">&nbsp;页&nbsp;&nbsp;
+					<button type="button" title="确定"  @click="gotopage">转到</button>
+					<a class="classpage" @click="downpage"><span class="glyphicon glyphicon-forward"></span></a>
+					<a class="classpage" @click="llastpage"><span class="glyphicon glyphicon-fast-forward"></span></a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="../bingo/js/jquery.min.js"></script>
+<script src="../bingo/js/bootstrap.min.js"></script>
+<script src="../vue/vue.js"></script>
+<script src="../vue/axios.min.js"></script>
+<script type="text/javascript">
+    new Vue({
+        el:'#chuser',
+        data:{
+			searchItem:'', //搜索
+			checked: false, //默认不全选
+			nowAccount:false, //显示选择切换按钮
+			unusedAccount:false, //显示转为使用按钮
+			pollutionAccount:false,//还原切换按钮
+			ids: [], //勾选的 id
+			checkedArr: [],
+			type:1, //tab类型 默认正在使用
+            //分页逻辑数据
+			list:'', //数据列表
+            pages:'',     //共多少页
+            count:'',     //共多少条数据
+            num: 1,       //页面第一次的时候给后台的页数是第一页
+            nnum:'',  //num在值改变后 赋值给nnum 比如翻页到第二 nnum=2 然后通过nnum传给后台 再把num改变
+            //查询参数 默认为1（前匹配）当为2位后匹配
+            selectNum:1,
+        },
+		
+        methods:{
+			search: function() {
+				this.num=1;
+				if(this.searchItem==''){
+					alert('请先填写搜索账号');
+					return false;
+				}
+				axios({
+                    method: 'get',
+                    url:'../bingo/chuser.php?t=map_chuser&action=query',
+                    params:{
+						account:this.searchItem,
+						selectNum:this.selectNum
+                    }
+                }).then((response)=>{
+					this.checkedArr = response.data.ids;
+                    this.list = response.data.row;
+					this.pages = response.data.pageCount;
+					this.count = response.data.count;	
+                }).catch((error)=>{
+                    console.log(error)
+                })
+			},
+			changeTab: function(num) {			
+				this.type=num;
+				this.num=1;
+				this.searchItem='';
+				this.ids=[];
+				if(num==4){
+					this.Reason=false;
+					this.pollutionAccount=true;
+					this.nowAccount=false;
+					this.unusedAccount=false;
+				}else if (num==1){
+					this.Reason=true;
+					this.nowAccount=true;
+					this.pollutionAccount=false;
+					this.unusedAccount=false;
+				}else if (num==2){
+					this.Reason=false;
+					this.unusedAccount=true;
+					this.pollutionAccount=false;
+					this.nowAccount=false;
+				}else{
+					this.Reason=false;
+					this.pollutionAccount=false;
+					this.nowAccount=false;
+					this.unusedAccount=false;
+				}
+				axios({
+                    method: 'get',
+                    url:'../bingo/chuser.php?t=map_chuser&action=query',
+                    params:{
+                        type:this.type,
+						page:1
+                    }
+                }).then((response)=>{
+					this.checkedArr = response.data.ids;
+                    this.list = response.data.row;
+					this.pages = response.data.pageCount;
+					this.count = response.data.count;	
+                }).catch((error)=>{
+                    console.log(error)
+                })
+			},
+			turnToUse: function() {
+				if(this.ids.length<1){
+					alert('请先勾选数据');
+					return false;
+				}
+				if(window.confirm('确定将选择的账号转为使用吗？')==true){
+					axios({
+						method: 'post',
+						url:'../bingo/chuser.php?t=map_chuser&action=turnToUse',
+						data:this.ids
+					}).then((response)=>{
+						if(response.data.state){
+							alert('操作成功');
+							window.location.reload(true);
+						}else{
+							alert(response.data.msg);
+						}
+						
+					}).catch((error)=>{
+						console.log(error)
+					})
+				}
+			},
+			returnToUse: function() {
+				if(this.ids.length<1){
+					alert('请先勾选数据');
+					return false;
+				}
+				if(window.confirm('确定还原选择的账号吗？')==true){
+					axios({
+						method: 'post',
+						url:'../bingo/chuser.php?t=map_chuser&action=returnAccount',
+						data:this.ids
+					}).then((response)=>{
+						if(response.data.state){
+							alert('操作成功');
+							window.location.reload(true);
+						}else{
+							alert(response.data.msg);
+						}
+						
+					}).catch((error)=>{
+						console.log(error)
+					})
+				}
+			},
+			turnToPollution:function() {
+				if(this.ids.length<1){
+					alert('请先勾选数据');
+					return false;
+				}
+				if(document.getElementById("ReasonValue").value == "0"){
+					alert('请选择拉黑原因');
+					return false;
+				}
+				if(window.confirm('确定拉黑选择的账号吗？')==true){
+					axios({
+						method: 'post',
+						url:'../bingo/chuser.php?t=map_chuser&action=turnToPollution',
+						params:{
+							ReasonValue:document.getElementById("ReasonValue").value
+						},
+						data:this.ids
+					}).then((response)=>{
+						if(response.data.state){
+							alert('操作成功');
+							window.location.reload(true);
+						}else{
+							alert(response.data.msg);
+						}
+						
+					}).catch((error)=>{
+						console.log(error)
+					})
+				}
+			},
+			changeAccount: function() {
+				if(window.confirm('确定切换所有正在使用账号吗？')==true){
+					axios({
+						method: 'get',
+						url:'../bingo/chuser.php?t=map_chuser&action=changeAccount',
+					}).then((response)=>{
+						if(response.data.state){
+							alert('操作成功');
+							window.location.reload(true);
+						}else{
+							alert(response.data.msg);
+						}
+						
+					}).catch((error)=>{
+						console.log(error)
+					})
+				}
+			},
+			changeAllChecked: function() {
+				if (this.checked) {
+					this.ids = this.checkedArr
+				} else {
+					this.ids = []
+				}
+
+			},
+            //分页函数
+            //向后转页面 —
+            uppage:function(){
+                if(this.num>1){
+                    this.num -= 1;
+                }else{
+                    return
+                }
+                this.nnum = this.num;
+                this.axfun(this.nnum)
+            },
+            //向前转页面 +
+            downpage:function(){
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if(this.num<this.pages){
+                    this.num = this.num + 1;
+                }else{
+                    return
+                }
+                this.nnum = this.num;
+                this.axfun(this.nnum)
+            },
+            //直接去某页面
+            gotopage:function () {
+                var apage = document.getElementById('apage');
+                if(apage.value > this.pages){
+                    alert('没有该页码');
+                    apage.value = this.num
+                }else{
+                    this.num = apage.value;
+                    this.nnum = this.num;
+                    this.axfun(this.nnum)
+                }
+            },
+            //直接去首页
+            firstpage:function () {
+                this.num = 1;
+                this.nnum = this.num;
+                this.axfun(this.nnum)
+            },
+            //直接去末尾页
+            llastpage:function () {
+                this.num = this.pages;
+                this.nnum = this.num;
+                this.axfun(this.nnum)
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun:function(nnum){
+                axios({
+                    method: 'get',
+                    url:'../bingo/chuser.php?t=map_chuser&action=query',
+                    params:{
+						type:this.type,
+                        page:nnum
+                    }
+
+                }).then((response)=>{
+					this.checkedArr = response.data.ids;
+                    this.list = response.data.row;
+					this.pages = response.data.pageCount;
+					this.count = response.data.count;	
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            },
+        },
+		watch: {
+			ids: function() {
+				if (this.ids.length == this.checkedArr.length) {
+					this.checked = true
+				} else {
+					this.checked = false
+				}
+			}
+		},
+        beforeCreate(){
+        },
+        created(){
+			this.nowAccount=true;
+			this.Reason=true;
+            axios({
+                url:'../bingo/chuser.php?t=map_chuser&action=query',
+                method:'get'
+            }).then((response)=>{
+                this.checkedArr = response.data.ids;
+                this.list = response.data.row;
+                this.pages = response.data.pageCount;
+				this.count = response.data.count;
+            }).catch((error)=>{
+                console.log(error)
+            })
+        }
+		
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>出票表</title>
+    <link href="../bingo/css/bootstrap.min14ed.css" rel="stylesheet">
+    <link href="../bingo/css/style.min862f.css" rel="stylesheet">
+    <link href="../bingo/css/font-awesome.min93e3.css" rel="stylesheet">
+    <link href="../bingo/css/info.css" rel="stylesheet">   <!--红色标题-->
+    <script src="../bingo/js/calc.min.js"></script>
+    <style type="text/css">
+        *{
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: black;
+            /*"SimSun","Helvetica Neue",Helvetica,Arial,sans-serif*/
+        }
+        #formHorizontal>div{
+            margin-top: 0px;
+        }
+        .chooseinput{
+            width: 90%;
+            border: 1px solid;
+            border-color: whitesmoke;
+            cursor: pointer;
+            text-align: center;
+        }
+        .chooseinput:hover{
+            width: 90%;
+            border: 1px solid;
+            border-color: #1ab394;
+        }
+        .clickshow{
+            pointer-events: none;
+        }
+        .conding{
+            width: 1100px;
+        }
+        .conding>div{
+            margin-top: 10px;
+            width: 350px;
+            float: left;
+        }
+        .conding02{
+            width: 1100px;
+            margin-top: 10px;
+        }
+        .conding02>div{
+            width: 350px;
+            float: left;
+        }
+        .otherSubjects{
+            width: 1100px;
+            height: 50px;
+        }
+        .otherSubjects>div{
+            float: left;
+            margin: 15px 0 0 20px;
+            /*margin-top: 15px;*/
+        }
+        #butt{
+            width: 300px;
+            position: relative;
+            top: -4px;
+            left: 55px;
+        }
+        .inputpay{
+            margin-left: 50px;
+        }
+        /*最下方操作按钮*/
+        .dealwith{
+            /*width: 1200px;*/
+            height: 300px;
+            position: relative;
+        }
+        .dealwith>div{
+            margin-top: 3px;
+            margin-left: 20px;
+            /*width: 120px;*/
+            float: left;
+        }
+        .namelist{
+            position: absolute;
+            top: 50px;
+            left: -20px;
+        }
+        .cancelclock{
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: -15px;
+            right: -45px;
+            background-image: url("../images/font/cha02.png");
+            background-repeat: no-repeat;
+        }
+        .sureclock{
+            margin-top: 10px;
+            margin-left: 8px;
+        }
+        #manualOperation{
+            width: 95%;
+            display:inline-block
+        }
+        .manualgroup{
+            position: relative;
+            top: -50px;
+            left: 200px;
+        }
+        #manualOperation>div:nth-of-type(3){
+            position: relative;
+            top: -50px;
+        }
+        .PNRtext{
+            position: fixed;
+            top: 150px;
+            left: 25%;
+            width: 100%;
+        }
+        /*日志样式*/
+        .log{
+            z-index: 999;
+            position: fixed;
+            right: 350px;
+            left: 200px;
+        }
+        #showshare{
+            position: fixed;
+            top: 150px;
+            left: 10%;
+            width: 80%;
+            background-color: #87CEFA;
+            opacity: 0.7;
+            border : 0.5px solid #E5E5E5;
+        }
+        .log{
+            z-index: 999;
+            position: fixed;
+            /*right: 350px;*/
+            top: 10px;
+            left: 200px;
+        }
+        .xtbut{
+            /*width: 80px;*/
+            height: 30px;
+        }
+        .xtbutA{
+            font-size: 14px;
+            display: inline-block;
+            margin-left: 8px;
+            border: 0.5px solid #C3C3D6;
+            background-color: #a0ccf8;
+            color: #383d43;
+            border-radius: 4px;
+            padding: 4px 9px 4px 9px;
+        }
+        .xtbutB{
+            font-size: 14px;
+            display: inline-block;
+            margin-left: 8px;
+            border: 0.5px solid #C3C3D6;
+            background-color: #CBE3FB;
+            color: black;
+            border-radius: 4px;
+            padding: 4px 9px 4px 9px;
+        }
+        .xtbutB:hover{
+            border: 0.5px solid #40a9ff;
+            /*background-color: #00b7ee;*/
+            /*color: #40a9ff;*/
+        }
+        .selectcss{
+            height: 30px;
+            font-size: 14px;
+            display: inline-block;
+            border: 0.5px solid #CBE3FB;
+            background-color: #F3F6FB;
+        }
+        .inpucss{
+            border: 0.5px solid #C3C3D6;
+        }
+        .inpucss:hover{
+            border: 0.5px solid #40a9ff;
+        }
+        .inpucssA{
+            border: 0.5px solid white;
+        }
+        .inpucssA:hover{
+            border: 0.5px solid #40a9ff;
+        }
+        #refuse{
+            position: fixed;
+            top: 200px;
+            left: 30%;
+            background-color: white;
+            width: 30%;
+            height: 150px;
+            border: 0.5px silver solid;
+            box-shadow: 0px 1px 10px;
+        }
+        #refuse>textarea{
+            width: 100%;
+            height: 120px;
+        }
+        #refuse>button{
+            margin-right: 15px;
+            float: right;
+        }
+        [c-clock]{
+            display: none;
+        }
+        .anima{
+            position: fixed;
+            top: 40%;
+            left: 45%;
+        }
+    </style>
+</head>
+<body  style="margin-left: 5px;font-size: 12px">
+
+<div class="form-horizontal" id="formHorizontal" v-clock>
+    <div :class="{clickshow:clickshow}">
+        <!--航程信息-->
+        <div class="form-group">
+            <div class="col-sm-12">
+                <label >
+                    <span class="col_bigbule font_size1">航程信息</span>
+                </label>
+            </div>
+            <!--信息列表-->
+            <div class="col-sm-12  text-center">
+                <table class=" table table-bordered ">
+                    <thead >
+                    <tr>
+                        <th class="text-center">订单来源</th>
+                        <th class="text-center">系统订单号</th>
+                        <th class="text-center">供应订单号</th>
+                        <th class="text-center">政策号</th>
+                        <th class="text-center">航班号</th>
+                        <th class="text-center">舱位</th>
+                        <th class="text-center">航程</th>
+                        <th class="text-center">出发时间</th>
+                        <th class="text-center">到达时间</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="(orr,index) in flight" :key="index">
+                        <td>{{orr.ticketTable}}</td>
+                        <td>{{orr.id}}</td>
+                        <td>{{orr.platformOrder}}</td>
+                        <td>{{orr.policyCode}}</td>
+                        <td>{{orr.flight}}</td>
+                        <td>{{orr.position}}</td>
+                        <td>{{orr.flyDistance}}</td>
+                        <td>{{orr.flyTime}}</td>
+                        <td>{{orr.arrTime}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!--联系人信息-->
+        <div class="form-group" style="margin-top: -30px">
+            <div class="col-sm-12">
+                <label >
+                    <span class="col_bigbule" style="font-size: 14px">联系人信息</span>
+                </label>
+            </div>
+            <!--联系人列表-->
+            <div class="col-sm-12 text-center  ">
+                <table class=" table table-bordered ">
+                    <colgroup  style="width:auto"></colgroup><!--序号-->
+                    <colgroup  style="width:auto"></colgroup><!--序号-->
+                    <colgroup  style="width:auto"></colgroup><!--序号-->
+                    <colgroup  style="width:auto"></colgroup><!--序号-->
+                    <colgroup  style="width:10%"></colgroup><!--序号-->
+                    <thead>
+                    <tr >
+                        <th class="text-center">联系人姓名</th>
+                        <th class="text-center">联系人手机号码</th>
+                        <th class="text-center">联系人邮箱</th>
+                        <th class="text-center">下单渠道</th>
+                        <th class="text-center">舱位备注</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>{{orderData.contact}}</td>
+                        <td>{{orderData.contactNumber}}</td>
+                        <td>{{orderData.contactEML}}</td>
+                        <td>{{orderData.channel}}</td>
+                        <td :title="orderData.remarks">{{orderData.remarks}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!--提示框-->
+            <div class="col-md-12">
+                <div class="alert alert-warning alert-dismissable">
+                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                    <p class="font_size1  form-control-static">自动出票失败原因:<span>{{orderData.flightno}}</span></p>
+                </div>
+            </div>
+        </div>
+        <!--出票操作与乘机人信息-->
+        <div class="form-group" style="position: relative;margin-top: -30px">
+            <!--标头-->
+            <div style="margin:0 0 5px 15px;">
+                <label>
+                    <span class="col_bigbule" style="font-size: 14px">出票操作与乘机人信息</span>
+                </label>
+            </div>
+            <!--乘客详细信息-->
+            <div class="col-sm-12 text-center">
+                <table class="table table-bordered ">
+                    <thead >
+                    <tr>
+                        <th class="text-center">姓名</th>
+                        <th class="text-center" style="width: 8%">乘客类型</th>
+                        <th class="text-center">证件号</th>
+                        <th class="text-center" style="width: 8%">出生日期</th>
+                        <th class="text-center" style="width: 30%">
+                            <button class="xtbut"  @click="rtfun">rt编码获取票号</button>
+                            <select class="selectcss manualselect" style="width: 100px;display: inline-block;" v-model="order_ticketing.officeAbove">
+                                <option value="CSX107">CSX107</option>
+                                <option value="CSX513">CSX513</option>
+                            </select>
+                        </th>
+                        <th class="text-center" style="width: 8%">票面价</th>
+                        <th class="text-center"  style="width: 8%">机建/燃油</th>
+                        <th class="text-center"  style="width: 8%">收款金额</th>
+                    </tr>
+                    </thead>
+                    <tbody id="passenger">
+                    <tr v-for="(orr,index) in orderData02" :id="d+index">
+                        <td>{{orr.man}}</td>
+                        <td>{{orr.man_type}}</td>
+                        <td>
+                            <div>
+                                <input type="text" class="inpucssA chooseinput artificialMust datamessage"  :value='orr.licenseNumber' @blur="blurfun('a',index)"/>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <input  type="text" class="inpucssA chooseinput datamessage" :value="orr.birthday" @blur="blurfun('b',index)"/>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-inline">
+                                <input type="text" class="inpucssA chooseinput artificialMust datamessage" :value="orr.ticketNum" @blur="blurfun('c',index)" /><span class="col_red">*</span>
+                            </div>
+                        </td>
+                        <td :rowspan="orr.num" v-show="orr.num">
+                            <input class="inpucssA chooseinput artificialMust datamessage" :value="orr.price" @blur="blurfun('d',index)">
+                        </td>
+                        <td :rowspan="orr.num" v-show="orr.num">
+                            <input class="inpucssA chooseinput artificialMust datamessage" :value="orr.infrastructure" @blur="blurfun('e',index)">
+                        </td>
+                        <td :rowspan="orr.num" v-show="orr.num" >{{orderData.collection}}</td><!--listobj&&a=a_total?listobj[a].Ticket:-->
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!--pnr等输入和按钮功能-->
+            <div style="margin-left: 3%">
+                <div>
+                    <!--小编码/新小编码-->
+                    <div class="col-sm-12 form-inline conding">
+                        <div>
+                            <span>小编码</span>
+                            <input  type="text" class="inpucss" v-model="smallNum" name="fourpnr" id="small_coding" style="text-transform:uppercase">
+                            <span class="col_red">*</span>
+                            <button class="xtbut" @click="pnr(smallNum,1)" >PNR</button><!--传入小编和判断数值1-->
+                        </div>
+                        <!--大编码-->
+                        <div>
+                            大编码
+                            <input  type="text" class="inpucss" v-model="bigPnrNum" name="fourpnr">
+                            <span class="col_red">*</span>
+                            <button class="xtbut"  @click="bigPnr">取大编码</button>
+                        </div>
+                        <!--三个按钮-->
+                        <div id="butt">
+                            <button class="xtbut" @click="conversionPnr">换编码</button>
+                            <button class="xtbut" >换编码文本(勿用)</button>
+                            <button class="xtbut" @click="changeShareFlight">换共享航班</button>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="col-sm-12 form-inline conding02">
+                        <!--新小编码-->
+                        <div>
+                            <span>新小编码</span>
+                            <input  type="text" class="inpucss" v-model="newSmallNum" name="fourpnr">
+                            <button class="xtbut" @click="pnr(newSmallNum,2)">PNR</button> <!--传入新小编和判断数值2，新小编是自己填的-->
+                        </div>
+                        <!--新大编码-->
+                        <div>
+                            <span>新大编码</span>
+                            <input  type="text" class="inpucss"  name="fourpnr" v-model="newbig">
+                            <button class="xtbut " @click="savepnr(smallNum,bigPnrNum,newSmallNum,newbig)"> 保存编码</button>
+                        </div>
+                    </div>
+                </div>
+                <div style="width: 100%">
+                    <div class="form-group">
+                        <div class="col-sm-12 form-inline otherSubjects">
+                            <!--B2B账户-->
+                            <div>
+                                <span>B2B账户：</span>
+                                <select class="selectcss" v-model="officeBelow">
+                                    <option value="CSX107">CSX107</option>
+                                    <option value="CSX513">CSX513</option>
+                                    <option value="CSX514">CSX516</option>
+                                </select>
+                            </div>
+                            <div>
+                                <!--重新获取B2B政策-->
+                                <button class="xtbut" @click="actionB2B">重新获取B2B政策</button>
+                            </div>
+                            <div style="display: inline-block;margin-left: 50px">
+                                <!--BSP出票账户-->
+                                <span>BSP出票账户：</span>
+                                <select class="selectcss" name="S_drawer">
+                                    <option value="1">功能暂未开放</option>
+                                    <option value="2"></option>
+                                    <option value="3"></option>
+                                </select>
+                                <button class="xtbut">BSP出票</button>
+                                <!--BOP出票选项-->
+                                <span>BOP出票账户：</span>
+                                <select class="selectcss" name="O_drawer">
+                                    <option value="1">功能暂未开放</option>
+                                    <option value="2"></option>
+                                    <option value="3"></option>
+                                </select>
+                                <button class="xtbut">BOP出票</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--信息一号栏-->
+            <div class="form-group ">
+                <div class="col-sm-12  text-center">
+                    <table class=" table table-bordered ">
+                        <thead >
+                        <tr >
+                            <th class="text-center">选择</th>
+                            <th class="text-center">票面价</th>
+                            <th class="text-center">税费</th>
+                            <th class="text-center">返点</th>
+                            <th class="text-center">代理费</th>
+                            <th class="text-center">采购金额</th>
+                            <th class="text-center">收款金额</th>
+                            <th class="text-center">利润</th>
+                        </tr>
+                        </thead>
+                        <tr v-for="(va,index) in B2Barr"> <!--(va,index,key) in B2Barr-->
+                            <td><input type="radio" name="chose" @click="radiofun(index)"></td>
+                            <td>{{va.amtAdulPrice}}</td>
+                            <td>{{va.tax}}</td>
+                            <td>{{va.rebates}}</td>
+                            <td>{{va.fixedFee }}</td>
+                            <td>{{va.payPrice}}</td>
+                            <td>{{orderData.collection}}</td>
+                            <td>{{va.profit}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <!--14个按钮-->
+            <div class="inputpay" style="margin-left: 12%">
+                <!--汇付-->
+                <button class="xtbut xtbutB">汇付</button>
+                <!--易商旅-->
+                <button class="xtbut xtbutB">易商旅</button>
+                <!--厦航虚拟-->
+                <button class="xtbut xtbutB">厦航虚拟</button>
+                <!--支付宝-->
+                <button class="xtbut xtbutB">支付宝</button>
+                <!--山航虚拟-->
+                <button class="xtbut xtbutB">山航虚拟</button>
+                <!--易宝-->
+                <button class="xtbut xtbutB" @click="b2bpay">易宝</button>
+                <!--易生-->
+                <button class="xtbut xtbutB">易生</button>
+                <!--深航预存-->
+                <button class="xtbut xtbutB">深航预存</button>
+                <!--储蓄卡-->
+                <button class="xtbut xtbutB">储蓄卡</button>
+                <!--奥游卡107-->
+                <button class="xtbut xtbutB">奥游卡107</button>
+                <!--票速通-->
+                <button class="xtbut xtbutB">票速通</button>
+                <!--奥游卡531-->
+                <button class="xtbut xtbutB">奥游卡513</button>
+                <!--东海预存-->
+                <button class="xtbut xtbutB">东海预存</button>
+                <!--川航预存-->
+                <button class="xtbut xtbutB">川航预存</button>
+            </div>
+        </div>
+        <!--手工出票 从倒数第一个蓝色字采购信息开始-->
+        <div id="manualOperation">
+            <!--采购信息表-->
+            <div class="form-group manualgroup01">
+                <label class="col-sm-1 control-label">出票类型</label>
+                <div class="form-inline ">
+                    <select  class="selectcss manualselect artificialMust" @click="manualselect" v-model="order_ticketing.ticketObject">
+                        <option value="官网" >官网</option>
+                        <option value="B2B" >B2B</option>
+                        <option value="BSP" >BSP</option>
+                        <option value="OP"  >OP</option>
+                        <option value="BOP" >BOP</option>
+                    </select>
+                </div>
+            </div>
+            <div class="manualgroup">
+                <div class="form-group form-inline" v-if="B2B">
+                    <label class="col-sm-1 control-label">采购科目</label>
+                    <div class="col-sm-11 form-inline ">
+                        <!--B2B的采购科目下拉框的结构-->
+                        <select  class="selectcss artificialMust manualselect" style="width: 90px" @click="manualObject" v-model="order_ticketing.paySubjects">
+                            <option :value="paySubject" v-for="(paySubject,index) in paySubjects" :key="index">{{paySubject}}</option>
+                        </select>
+                        <span class="col_red">*</span>
+                        <!--B2B采购账号下拉框接口-->
+                        <span>采购账号</span>
+                        <select  class="selectcss artificialMust manualselect">
+                            <option v-for="(payna,index) in buy" :value="payna" :key="index">{{payna}}</option>
+                        </select>
+                        <span class="col_red">*</span>
+                        <!--B2B点数-->
+                        <span>点数/采购金额：</span>
+                        <input type="text" class="inpucss artificialMust manualselect" v-model="order_ticketing.cash">￥
+                        <span class="col_red">*</span>
+                    </div>
+                </div>
+                <!--BSP dom-->
+                <div class="form-group form-inline " v-if="BSP">
+                    <label class="col-sm-1 control-label" style="font-size: 14px">office号</label>
+                    <div class="col-sm-11 form-inline ">
+                        <select  class="selectcss artificialMust manualselect" v-model="order_ticketing.officeBelow">
+                            <option value="CSX107">CSX107</option>
+                            <option value="CSX513">CSX513</option>
+                        </select>
+                        <span class="col_red">*</span>
+                    </div>
+                </div>
+                <!--OP dom-->
+                <div class="form-group form-inline B2B" v-if="OP" style="margin-left: -15px;height: 80px;">
+                    <label class="col-sm-1 control-label">采购平台</label>
+                    <div class="col-sm-11 form-inline" style="margin-bottom: 9px">
+                        <!--op下拉菜单-->
+                        <select  class="selectcss artificialMust manualselect">
+                            <option v-for="(op,index) in buyName"  :value="op" :key="index">{{op}}</option>
+                        </select>
+                        <span class="col_red">*</span>
+                        <span>采购订单:</span>
+                        <input type="text" class="inpucss manualselect"  v-model="order_ticketing.order">
+                    </div>
+                    <div>
+                        <label class="col-sm-1 control-label">采购科目</label>
+                        <div class="col-sm-11 form-inline">
+                            <!--OP采购科目下下拉菜单-->
+                            <select  class="selectcss artificialMust manualselect"  @click="manualObject" v-model="order_ticketing.paySubjects">
+                                <option v-for="(paySubject,index) in paySubjects" :value="paySubject" :key="index">{{paySubject}}</option>
+                            </select>
+                            <span class="col_red">*</span>
+                            <span>采购账号</span>
+                            <!--OP科目下采购账号下拉菜单-->
+                            <select  class="selectcss artificialMust manualselect">
+                                <option  v-for="(payna,index) in buy" :value="payna" :key="index">{{payna}}</option>
+                            </select>
+                            <span class="col_red">*</span>
+                            <span>点数/采购金额：</span>
+                            <input type="text" class="inpucss artificialMust manualselect" v-model="order_ticketing.cash">￥
+                            <span class="col_red">*</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group form-inline B2B" v-if="BOP">
+                    <label class="col-sm-1 control-label">采购科目</label>
+                    <div class="col-sm-11 form-inline ">
+                        <input type="text" class="inpucss manualselect" v-model="order_ticketing.paySubjects">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" >
+                <label class="col-sm-1 control-label">订单备注</label>
+                <div class="col-sm-3">
+                    <textarea type="text" class="inpucss manualselect col-sm-12" v-model="order_ticketing.orderMarkes" style="height: 50px"></textarea>
+                </div>
+                <label class="col-sm-1 control-label">支付流水号</label>
+                <div class="col-sm-2">
+                    <input type="text" class="inpucss manualselect" v-model="order_ticketing.payNumber">
+                </div>
+                <div class="col-sm-5"></div>
+            </div>
+        </div>
+        <!--最后的处理按钮-->
+        <div class="dealwith" style="margin-left: 13%">
+            <!--保存并自动获取票号-->
+            <div >
+                <button class="xtbut" disabled>保存并自动获取票号</button>
+            </div>
+            <!--保存并返回-->
+            <div>
+                <button class="xtbut" @click="saveReturn(1)">保存并返回</button>
+            </div>
+            <!--填写日志-->
+            <div>
+                <button class="xtbut" @click="orderShow">日志</button>
+            </div>
+            <!--拒绝出票-->
+            <div>
+                <button class="xtbut" @click="refuse">拒绝出票</button>
+            </div>
+            <!--审核订单-->
+            <div :data-set="numlength" @click="shenhe">
+                <button class="xtbut">审核订单</button>
+            </div>
+            <!--改航班号/舱位-->
+            <div>
+                <button class="xtbut" disabled>改航班号/舱位</button>
+            </div>
+            <!--转锁订单-->
+            <div style="position: relative">
+                <button class="xtbut" @click="changelock">订单转锁</button>
+                <div class="namelist col-sm-12 form-inline" v-if="namelistflag">
+                    <div class="cancelclock" @click="changelock"></div>
+                    <select class="selectcss workerlist">
+                        <option :value="name" v-for="name in workerlist">{{name}}</option>
+                    </select>
+                    <button class="btn btn-default btn-sm sureclock" @click="change">确定转锁</button>
+                </div>
+            </div>
+            <!--解锁并返回-->
+            <div @click="unlockreturn">
+                <button class="xtbut">解锁并返回</button>
+            </div>
+            <!--强制回填-->
+            <div >
+                <button class="xtbut">强制回填</button>
+            </div>
+            <!--返回-->
+            <div @click="fanhui">
+                <button class="xtbut return">返回</button>
+            </div>
+        </div>
+    </div>
+    <!--pnr框-->
+    <article class="PNRtext" v-if="pngFlag">
+        <div class="modal-content col-sm-6">
+            <div class="modal-header">
+                <button type="button" class="close" @click="pnrFlagFun">
+                    <span>×</span>
+                </button>
+                <i class="fa fa-laptop modal-icon"></i>
+                <h4 class="modal-title">PNR信息</h4>
+            </div>
+            <textarea class="col-xs-12 pnrValue" style="height: 300px" readonly v-model="pnrValue">
+            </textarea>
+            <div class="row">
+                <div class="col-xs-3 col-xs-offset-1"><span>cnyf: </span><span>{{pat.cnyf}}</span></div>
+                <div class="col-xs-3 col-xs-offset-1"><span>cnycn: </span><span>{{pat.cnycn}}</span></div>
+                <div class="col-xs-3 col-xs-offset-1"><span>cnyyq: </span><span>{{pat.cnyyq}}</span></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" style="margin-top: 5px" @click="pnrFlagFun">关闭</button>
+            </div>
+        </div>
+    </article>
+    <!--日志框-->
+    <div class='log' v-show="logflag">
+        <div class="modal-dialog">
+            <div class="modal-content animated bounceInRight">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true" @click="logfun">&times;</span>
+                    </button>
+                    <i class="fa fa-laptop modal-icon"></i>
+                    <h4 class="modal-title">操作日志</h4>
+                </div>
+                <div>
+                    <table class="table" style="font-size: 12px">
+                        <thead>
+                        <tr>
+                            <th>用户</th>
+                            <th>操作</th>
+                            <th>时间</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(log,index) in logar">
+                            <td>{{log.name}}</td>
+                            <td class="text-navy"></i>{{log.note}}</td>
+                            <td>{{log.time}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal" @click="logfun">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="showshare" v-if="showarrflag" style="background-color: black;color: #00CC66">
+        <div class="container">
+            <div class="row">
+                <h4 class="col-xs-2">窗口标题</h4>
+                <!--<button type="button" class="btn btn-white btn-sm col-xs-offset-8" style="border: 1px solid cornflowerblue">关闭</button>-->
+            </div>
+            <div class="" >
+                <div class="" v-for="(va,index,key) in showarr">
+                    <!--<div if="index==0?true:false">{{va}}</div>-->
+                    <div v-for="(val,index,key) in va" class="col-xs-12" style="margin-top: 4px">
+                        <div v-for="(valu,index,key) in val" @click="" style="float: left;margin-left: 2%">{{valu}}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6 col-xs-offset-8">
+                <button type="button" class="btn btn-white" @click="closeshowarr">关闭</button>
+            </div>
+        </div>
+    </div>
+    <!--拒绝出票弹框-->
+    <div id="refuse" v-if="refuseflag">
+        <textarea placeholder="拒绝出票原因" v-model="refusetext"></textarea>
+        <button @click="surerefuse(refusetext)">确定</button>
+        <button @click="refusewindow">取消</button>
+    </div>
+    <!--动画-->
+    <div class="anima" v-if="animaflag">
+        <div class="sk-spinner sk-spinner-three-bounce " >
+            <div class="sk-bounce1"></div>
+            <div class="sk-bounce2"></div>
+            <div class="sk-bounce3"></div>
+        </div>
+    </div>
+</div>
+
+<script src="../bingo/js/jquery.min.js"></script>
+<script src="../bingo/js/bootstrap.min.js"></script>
+<script src="../vue/vue.js"></script>
+<script src="../vue/axios.min.js"></script>
+<script type="text/javascript">
+    Vue.config.devtools = true;
+    new Vue({
+        el:'#formHorizontal',
+        data:{
+            clickshow:false, //是否能够点击
+            pngFlag:false,
+            flight:'',//航程信息，由orderDate传入并改写
+            orderData:'',  //订单信息 data.list的信息会全部传入过来
+            orderData02:'',  //乘机人信息
+            d:'d',          //订单统一值前缀
+            manua:'',
+            B2B:true,        //B2B到OP的下拉菜单开关
+            BSP:false,
+            OP:false,
+            BOP:false,
+            mustflag:false,
+            local:'',        //订单id
+            paySubjects:'',      //采购科目 for循环时候使用
+            buy:'',       //采购账号
+            //日志
+
+
+            numlength:'',//乘客信息的长度，在下面axios中会将namelist长度赋值个它
+            logar:[],
+            logflag:'',//日志开关
+            buyName:'', //采购平台 在出票类型更改后ajax自动获取
+
+            // listobflag:true,
+            listobj:false, //票号获取数组
+            order_ticketing:{
+                buy: "",
+                cash: "",
+                id: "",
+                officeAbove:"CSX107",
+                officeBelow:"CSX107",
+                order: "",
+                orderMarkes: "",
+                orderStatus: "",
+                payNumber: "",
+                paySubjects: "", //易宝 支付宝 之类采购科目
+                pointNumber: "",
+                table: "",
+                ticketObject:"B2B",
+            },
+            ticketnumber:'',//票号数组
+            a:0,             //当下a 的值 用来在乘机人与票号相互验证中的操作用
+            a_total:'',      //a的总长度
+            atotalobj:{},
+            pnrValue:'',    //pnr的axios后获取的值
+            pat:{           //pnr后拿到的pat里面的值
+                cnyf: "",
+                cnycn: "",
+                cnyyq: ""
+            },
+            bigPnrNum:'',    //大编
+            smallNum:'',     //小编
+            newSmallNum:'', //新小编
+            newbig:'',//新大编
+            str:'', //换共享航班后接受到的数据
+            conversionPnrData:'',//换编码后得到的数据
+            showarr:"",
+            showarrflag:false,
+            arrTime:'',   //起飞时间
+            arrTime02:'',  //达到时间
+            //B2B政策相关
+            B2Barr:'',
+            //转锁相关
+            namelistflag:false,  //此namelist与下面的不是同一个东西，他代表公司客服，出票的员工
+            namelistflag02:false,
+            workerlist:'',        //转锁时候用到的工人人员变量
+            // orderticketing:'',
+
+            manualselectobj:'',
+            namelist: '',
+            messageValue : [],
+            //重新获取b2b政策旁边的input的值
+            officeBelow:'CSX107',
+
+            tickObjFlag:true,
+            //拒绝出票弹窗开关
+            refuseflag:false,
+            //拒绝出票原因文本填写内容
+            refusetext:'',
+        //动画开关
+            animaflag:false,
+        },
+        watch:{
+            manua:function () {
+                if (this.manua=='B2B'||this.manua=='官网'){
+                    this.B2B = true;
+                    this.BSP = this.OP = this.BOP = false;
+                }else if(this.manua=='BSP'){
+                    this.B2B = this.OP = this.BOP = false;
+                    this.BSP = true;
+                }else if(this.manua=='OP'){
+                    this.BSP = this.B2B = this.BOP = false;
+                    this.OP = true;
+                }else if(this.manua=='BOP'){
+                    this.B2B = this.BSP = this.OP = false;
+                    this.BOP = true;
+                }
+            }
+        },
+        computed:{
+
+        },
+        methods:{
+            domlist:function(){
+                var artificialMust = document.getElementsByClassName('artificialMust');
+                var manualselect = document.getElementsByClassName('manualselect');
+
+                var manualselectarry = []; //此数组与对象就在此函数内使用 避免污染全局 仅仅为了传值
+                this.manualselectobj = {};
+                this.manualselectobj.orderid = this.loca;
+
+                //将购买信息值填入数组中，方便待会传入，避免多次dom查询
+                for(var b=0;b<manualselect.length;b++){
+                    manualselectarry.push(manualselect[b].value)
+                }
+
+                if(manualselect[1].value == 'B2B'|| manualselect[1].value == '官网'){
+                    this.manualselectobj.officeAbove = manualselect[0].value;
+                    this.manualselectobj.ticketObject  = manualselect[1].value;
+                    this.manualselectobj.paySubjects = manualselect[2].value;
+                    this.manualselectobj.buy = manualselect[3].value;
+                    this.manualselectobj.cash = manualselect[4].value;
+                    this.manualselectobj.orderMarkes = manualselect[5].value;
+                    this.manualselectobj.payNumber = manualselect[6].value;
+                    this.manualselectobj.officeBelow = '';
+                    this.manualselectobj.table = '';
+                    this.manualselectobj.order = '';
+                }else if(manualselect[1].value == 'BSP'){
+                    this.manualselectobj.officeAbove = manualselect[0].value;
+                    this.manualselectobj.ticketObject  = manualselect[1].value;
+                    this.manualselectobj.officeBelow = manualselect[2].value;
+                    this.manualselectobj.orderMarkes = manualselect[3].value;
+                    this.manualselectobj.payNumber = manualselect[4].value;
+
+                    this.manualselectobj.paySubjects = '';
+                    this.manualselectobj.buy = '';
+
+                    this.manualselectobj.cash = '';
+
+                    this.manualselectobj.table = '';
+                    this.manualselectobj.order = '';
+                }else if(manualselect[1].value == 'OP'){
+                    this.manualselectobj.officeAbove = manualselect[0].value;
+                    this.manualselectobj.ticketObject  = manualselect[1].value;
+                    this.manualselectobj.table = manualselect[2].value;
+                    this.manualselectobj.order = manualselect[3].value;
+                    this.manualselectobj.paySubjects = manualselect[4].value;
+                    this.manualselectobj.buy = manualselect[5].value;
+
+                    this.manualselectobj.cash = manualselect[6].value;
+                    this.manualselectobj.orderMarkes = manualselect[7].value;
+                    this.manualselectobj.payNumber = manualselect[8].value;
+                    this.manualselectobj.officeBelow = '';
+                }else if(manualselect[1].value == 'BOP'){
+                    this.manualselectobj.officeAbove = manualselect[0].value;
+                    this.manualselectobj.ticketObject  = manualselect[1].value;
+                    this.manualselectobj.paySubjects = manualselect[2].value;
+                    this.manualselectobj.orderMarkes = manualselect[3].value;
+                    this.manualselectobj.payNumber = manualselect[4].value;
+
+                    this.manualselectobj.buy = '';
+                    this.manualselectobj.cash = '';
+                    this.manualselectobj.table = '';
+                    this.manualselectobj.order = '';
+                    this.manualselectobj.officeBelow = '';
+                }
+                //将乘客信息填入数组中
+                for(var c=0;c<this.numlength;c++){
+                    var iddom = document.getElementById('d'+[c])
+                    this.namelist[c].licenseNumber = (iddom.getElementsByClassName('datamessage')[0].value)
+                    this.namelist[c].birthday = (iddom.getElementsByClassName('datamessage')[1].value)
+                    this.namelist[c].ticketNum = (iddom.getElementsByClassName('datamessage')[2].value)
+                    this.namelist[c].price = (iddom.getElementsByClassName('datamessage')[3].value)
+                    this.namelist[c].infrastructure = (iddom.getElementsByClassName('datamessage')[4].value)
+                }
+            },
+            //手工出票中 支付科目的ajax动态获取采购账号
+            manualObject:function(){
+                this.tickObjFlag = !this.tickObjFlag;
+                if(this.tickObjFlag){
+                    var paySubjects = event.target.value
+                    axios({
+                        method:'post',
+                        url:'../ticket/manual.php?action=account_number',
+                        data:{
+                            paySubjects,
+                            orderid:this.loca
+                        }
+                    }).then((response)=>{
+                        this.buy = response.data.list;
+                    }).catch((error)=>{
+                        console.log(error)
+                    })
+                }
+            },
+            //手工出票中出票类型的ajax请求 动态获取采购科目
+            manualselect:function () {
+                this.tickObjFlag = !this.tickObjFlag
+                if(this.tickObjFlag){
+                    let doo = event.target.value;
+                    this.manua = doo;
+                    if(event.target.value=="官网"){
+                        doo = 'B2B'
+                    }
+                    if(doo == 'B2B' || doo == 'OP'){
+                        axios({
+                            method:'post',
+                            url:'../ticket/manual.php?action=type',
+                            data:{
+                                ticketObject:doo,
+                                orderid:this.loca
+                            }
+                        }).then((response)=>{
+                            // console.log(response)
+                            if(response.data.buy){
+                                this.buy = response.data.buy;
+                                this.buyName = response.data.buyName
+                            }
+                            this.paySubjects = response.data.paySubjects;
+                            this.buy = response.data.buy;
+                        }).catch((error)=>{
+                            console.log(error)
+                        })
+                    }
+                }
+            },
+            //保存并返回
+            saveReturn:function(a){
+                this.domlist();
+                axios({
+                    url:'../ticket/manual.php?action=save_return',
+                    method:'post',
+                    data:{
+                        namelist: this.namelist,
+                        manualselectobj:this.manualselectobj,
+                        orderid:this.loca
+                    }
+                }).then((response)=>{
+                        if(a==1){
+                        	window.location.href='../template/artificial.iduq.html'
+                        }
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            },
+            //解锁并返回
+            unlockreturn:function(){
+                var orderid = [];
+                orderid.push(this.loca)
+                axios({
+                    url:'../bingo/ticking.php?action=locking',
+                    method:'post',
+                    data:{
+                        orderid,
+                        lockorder:'no',
+                    }
+                }).then((response)=>{
+                    if(response.data.res == 'success'){
+                    	window.location.href='../template/artificial.iduq.html'
+                    }else{
+                        alert('解锁失败!')
+                    }
+                }).catch((error)=>{
+                    console.log(error)
+                });
+            },
+            //拒绝出票
+            refuse:function(){
+                let flag = window.confirm('是否确定拒绝？')
+                if(flag){
+                    this.refuseflag = true;
+                }
+            },
+            //确定拒绝出票
+            surerefuse:function(text){
+                this.manualselectobj = {};
+                this.manualselectobj.orderid = this.loca;
+            //
+                axios.interceptors.response.use(()=>{
+                	window.location.href='../template/artificial.iduq.html'
+                })
+                axios({
+                    url:'../ticket/manual.php?action=refuse',
+                    method:'post',
+                    data:{
+                        manualselectobj:this.manualselectobj,
+                        orderid:this.loca,
+                        orderMarkes:text
+                    }
+                }).then((response)=>{
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            },
+            //点击审核订单按钮，在该逻辑下拿到所有后台需要的值
+
+            shenhe:function () {
+                this.domlist()
+                var artificialMust = document.getElementsByClassName('artificialMust');
+                for(var a=0;a<artificialMust.length;a++){
+                    if(!!artificialMust[a].value){
+
+                    }else{
+                        alert('必填项不能为空')
+                        return
+                    }
+                };
+
+                axios({
+                    url:'../ticket/manual.php?action=saveTicket',
+                    method:'post',
+                    data:{
+                        namelist: this.namelist,
+                        manualselectobj:this.manualselectobj,
+                        orderid:this.loca
+                    }
+                }).then((res)=>{
+                    if(res.data=='审核成功'){
+                    	window.location.href='../template/artificial.iduq.html'
+                    }else{
+                        alert('票号校验失败')
+                    }
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            },
+            //返回按钮直接返回到展示数据页面
+            fanhui:function () {
+            	window.location.href='../template/artificial.iduq.html'
+            },
+            //转锁功能
+            changelock:function () {
+                this.namelistflag02 = !this.namelistflag02;
+                this.namelistflag = false;
+                if(this.namelistflag02){
+                    axios({
+                        url:'../ticket/manual.php?action=name_list',
+                        method:'get',
+                    }).then((respon)=>{
+                        this.namelistflag = true;
+                        this.workerlist = respon.data.namelist
+                    }).catch((error)=>{
+                        console.log(error)
+                    })
+                }
+            },
+            //确定转锁
+            change:function () {
+                var nameva = document.getElementsByClassName('workerlist')[0].value;
+                this.saveReturn(2);
+                axios({
+                    url:'../ticket/manual.php?action=change',
+                    method:'post',
+                    data:{
+                        name:nameva,
+                        id:this.loca,
+                        remakes:this.order_ticketing.orderMarkes
+                    }
+                }).then((respon)=>{
+                    if(respon.data.res == "转单成功"){
+                        this.namelistflag02 = !this.namelistflag02;
+                        this.namelistflag = false;
+                        alert(respon.data.res)
+                    }else if(respon.data.data == "!转单失败"){
+                        alert("转单失败！")
+                    }
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            },
+            //rt编码获取票号
+            //rt获取编码后要与已存在的身份证一一对应，所以需要使用三元表达式传入dom节点的身份证号，不然想不出怎么传身份证，对应则将对应的编码输入。
+            //当拿到rt后 想改rt 使用blur来改变data中数据
+            //如果自己输入值也要渲染data,还是使用blur
+            rtfun:function(){
+                //var manualselect = document.getElementsByClassName('manualselect')[0]; //获得107还是513
+                if(!this.newSmallNum){
+                    var smartNumber = this.smallNum;
+                }else{
+                    var smartNumber = this.newSmallNum;
+                }
+                axios({
+                    url:'../ticket/manual.php?action=ticket_number',
+                    method:'post',
+                    data:{
+                        smartNumber, //this.orderData.smartNumber  'KRVTL6',
+                        officeAbove:this.order_ticketing.officeAbove,
+                        orderid:this.loca
+                    }
+                }).then((response)=>{
+                    if(typeof response.data == 'object'){
+                        this.listobj = response.data;
+                        this.a_total = response.data.length;
+                        for(let a=0;a<this.a_total;a++){
+                            if(this.orderData02[a].licenseNumber == this.listobj[a].NI){
+                                Vue.set(this.orderData02[a],'ticketNum',this.listobj[a].Ticket)
+                            }else if(a==this.a_total-1){
+                                Vue.set(this.orderData02[a],'ticketNum','没有票号')
+                            }
+                        }
+                    }else if(typeof response.data == 'string'){
+                        alert('此订单票号不存在')
+                    }
+                }).catch((error)=>{
+                    console.log(error)
+                })
+                this.officeAboveFun()
+            },
+            //失焦时改值
+            blurfun:function(ty,ind){
+                let va = event.target.value;
+                switch (ty) {
+                    case 'a':
+                        this.namelist[ind].licenseNumber  = va;
+                        break;
+                    case 'b':
+                        this.namelist[ind].birthday  = va;
+                        break;
+                    case 'c':
+                        if(this.listobj){
+                            this.orderData02[ind].ticketNum  = va;  //前面已经创建过Ticket,所以不用Vue.set
+                            break;
+                        }else{
+                            const leng = this.namelist.length;
+                            Vue.set(this.orderData02[ind],'ticketNum',va)
+                        }
+                        break;
+                    case 'd':
+                        this.namelist[ind].price  = va;
+                        break;
+                    case 'e':
+                        this.namelist[ind].infrastructure  = va;
+                        break;
+                }
+            },
+            //num根据dom的传值不同有小编和新小编
+            pnr:function (smartNumber,num) {
+                var manualselect = document.getElementsByClassName('manualselect')[0]; //获得107还是513
+                if(num == 1){
+                    smartNumber = this.smallNum
+                }else if(num ==2){
+                    smartNumber = this.newSmallNum;
+                }
+                if(smartNumber){
+                    axios({
+                        method:'post',
+                        url:'../ticket/manual.php?action=pnr',
+                        data:{
+                            smartNumber,
+                            orderid:this.loca,
+                            officeAbove:manualselect.value
+                        }
+                    }).then((response)=>{
+                        console.log(response)
+                        if(response.data.pat['@attributes'].ret_value == '0'){
+                            this.pnrValue = '改编码不存在';
+                            this.pngFlag = true;
+                        }else {
+                            this.pnrValue = response.data.rt;
+                            this.pat = response.data.pat;
+                            this.pngFlag = true
+                        }
+                    }).catch((error)=>{
+                        console.log(error);
+                    })
+                }else{
+                    alert('请输出正确的值')
+                }
+                this.officeAboveFun()
+            },
+            //pnr按钮弹出弹窗后。该函数用与关闭弹窗
+            pnrFlagFun:function(){
+              this.pngFlag = false;
+            },
+            //大编的获取
+            bigPnr:function () {
+                var manualselect = document.getElementsByClassName('manualselect')[0]; //获得107还是513
+                let smartNumber = undefined;
+                if(this.newSmallNum){
+                    smartNumber =  this.newSmallNum;
+                }else{
+                    smartNumber =  this.smallNum;
+                }
+                axios({
+                    method:'post',
+                    url:'../ticket/manual.php?action=big_pnr',
+                    data:{
+                        smartNumber,
+                        orderid:this.loca,
+                        officeAbove:manualselect.value
+                    }
+                }).then((response)=>{
+                    if(response.data){
+                        this.bigPnrNum = response.data
+                    }else if(response.data == '此编码没有大编'){
+                        alert('该编码不存在')
+                    }
+                }).catch((error)=>{
+                    console.log(error)
+                })
+                this.officeAboveFun()
+            },
+            //保存编码
+            savepnr:function(a,b,c,d){
+                //big新大编 smart新小编
+                axios({
+                    url:'../ticket/manual.php?action=save_pnr',
+                    method:'post',
+                    data:{
+                        orderid:this.loca,
+                        bigNumber:b,
+                        smartNumber:a,
+                        big:c,
+                        smart:d
+                    }
+                }).then((response)=>{
+                    console.log(response)
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            },
+            //换共享航班函数
+            changeShareFlight:function (str) {
+                var manualselect = document.getElementsByClassName('manualselect')[0]; //获得107还是513
+                axios({
+                    method:'post',
+                    url:'../ticket/manual.php?action=shared_flight',
+                    data:{
+                        orderid:this.loca,
+                        officeAbove:manualselect.value
+                    }
+                }).then((response)=>{
+                    console.log(response)
+                    if(response.data){
+                        this.showarrflag = true;
+                        // var scrollTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
+                        // $('#showshare').css({'top':scrollTop})
+                        this.str = response.data;
+
+                        var arr02 = [];
+                        var arr03 = [];
+
+
+                        console.log(this.str)
+                        this.str = this.str.replace(/"/g,''); //删除带过来的 “ 号
+                        var strA = this.str.split(/\\r\\n\s*[1-9]/g); //将分后的值再细分为数组
+                        // let s = this.ss4[1].split(/\\r\\n\s*\(/g)
+                        console.log(strA)
+                        for(var a=1;a<strA.length;a++){
+                            let f = strA[a].includes('**');
+                            if(f){
+                                var ff = strA[a].split(/\\r\\n\s*\*{2}/)[0]; //去除**
+                                //把真正需要的那一层放入到原str的位置
+                                strA.splice(a,1,ff)
+                            }
+                            var s = strA[a].split(/\\r\\n\s*\(\s*/g);
+                            arr03.push(s)
+                        }
+                        arr03.forEach((va,index)=>{
+                            va.forEach((val,index)=>{
+                                va.splice(index,1,val.replace(/(^[^0-9a-zA-Z]*)|([^0-9a-zA-Z]*$)|(\\r\\n)/g,""));
+                            })
+                        })
+                        arr03.forEach((va,ind)=>{
+                            va.forEach((val,index)=>{
+                                arr03[ind][index] = (val.split(' '))
+                            })
+                        })
+                        this.showarr = arr03;
+                        console.log(this.showarr)
+                    }
+                }).catch((error)=>{
+                    console.log(error)
+                })
+                this.officeAboveFun()
+            },
+            //关闭共享航班的展示窗
+            closeshowarr:function(){
+              this.showarrflag = false;
+            },
+            //换编码函数
+            conversionPnr:function () {
+                var manualselect = document.getElementsByClassName('manualselect')[0]; //获得107还是513
+                axios({
+                    method:'post',
+                    url:'../ticket/manual.php?action=conversion_pnr',
+                    data:{
+                        orderid:this.loca,
+                        officeAbove:manualselect.value
+                    }
+                }).then((response)=>{
+                    console.log(response)
+                    if(response.data){
+                        this.conversionPnrData = response.data;
+                    }
+                }).catch((error)=>{
+                    console.log(error)
+                })
+                this.officeAboveFun()
+            },
+            //获取B2B政策
+            actionB2B:function () {
+                let bigNumber = undefined;
+                if(this.newbig){
+                    bigNumber =  this.newbig;
+                }else{
+                    bigNumber =  this.bigPnrNum;
+                }
+                if(this.bigPnrNum == '此编码没有大编'){
+                    alert('没有大编无法获取B2B政策')
+                }else{
+                    this.animaflag = true;
+                    axios({
+                        url:'../ticket/manual.php?action=B2B',
+                        method:'post',
+                        data:{
+                            orderid:this.loca,
+                            bigNumber,
+                            officeBelow:this.officeBelow
+                        }}).then((response)=>{
+                            if(response.data == null){
+                                this.animaflag = false;
+                                alert('编码已NO')
+                            }else if(response.data == 'fail'){
+                               alert('没有数据')
+                            }else{
+                                this.animaflag = false;
+                                this.B2Barr = response.data;
+                                for(let a=0;a<this.B2Barr.length;a++){
+                                    this.B2Barr[a].profit = calc.sub(this.orderData.collection,this.B2Barr[a].payPrice)
+                                }
+                            }
+                    }).catch((error)=>{
+                        console.log(error)
+                    })
+                }
+                this.officeBelowFun()
+            },
+            //记录officeAbove日志函数
+            officeAboveFun:function(){
+                axios({
+                    url:'../ticket/manual.php?action=officeAbove_coding',
+                    method:'post',
+                    data:{
+                        orderid:this.loca,
+                        officeAbove:this.order_ticketing.officeAbove
+                    }
+                }).then((response)=>{
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            },
+            //记录officeBelow日志函数
+            officeBelowFun:function(){
+                axios({
+                    url:'../ticket/manual.php?action=officeBelow_coding',
+                    method:'post',
+                    data:{
+                        orderid:this.loca,
+                        officeBelow:this.officeBelow
+                    }
+                }).then((response)=>{
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            },
+
+            radiofun:function(ind){
+                this.radioinde = ind;
+            },
+            b2bpay:function () {
+                let bigNumber = undefined;
+                if(this.newbig){
+                    bigNumber =  this.newbig;
+                }else{
+                    bigNumber =  this.bigPnrNum;
+                }
+                this.animaflag = true;
+                let ticketPar = this.B2Barr[this.radioinde].ticketPar;
+                let tax = this.B2Barr[this.radioinde].tax;
+                let payPrice = this.B2Barr[this.radioinde].payPrice;
+                let reBates = this.B2Barr[this.radioinde].rebates;
+                // axios.interceptors.response.use((response)=>{
+                //     window.location.href='../bingo/ticking.php?t=order'
+                // });
+                axios({
+                    url:'../ticket/manual.php?action=pay', //
+                    method:'post',
+                    data:{
+                        orderid:this.loca,
+                        bigNumber,  //this.bigPnrNum
+                        ticketPar,
+                        tax,
+                        payPrice,
+                        reBates,
+                        officeBelow:this.officeBelow,
+                    }}).then((response)=>{
+                    if(response.data=='支付成功'){
+                        this.animaflag = false;
+                    	window.location.href='../template/artificial.iduq.html'
+                    }else if(response.data === null){
+                        this.animaflag = false;
+                        alert('大编已失效')
+                    }
+                }).catch((error)=>{
+                    console.log(error)
+                })
+                this.officeBelowFun()
+            },
+            orderShow:function(){
+                this.logflag = true;
+                axios({
+                    url:'../bingo/ticking.php?action=log',
+                    method:'post',
+                    data:{
+                        orderid:this.loca
+                    }
+                }).then((response)=>{
+                    this.logar = response.data.list;
+                }).catch((error)=>{
+                    console.log(error)
+                })
+            },
+            //日志内部关闭日志按钮
+            logfun:function(){
+                this.logflag = false
+            },
+            //拒绝出票弹窗相关函数
+            //弹出开关
+            refusewindow:function () {
+                this.refuseflag = !this.refuseflag
+            }
+        },
+        beforeCreate(){
+            var l1 = location.href;
+            var a = l1.match(/\=/g)
+            if(a.length > 1){
+                var b = l1.indexOf('=');
+                var b1 = l1.indexOf('=')+1;
+                var d = l1.lastIndexOf('&');
+                this.loca = l1.substr(b1,d-b-1)
+            }else{
+                var b1 = l1.indexOf('=')+1;
+                this.loca = l1.slice(b1)
+            }
+            axios({
+                url:'../bingo/ticking.php?action=dealWith',
+                method:'post',
+                data:{
+                    orderid:this.loca
+                }
+            }).then((response)=>{
+                //乘客信息
+                this.namelist = response.data.namelist;
+                //整个订单信息
+                this.orderData = response.data.list;
+                //存放操作人员保存的信息 包括备注 大小编码等等
+                // this.orderticketing = response.data.order_ticketing;
+                //给往返航班信息添加订单来源等前四个数据
+                let flightcs = response.data.flight;
+                flightcs[0].platformOrder = response.data.list.platformOrder;
+                flightcs[0].policyCode = response.data.list.policyCode;
+                flightcs[0].id = response.data.list.id;
+                flightcs[0].ticketTable = response.data.list.ticketTable;
+                this.flight = flightcs;
+                //
+                // if(response.data.pnrall[0] == null){
+                //         this.bigPnrNum = response.data.big_number; //大编
+                // }else{
+                //     this.bigPnrNum = response.data.pnrall[0]; //大编
+                // }
+                this.bigPnrNum = response.data.order_ticketing.bigNumber;
+                // if (response.data.pnrall[1] == null){
+                //     this.smallNum = response.data.list.smartNumber; //小编
+                // }else{
+                this.smallNum = response.data.list.smartNumber; //小编
+                // }
+                this.newbig = response.data.order_ticketing.big;//新大编
+                this.newSmallNum = response.data.order_ticketing.smart; //新小编
+
+                this.arrTime = response.data.list.flyTime;
+                this.arrTime02 = response.data.list.arrTime;
+                this.paySubjects = response.data.paySubjects;
+                // console.log(this.paySubjects)
+                this.buy = response.data.buy;
+                this.numlength = response.data.namelist.length;
+
+                if(response.data.order_ticketing){
+                    this.buy = [];
+                    this.buy.push(response.data.order_ticketing.buy);
+                    for (let ind in response.data.order_ticketing){
+                        if(!response.data.order_ticketing[ind]){
+                            for(let index in this.order_ticketing){
+                                if(index===ind){
+                                    response.data.order_ticketing[ind]= this.order_ticketing[index];
+                                }
+                            }
+                        }
+                    }
+                    this.order_ticketing = response.data.order_ticketing;
+
+                    this.buyName=[];
+                    this.buyName.push(response.data.order_ticketing.table);
+                    if(response.data.order_ticketing.ticketObject == 'B2B'){
+                        this.B2B = true;
+                        this.BSP = this.OP = this.BOP = false;
+                    }else if(response.data.order_ticketing.ticketObject =='BSP'){
+                        this.B2B = this.OP = this.BOP = false;
+                        this.BSP = true;
+                    }else if(response.data.order_ticketing.ticketObject =='OP'){
+                        this.B2B = this.BSP = this.BOP = false;
+                        this.OP = true;
+                    }else if(response.data.order_ticketing.ticketObject =='BOP'){
+                        this.B2B = this.BSP = this.OP = false;
+                        this.BOP = true;
+                    }
+                }
+                var aa = [];//方便合并单元格，设计思路：后台在第一个成人或小孩，婴儿出写好几个人的类型数据的数值
+                            //比如五个成人就是5，而下面其它成人小孩婴儿的类型数据的数值为0
+                if(response.data.num.adult){
+                    for(var a=0;a<response.data.num.adult.length;a++){
+                        aa.push(response.data.num.adult[a]);
+                    }
+                }
+                if(response.data.num.child){
+                    for(var b=0;b<response.data.num.child.length;b++){
+                        aa.push(response.data.num.child[b])
+                    }
+                }
+                if(response.data.num.baby){
+                    for(var c=0;c<response.data.num.baby.length;c++){
+                        aa.push(response.data.num.baby[c])
+                    }
+                }
+                //将要改变单元的数字传入乘客数组中，方便循环时候v的合并单元格
+                for(var d=0;d<this.numlength;d++){
+                    response.data.namelist[d].num = aa[d]
+                }
+                this.orderData02 = response.data.namelist;
+
+            }).catch((error)=>{
+
+            })
+        },
+        created(){
+            var l1 = location.href;
+            var a = l1.match(/\=/g)
+            if(a.length > 1){
+                var c = l1.lastIndexOf('=');
+                this.clickshow  = l1.slice(c+1)
+            }
+        },
+        mounted(){  //获取出票类型下拉菜单的值
+            var l1 = location.href;
+            var a = l1.match(/\=/g)
+            if(a.length > 1){              //当通过查看按钮进来的时候，无法做任何操作
+                var inp = document.getElementsByTagName('input')
+                var butt = document.getElementsByTagName('button')
+                var sel = document.getElementsByTagName('select')
+                for(var b=0;b<inp.length;b++){
+                    inp[b].disabled = 'disabled';
+                    inp[b].style.backgroundColor = 'white'
+                    inp[b].style.opacity = 1
+                }
+                for(var c=0;c<butt.length;c++){
+                    butt[c].style.backgroundColor = 'white'
+                    butt[c].style.opacity = 1
+                    butt[c].disabled = 'disabled';
+
+                }
+                for(var d=0;d<sel.length;d++){
+                    sel[d].disabled = 'disabled';
+                }
+            }
+        }
+    })
+</script>
+
+</body>
+</html>
+
+
+

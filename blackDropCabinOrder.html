@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<!--航变管理页面-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>黑屏降舱管理</title>
+    <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+    <link rel="stylesheet" href="../resource/css/tableCustom.css" >
+    <style rel="stylesheet">
+        .ivu-tabs-bar{
+            margin-bottom: 2px;
+        }
+        .retainTable{
+            border: 1px silver solid;
+        }
+        .retainTable>thead>tr>th{
+            border: 1px #E7E7E7 solid;
+        }
+        .retainTable>tbody>tr>td{
+            border: 1px #E7E7E7 solid;
+        }
+        .allSearch{
+            display: flex;
+            flex-wrap:wrap;
+            margin-bottom: 5px;
+        }
+        .allSearch>*{
+            /*width: 200px;*/
+            margin: 3px 3px;
+        }
+        tr[data-repeat='1']{
+            background-color: #F8EFC0;
+        }
+        td[data-color='1']{
+            background-color: red;
+        }
+        /*表格中td作为点击button的样式*/
+        .tdButton{
+            cursor: pointer;
+        }
+        .tdButton:hover{
+            color: deepskyblue;
+        }
+    </style>
+</head>
+<body>
+<div id="blackDropCabinOrder">
+    <div>
+        <all_order_table></all_order_table>
+    </div>
+</div>
+<!--统计组件 显示所有单，后台已将所有单分类好，形成不同政策-->
+<template id="allOrderTable">
+    <div>
+        <!--搜索-->
+        <div class="allSearch" v-if="searchFlag">
+            <!--日期-->
+            <Date-picker type="daterange"
+                         v-model="searchObj.time"
+                         placement="bottom-end"
+                         placeholder="日期"
+                         @on-change="flyTimeFun"
+            >
+            </Date-picker>
+            <i-button type="success" icon="ios-search" size="small" @click="sureSearch">开始搜索</i-button>
+        </div>
+        <!--手工录入-->
+        <i-button type="primary" icon="ios-search" size="small" @click="blackDropCabinSearchFun">搜索</i-button>
+        <table class="retainTable" style="font-size: 12px;width: 100%">
+            <colgroup>
+                <!--全选-->
+                <col style="width:50px">
+                <!--航班号-->
+                <col style="width:auto">
+                <!--来源-->
+                <col style="width:auto">
+                <!--添加方式-->
+                <col style="width:auto">
+            </colgroup>
+            <thead >
+            <tr style="text-align:center;height: 40px" class="headBorder">
+                <th>序号</th>
+                <th>订单号</th>
+                <th>航司</th>
+                <th>出票利润</th>
+            </tr>
+            </thead>
+            <tbody class="" >
+            <tr v-for="(ord,index) in blackDropCabinObj" :key="ord.id" style="height: 40px">
+                <td>
+                    {{index+1+(allShowCountVal*(num - 1))}}
+                </td>
+                <!--航班号-->
+                <td>
+                    <div>{{ord.platformOrder}}</div>
+                </td>
+                <!--来源-->
+                <td>{{ord.aircompany_str}}</td>
+                <!--利润-->
+                <td>
+                    <div>{{ord.profit}}</div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <!--分页逻辑-->
+        <div style="float: right;margin-top: 20px">
+            <span>共展示</span>
+            <input type="text" v-model="allShowCountVal" @blur="allShowCountFun" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" >
+            <span>总计{{count}}条</span>
+            <button type="button"  class=""  @click="firstpage">第一页</button>
+            <button type="button"  class=""  @click="uppage">前一页</button>
+            共<span>{{pages}}</span>页&nbsp;&nbsp;
+            第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" :value="num" ref="num">&nbsp;页&nbsp;&nbsp;
+            <button  class=""  @click="gotopage">转到</button>
+            <button  class=""  @click="downpage">后一页</button>
+            <button  class=""  @click="llastpage">最后一页</button>
+        </div>
+    </div>
+</template>
+
+
+<script src="../vue/vue.js"></script>
+<script src="../resource/iview-2.0/dist/iview.js"></script>
+<script src="../vue/axios.min.js"></script>
+<script src="../vue/vuex.js"></script>
+<script type="text/javascript">
+    //统计
+    Vue.component('all_order_table',{
+        template:'#allOrderTable',
+        data(){
+            return{
+                blackDropCabinObj:null,
+                num:1,
+                pages:undefined,
+                count:undefined,
+                //共展示多少条
+                allShowCountVal:50,
+                //搜索开关
+                searchFlag:false,
+                //搜索对象
+                searchObj:{
+                    starttime:null,
+                    endtime:null,
+                },
+            }
+        },
+        methods:{
+            //初始化函数
+            objDataFun(pages = this.num,search = this.searchObj){
+                search = JSON.parse(JSON.stringify(search));
+                search.page = pages;
+                search.maxCount = this.allShowCountVal;
+                axios({
+                    url:'../bingo/down_order.php?action=all_order',
+                    method:'post',
+                    data:search,
+                }).then(res=>{
+                    if(res.data.res == 'success'){
+                        this.blackDropCabinObj = res.data.list;
+                        this.pages = res.data.pages;
+                        this.count = res.data.count;
+                    }else{
+                        this.$Message.error({
+                            content:res.data.res,
+                            duration:45,
+                            closable: true,
+                        });
+                    }
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //统计页面搜索框开启关闭功能
+            blackDropCabinSearchFun(){
+                this.searchFlag = !this.searchFlag
+            },
+            //搜索日期格式更改方法
+            flyTimeFun(data){
+                this.searchObj.starttime = data[0];
+                this.searchObj.endtime = data[1];
+            },
+            //确定搜索
+            sureSearch(){
+                this.objDataFun(1,this.searchObj);
+            },
+            //修改当前共展示多少条
+            allShowCountFun(){
+                this.allShowCountVal = this.allShowCountVal*1;
+                if(typeof this.allShowCountVal === 'number'){
+                    this.objDataFun();
+                }else{
+                    this.$Message.error({
+                        content:'请填写数字',
+                        duration:15,
+                        closable: true,
+                    });
+                }
+            },
+            //分页函数
+            //向后转页面 —
+            uppage:function(){
+                if(this.num>1){
+                    this.num -= 1;
+                }else if(this.num<1){
+                    alert('没有该页码')
+                }else{
+                    return
+                }
+                this.axfun(this.num);
+            },
+            //向前转页面 +
+            downpage:function(){
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if(this.num<this.pages){
+                    this.num = this.num + 1;
+                }else{
+                    return
+                };
+                this.axfun(this.num)
+            },
+            //直接去某页面
+            gotopage:function () {
+                let val = this.$refs.num.value;
+                if(val > this.pages||val<1){
+                    //页数框页码重置
+                    this.$refs.num.value = this.num;
+                    alert('没有该页码');
+                }else{
+                    this.num = Math.round(this.num);
+                    this.num = val;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去首页
+            firstpage:function () {
+                //如果num已经是第一页了，就不再请求了
+                if(this.num == 1){
+                    return
+                }
+                this.num = 1;
+                this.axfun(this.num)
+            },
+            //直接去末尾页
+            llastpage:function () {
+                //如果已经等于最后已页，就不再请求
+                if(this.num == this.pages){
+                    return
+                }
+                this.num = this.pages;
+                this.axfun(this.num)
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun:function(page){
+                //根据不同的值 来做ajax不同请求 当choose为true;则搜索是开启状态，否则是关闭状态
+                //若搜索为真，则直接调用搜索函数，把之前保存的搜索条件传过去；请求搜索后的结果;
+                //若搜索为假，则直接调用请求函数，直接拿值；
+                this.objDataFun(page,this.searchObj)
+
+            },
+        },
+        created(){
+            this.objDataFun(1,this.searchObj)
+        }
+    });
+    new Vue({
+        el:'#blackDropCabinOrder',
+        data:{},
+        methods:{},
+        created(){},
+        mounted(){}
+    })
+</script>
+
+</body>
+</html>

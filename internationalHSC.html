@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../vue/vue.js"></script>
+    <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+    <link rel="stylesheet" href="../resource/css/tableCustom.css">
+    <style rel="stylesheet">
+        /*table主体样式*/
+        .tableDom{
+            overflow-x: scroll;
+        }
+        .ariticialTalbe{
+            border: 1px silver solid;
+        }
+        /*给头加border*/
+        .headBorder>th{
+            border: 1px #E7E7E7 solid;
+        }
+        /*给tr加border*/
+        .ariticialTalbeChild>tr>td{
+            border: 1px #E7E7E7 solid;
+        }
+        /*航班信息的样式*/
+        .td_message{
+            width: 120px;
+            display: flex;
+            /*width: 120px;*/
+            margin: 0 auto;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+        .td_message>div{
+            margin-left: 2px;
+        }
+        /*input框宽度*/
+        .chooseChildA{
+            width: 100px;
+        }
+        .selectDom{
+            padding: 5px;
+            border-color: silver;
+            border-radius:3px;
+        }
+        /*其它*/
+        .ivu-input-default{
+            border-color: silver;
+        }
+        .ivu-tabs-bar{
+            margin-bottom: 0px;
+        }
+    </style>
+    <style>
+        .choose{
+            /*display: flex;*/
+            width: 20%;
+        }
+        .choose>*{
+            margin-bottom: 5px;
+            /*margin-top: 5px;*/
+        }
+        /*查找按钮样式*/
+        .search{
+            width: 15px;
+            height: 15px;
+            background-image: url('../images/font/ticketingSearch.png');
+            background-repeat: no-repeat;
+            background-size: 18px 18px;
+            cursor:pointer;
+        }
+        .chooseDom{
+            display: flex;
+        }
+        .chooseOne{
+            margin-right: 30px;
+        }
+        .chooseOne>div{
+            margin: 10px 0px 0px 10px;
+        }
+        .chooseTwo{
+
+        }
+
+    </style>
+</head>
+<body>
+<div id="internationalDom" style="min-height: 1000px">
+    <!--<div style="width: 2500px;height: 60px;overflow-x:scroll ">999999</div>-->
+    <div>
+        <!--日志-->
+        <log-Dom></log-Dom>
+        <!--拆分-->
+        <split></split>
+        <!--动画-->
+        <Col class="demo-spin-col" span="8">
+        <Spin fix v-if="animaFlag">
+            <Icon type="ios-loading" size=18 class="demo-spin-icon-load"></Icon>
+            <div>Loading</div>
+        </Spin>
+        </Col>
+        <!--主体table-->
+        <Tabs v-model="name"  style="min-height: 1000px">
+            <Tab-pane label="出票完成" name="name1">
+                <ord v-if="name=='name1'"></ord>
+            </Tab-pane>
+            <Tab-pane label="异常单" name="name2">
+                <error v-if="name=='name2'"></error>
+            </Tab-pane>
+        </Tabs>
+    </div>
+</div>
+<template id="ord">
+    <div style="margin-top: 1px">
+        <div class="tableDom">
+            <div v-if="searchFlag" >
+                <div class="chooseDom">
+                    <div class="chooseOne">
+                        <!--平台选择-->
+                        <div>
+                            <div style="display: inline-block">平台:</div>
+                            <div style="width: 200px;display: inline-block">
+                                <select class="chooseChildA selectDom" v-model=" chooseObj.ticketTable"
+                                        style="width: 100%">
+                                    <option v-for="(ele,index) in ticketTable" :value="ele">{{ele}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!--订单号-->
+                        <div>
+                            <i-input class="chooseChild" v-model="chooseObj.orderNo">
+                                <span slot="prepend">订单号</span>
+                            </i-input>
+                        </div>
+                        <!--支付日期-->
+                        <div style="">下单时间:</div>
+                        <div style="">
+                            <Date-picker type="daterange"
+                                         placement="bottom-end"
+                                         placeholder="下单时间"
+                                         @on-change="payTimeFun"
+                            >
+                            </Date-picker>
+                        </div>
+                        <!--起飞日期-->
+                        <div style="">起飞日期:</div>
+                        <div style="">
+                            <Date-picker type="daterange"
+                                         placement="bottom-end"
+                                         placeholder="起飞日期"
+                                         @on-change="flyTimeFun"
+                            >
+                            </Date-picker>
+                        </div>
+                        <!--状态-->
+                        <div style="">航司:</div>
+                        <div style="">
+                            <select class="chooseChildA selectDom" v-model="chooseObj.carrier" style="width: 100%">
+                                <option v-for="(ele,index) in carrier" :value="ele">{{ele}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chooseTwo choose">
+                        <!--小编-->
+                        <i-input class="chooseChild" v-model="chooseObj.pnrCode">
+                            <span slot="prepend">小编</span>
+                        </i-input>
+                        <br>
+                        <!--航班信息-->
+                        <i-input class="chooseChild" v-model="chooseObj.flightNumber">
+                            <span slot="prepend">航班号</span>
+                        </i-input>
+                        <br>
+                        <!--仓位-->
+                        <i-input class="chooseChild" v-model="chooseObj.cabin">
+                            <span slot="prepend">仓位</span>
+                        </i-input>
+                        <br>
+                        <!--乘机人-->
+                        <i-input class="chooseChild" v-model="chooseObj.passname">
+                            <span slot="prepend">乘机人</span>
+                        </i-input>
+                        <br>
+                        <!--票号-->
+                        <i-input class="chooseChild" v-model="chooseObj.ticketNo">
+                            <span slot="prepend">票号</span>
+                        </i-input>
+                        <button @click="choose" style="float: left">查找</button>
+                    </div>
+                </div>
+            </div>
+            <table class="ariticialTalbe" style="width: 2000px">
+                <colgroup>
+                    <col style="width:auto"><!--序号-->
+                    <col style="width:auto"><!--票台-->
+                    <col style="width:auto"><!--订单号-->
+                    <col style="width:auto"><!--下单时间-->
+                    <col style="width:auto"> <!--小编-->
+                    <col style="width:auto"><!--航司-->
+                    <col style="width:auto"><!--航班信息-->
+                    <col style="width:110px"><!--乘机人-->
+                    <col style="width:auto"><!--支付时间-->
+                    <col style="width:auto"><!--收款/支付-->
+                    <col style="width:auto"><!--利润-->
+                    <col style="width:auto"><!--票号-->
+                    <col style="width:auto"><!--政策代码政策人客电-->
+                    <col style="width:auto"><!--政策备注-->
+                    <col style="width:auto"><!--渠道-->
+                    <col style="width:auto"><!--支付方式/单号-->
+                    <col style="width:auto"><!--处理状态-->
+                    <col style="width:auto"><!--OTA状态-->
+                    <col style="width:auto"><!--出票人-->
+                    <col style="width:auto"><!--快递-->
+                    <col style="width:auto"><!--保险-->
+                    <col style="width:auto"><!--行李收付-->
+                    <col style="width:auto"><!--利润-->
+                    <!--<col style="width:auto">&lt;!&ndash;操作&ndash;&gt;-->
+                </colgroup>
+                <thead>
+                <tr style="text-align:center;height: 40px" class="headBorder">
+                    <th style="padding: 1px">序号</th>
+                    <th>平台</th>
+                    <th style="text-align:center">
+                        <div class="search" @click="closeSearch" style="float: left"></div>
+                            <span>订单号</span>
+                    </th>
+                    <th>下单时间</th>
+                    <th>小编</th>
+                    <th style="padding: 1px">航司</th>
+                    <th>航班信息</th>
+                    <th>乘机人</th>
+                    <th>支付时间</th>
+                    <th>收款/支付</th>
+                    <th>机票利润</th>
+                    <th>票号</th>
+                    <th>政策代码/政策人/客电</th>
+                    <th>政策备注</th>
+                    <th>渠道</th>
+                    <th>支付方式/单号</th>
+                    <th>处理状态</th>
+                    <th>OTA状态</th>
+                    <th>出票人</th>
+                    <th>快递</th>
+                    <th>保险</th>
+                    <th>行李收付</th>
+                    <th>利润</th>
+                    <!--<th>操作</th>-->
+                </tr>
+                </thead>
+                <tbody class="ariticialTalbeChild ticketing">
+                <!--v-for="(ord,index) in ticketingObj" :key="ord.id"-->
+                <tr  style="height: 60px" v-for="(ele,index) in ord" :key="index">
+                    <!--序号-->
+                    <td>
+                        <span>{{ele.num}}</span>
+                        <span>{{ele.time}}</span>
+                        <div><button>查看</button></div>
+                       <div> <button>操作</button></div>
+                    </td>
+                    <!--平台-->
+                    <td>{{ele.ticketTable}}</td>
+                    <!--订单号-->
+                    <td>
+                        <div>{{ele.orderNo}}</div>
+
+                    </td>
+                    <!--下单时间-->
+                    <td>
+                        {{ele.orderTime | time1}}
+                    </td>
+                    <!--小编-->
+                    <td>
+                        {{ele.pnrCode}}
+                    </td>
+                    <!--航司-->
+                    <td>
+                        <div>{{ele.carrier}}</div>
+                    </td>
+                    <!--航班信息-->
+                    <td >
+                        <div class="td_message" v-for="(elem,index) in ele.flight" :key="index">
+                            <div>{{elem.flightNumber}}</div>
+                            <div>{{elem.depAirport}}-{{elem.arrAirport}}</div>
+                            <div>{{elem.depData | time1}} {{elem.depTime }}</div>
+                            <div>{{elem.cabin}}/{{elem.maxSeats}}</div>
+                            <div>{{ele.population}}</div>
+                        </div>
+                    </td>
+                    <!--乘机人-->
+                    <td :title="ele.name">
+                        <div style="width: 100px;height: 20px;overflow: hidden;text-overflow: ellipsis;">
+                            {{ele.name}}
+                        </div>
+                    </td>
+                    <!--支付时间-->
+                    <td>
+                        {{ele.payTime | time1}}
+                    </td>
+                    <!--收款支付-->
+                    <td>
+                        <div>{{ele.collection}}</div>
+                        <div>{{ele.cash}}</div>
+                    </td>
+                    <!--利润-->
+                    <td>
+                        {{ele.profit}}
+                    </td>
+                    <!--票号-->
+                    <td :title="ele.ticketNo">
+                        <div style="width: 100px;height: 20px;overflow: hidden;text-overflow: ellipsis">
+                            {{ele.ticketNo}}
+                        </div>
+                    </td>
+                    <!--政策代码政策人客电-->
+                    <td>
+                        <!--{{ele.policyCode}}-->
+                        {{ele.chuser}}
+                        {{ele.policyPerson}}
+                        {{ele.contactNumber}}
+                    </td>
+                    <!--政策备注-->
+                    <td :title="ele.remarks">
+                        <div style="width: 100px;height: 20px;overflow: hidden;text-overflow: ellipsis">
+                            {{ele.remarks}}
+                        </div>
+                    </td>
+                    <!--渠道-->
+                    <td>
+                        {{ele.ticketObject}}
+                    </td>
+                    <!--支付方式/单号-->
+                    <td>
+                        <div>{{ele.paySubjects}}</div>
+                        <div>{{ele.payNumber}}</div>
+                    </td>
+                    <!--处理状态-->
+                    <td>
+                        {{ele.orderStatus}}
+                    </td>
+                    <!--OTA状态-->
+                    <td>{{ele.platformStatus}}</td>
+                    <!--出票人-->
+                    <td>{{ele.drawer}}</td>
+                    <!--快递-->
+                    <td></td>
+                    <!--保险-->
+                    <td></td>
+                    <!--行李收付-->
+                    <td></td>
+                    <!--利润-->
+                    <td></td>
+                    <!--操作-->
+                    <!--<td>-->
+
+                    <!--</td>-->
+                </tr>
+                </tbody >
+            </table>
+        </div>
+        <!--分页逻辑-->
+        <div style="float: right;margin-top: 20px">
+            <button type="button"  class=""  @click="firstpage">第一页</button>
+            <button type="button"  class=""  @click="uppage">前一页</button>
+            共<span>{{pages}}</span>页&nbsp;&nbsp;
+            第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" :value="num" ref="num">&nbsp;页&nbsp;&nbsp;
+            <button  class=""  @click="gotopage">转到</button>
+            <button  class=""  @click="downpage">后一页</button>
+            <button  class=""  @click="llastpage">最后一页</button>
+        </div>
+    </div>
+</template>
+<template id="error">
+    <div style="margin-top: 1px">
+        <div class="tableDom">
+            <div v-if="searchFlag" >
+                <div class="chooseDom">
+                    <div class="chooseOne">
+                        <!--平台选择-->
+                        <div>
+                            <div style="display: inline-block">平台:</div>
+                            <div style="width: 200px;display: inline-block">
+                                <select class="chooseChildA selectDom" v-model=" chooseObj.ticketTable"
+                                        style="width: 100%">
+                                    <option v-for="(ele,index) in ticketTable" :value="ele">{{ele}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!--订单号-->
+                        <div>
+                            <i-input class="chooseChild" v-model="chooseObj.orderNo">
+                                <span slot="prepend">订单号</span>
+                            </i-input>
+                        </div>
+                        <!--支付日期-->
+                        <div style="">下单时间:</div>
+                        <div style="">
+                            <Date-picker type="daterange"
+                                         placement="bottom-end"
+                                         placeholder="下单时间"
+                                         @on-change="payTimeFun"
+                            >
+                            </Date-picker>
+                        </div>
+                        <!--起飞日期-->
+                        <div style="">起飞日期:</div>
+                        <div style="">
+                            <Date-picker type="daterange"
+                                         placement="bottom-end"
+                                         placeholder="起飞日期"
+                                         @on-change="flyTimeFun"
+                            >
+                            </Date-picker>
+                        </div>
+                        <!--状态-->
+                        <div style="">航司:</div>
+                        <div style="">
+                            <select class="chooseChildA selectDom" v-model="chooseObj.carrier" style="width: 100%">
+                                <option v-for="(ele,index) in carrier" :value="ele">{{ele}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chooseTwo choose">
+                        <!--小编-->
+                        <i-input class="chooseChild" v-model="chooseObj.pnrCode">
+                            <span slot="prepend">小编</span>
+                        </i-input>
+                        <br>
+                        <!--航班信息-->
+                        <i-input class="chooseChild" v-model="chooseObj.flightNumber">
+                            <span slot="prepend">航班号</span>
+                        </i-input>
+                        <br>
+                        <!--仓位-->
+                        <i-input class="chooseChild" v-model="chooseObj.cabin">
+                            <span slot="prepend">仓位</span>
+                        </i-input>
+                        <br>
+                        <!--乘机人-->
+                        <i-input class="chooseChild" v-model="chooseObj.passname">
+                            <span slot="prepend">乘机人</span>
+                        </i-input>
+                        <br>
+                        <!--票号-->
+                        <i-input class="chooseChild" v-model="chooseObj.ticketNo">
+                            <span slot="prepend">票号</span>
+                        </i-input>
+                        <button @click="choose" style="float: left">查找</button>
+                    </div>
+                </div>
+            </div>
+            <table class="ariticialTalbe" style="width: 2000px">
+                <colgroup>
+                    <col style="width:auto"><!--序号-->
+                    <col style="width:auto"><!--票台-->
+                    <col style="width:auto"><!--订单号-->
+                    <col style="width:auto"><!--下单时间-->
+                    <col style="width:auto"> <!--小编-->
+                    <col style="width:auto"><!--航司-->
+                    <col style="width:auto"><!--航班信息-->
+                    <col style="width:110px"><!--乘机人-->
+                    <col style="width:auto"><!--支付时间-->
+                    <col style="width:auto"><!--收款/支付-->
+                    <col style="width:auto"><!--利润-->
+                    <col style="width:auto"><!--票号-->
+                    <col style="width:auto"><!--政策代码政策人客电-->
+                    <col style="width:auto"><!--政策备注-->
+                    <col style="width:auto"><!--渠道-->
+                    <col style="width:auto"><!--支付方式/单号-->
+                    <col style="width:auto"><!--处理状态-->
+                    <col style="width:auto"><!--OTA状态-->
+                    <col style="width:auto"><!--出票人-->
+                    <col style="width:auto"><!--快递-->
+                    <col style="width:auto"><!--保险-->
+                    <col style="width:auto"><!--行李收付-->
+                    <col style="width:auto"><!--利润-->
+                    <!--<col style="width:auto">&lt;!&ndash;操作&ndash;&gt;-->
+                </colgroup>
+                <thead>
+                <tr style="text-align:center;height: 40px" class="headBorder">
+                    <th style="padding: 1px">序号</th>
+                    <th>平台</th>
+                    <th style="text-align:center">
+                        <div class="search" @click="closeSearch" style="float: left"></div>
+                        <span>订单号</span>
+                    </th>
+                    <th>下单时间</th>
+                    <th>小编</th>
+                    <th style="padding: 1px">航司</th>
+                    <th>航班信息</th>
+                    <th>乘机人</th>
+                    <th>支付时间</th>
+                    <th>收款/支付</th>
+                    <th>机票利润</th>
+                    <th>票号</th>
+                    <th>政策代码/政策人/客电</th>
+                    <th>政策备注</th>
+                    <th>渠道</th>
+                    <th>支付方式/单号</th>
+                    <th>处理状态</th>
+                    <th>OTA状态</th>
+                    <th>出票人</th>
+                    <th>快递</th>
+                    <th>保险</th>
+                    <th>行李收付</th>
+                    <th>利润</th>
+                    <!--<th>操作</th>-->
+                </tr>
+                </thead>
+                <tbody class="ariticialTalbeChild ticketing">
+                <!--v-for="(ord,index) in ticketingObj" :key="ord.id"-->
+                <tr  style="height: 60px" v-for="(ele,index) in ord" :key="index">
+                    <!--序号-->
+                    <td>
+                        <span>{{ele.num}}</span>
+                        <span>{{ele.time}}</span>
+                        <div><button>查看</button></div>
+                        <div> <button>操作</button></div>
+                    </td>
+                    <!--平台-->
+                    <td>{{ele.ticketTable}}</td>
+                    <!--订单号-->
+                    <td>
+                        <div>{{ele.orderNo}}</div>
+
+                    </td>
+                    <!--下单时间-->
+                    <td>
+                        {{ele.orderTime | time1}}
+                    </td>
+                    <!--小编-->
+                    <td>
+                        {{ele.pnrCode}}
+                    </td>
+                    <!--航司-->
+                    <td>
+                        <div>{{ele.carrier}}</div>
+                    </td>
+                    <!--航班信息-->
+                    <td >
+                        <div class="td_message" v-for="(elem,index) in ele.flight" :key="index">
+                            <div>{{elem.flightNumber}}</div>
+                            <div>{{elem.depAirport}}-{{elem.arrAirport}}</div>
+                            <div>{{elem.depData | time1}} {{elem.depTime }}</div>
+                            <div>{{elem.cabin}}/{{elem.maxSeats}}</div>
+                            <div>{{ele.population}}</div>
+                        </div>
+                    </td>
+                    <!--乘机人-->
+                    <td :title="ele.name">
+                        <div style="width: 100px;height: 20px;overflow: hidden;text-overflow: ellipsis;">
+                            {{ele.name}}
+                        </div>
+                    </td>
+                    <!--支付时间-->
+                    <td>
+                        {{ele.payTime | time1}}
+                    </td>
+                    <!--收款支付-->
+                    <td>
+                        <div>{{ele.collection}}</div>
+                        <div>{{ele.cash}}</div>
+                    </td>
+                    <!--利润-->
+                    <td>
+                        {{ele.profit}}
+                    </td>
+                    <!--票号-->
+                    <td :title="ele.ticketNo">
+                        <div style="width: 100px;height: 20px;overflow: hidden;text-overflow: ellipsis">
+                            {{ele.ticketNo}}
+                        </div>
+                    </td>
+                    <!--政策代码政策人客电-->
+                    <td>
+                        <!--{{ele.policyCode}}-->
+                        {{ele.chuser}}
+                        {{ele.policyPerson}}
+                        {{ele.contactNumber}}
+                    </td>
+                    <!--政策备注-->
+                    <td :title="ele.remarks">
+                        <div style="width: 100px;height: 20px;overflow: hidden;text-overflow: ellipsis">
+                            {{ele.remarks}}
+                        </div>
+                    </td>
+                    <!--渠道-->
+                    <td>
+                        {{ele.ticketObject}}
+                    </td>
+                    <!--支付方式/单号-->
+                    <td>
+                        <div>{{ele.paySubjects}}</div>
+                        <div>{{ele.payNumber}}</div>
+                    </td>
+                    <!--处理状态-->
+                    <td>
+                        {{ele.orderStatus}}
+                    </td>
+                    <!--OTA状态-->
+                    <td>{{ele.platformStatus}}</td>
+                    <!--出票人-->
+                    <td>{{ele.drawer}}</td>
+                    <!--快递-->
+                    <td></td>
+                    <!--保险-->
+                    <td></td>
+                    <!--行李收付-->
+                    <td></td>
+                    <!--利润-->
+                    <td></td>
+                    <!--操作-->
+                    <!--<td>-->
+
+                    <!--</td>-->
+                </tr>
+                </tbody >
+            </table>
+        </div>
+        <!--分页逻辑-->
+        <div style="float: right;margin-top: 20px">
+            <button type="button"  class=""  @click="firstpage">第一页</button>
+            <button type="button"  class=""  @click="uppage">前一页</button>
+            共<span>{{pages}}</span>页&nbsp;&nbsp;
+            第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" :value="num" ref="num">&nbsp;页&nbsp;&nbsp;
+            <button  class=""  @click="gotopage">转到</button>
+            <button  class=""  @click="downpage">后一页</button>
+            <button  class=""  @click="llastpage">最后一页</button>
+        </div>
+    </div>
+</template>
+<script src="../vue/axios.min.js"></script>
+<script src="../vue/vue-router.js"></script>
+<script src="../vue/vuex.js">
+
+
+
+</script>
+<script rel="stylesheet" src="../resource/iview-2.0/dist/iview.js"></script>
+<script type="text/javascript">
+    Vue.component('ord',{
+        template:'#ord',
+        data(){
+            return{
+                //主体承载数据对象
+                ord:null,
+                //总页数
+                pages:1,
+                //当前所在页数
+                num:1,
+                //总数据量
+                count:undefined,
+            //    搜索数据相关
+            //    搜索框开关
+                searchFlag:false,
+                //搜索条件开启，用与翻页时候判断是否要带搜索条件
+                searchChoose:false,
+                //ajax获取的票台信息，用与搜索框中的for循环
+                ticketTable:null,
+                //ajax获取的航司信息，用与搜索框中的for循环
+                carrier:null,
+                chooseObj:{
+                    //平台
+                    ticketTable:undefined,
+                    //订单号
+                    orderNo:undefined,
+                //    下单时间
+                //     ordTime:undefined,
+                //    起飞日期
+                //     flyTime:undefined,
+                //航司
+                    carrier:null,
+                //    小编
+                    pnrCode:null,
+                //    航班信息
+                    flightNumber:null,
+                //    仓位
+                    cabin:null,
+                //    乘机人
+                    passname:null,
+                //    票号
+                    ticketNo:null,
+                },
+                //拷贝出来的搜索条件对象，用于ajax请求
+                chooseObjClone:null,
+            }
+        },
+        methods:{
+            internationalAxiosFun(page,request){
+                axios({
+                    url:'../bingo/orderIntl.php',
+                    method:'post',
+                    data:{
+                        action:'query',
+                        page,
+                        request,
+                        type:1
+                    }
+                }).then(res=>{
+                    // console.log(res.data)
+                    // console.log(res)
+                    this.ord = res.data.row;
+                    this.pages = res.data.pageCount;
+                    this.count = res.data.count;
+                    this.ticketTable = res.data.searchOption.ticketTable
+                    this.carrier = res.data.searchOption.carrier
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //日期函数分割时间
+            //起飞时间
+            flyTimeFun(data){
+                let depTimeStart = data[0];
+                let depTimeEnd = data[1];
+                this.chooseObj.depTimeStart = depTimeStart;
+                this.chooseObj.depTimeEnd = depTimeEnd;
+            },
+            //下单时间
+            payTimeFun(data){
+                let orderTimeStart = data[0];
+                let orderTimeEnd = data[1];
+                this.chooseObj.orderTimeStart = orderTimeStart;
+                this.chooseObj.orderTimeEnd = orderTimeEnd;
+            },
+            choose(){
+                this.searchChoose = true;
+                this.chooseObjClone = JSON.parse(JSON.stringify(this.chooseObj))
+                this.internationalAxiosFun(1,this.chooseObjClone)
+            },
+            closeSearch(){
+              this.searchFlag = !this.searchFlag;
+            },
+            //分页函数
+            //向后转页面 —
+            uppage:function(){
+                if(this.num>1){
+                    this.num -= 1;
+                }else if(this.num<1){
+                    alert('没有该页码')
+                }else{
+                    return
+                }
+                this.axfun(this.num);
+            },
+            //向前转页面 +
+            downpage:function(){
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if(this.num<this.pages){
+                    this.num = this.num + 1;
+                }else{
+                    return
+                };
+                this.axfun(this.num)
+            },
+            //直接去某页面
+            gotopage:function () {
+                let val = this.$refs.num.value;
+                if(val > this.pages||val<1){
+                    //页数框页码重置
+                    this.$refs.num.value = this.num;
+                    alert('没有该页码');
+                }else{
+                    this.num = Math.round(this.num);
+                    this.num = val;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去首页
+            firstpage:function () {
+                //如果已经等于第一页，就不再请求
+                if(this.num == 1){
+                    return
+                }
+                this.num = 1;
+                this.axfun(this.nnum)
+            },
+            //直接去末尾页
+            llastpage:function () {
+                //如果已经等于最后已页，就不再请求
+                if(this.num == this.pages){
+                    return
+                }
+                this.num = this.pages;
+                this.axfun(this.num)
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun:function(page){
+                //根据不同的值 来做ajax不同请求 当choose为true;则搜索是开启状态，否则是关闭状态
+                //若搜索为真，则直接调用搜索函数，把之前保存的搜索条件传过去；请求搜索后的结果;
+                //若搜索为假，则直接调用请求函数，直接拿值；
+                if(this.searchChoose){
+                    this.internationalAxiosFun(page,this.chooseObjClone);
+                }else{
+                    this.internationalAxiosFun(page,null);
+                    this.this.chooseObjClone = null;
+                }
+            },
+        },
+        filters:{
+            time1(data){
+                if(data){
+                    data = data.replace(/(^[0-9]{4})-/,'')
+                    data = data.replace(/(:[0-9]{2}$)/,'')
+                    return data
+                }
+            }
+        },
+        created(){
+            this.internationalAxiosFun(1)
+        }
+    })
+    Vue.component('error',{
+        template:'#error',
+        data(){
+            return{
+                //主体承载数据对象
+                ord:null,
+                //总页数
+                pages:1,
+                //当前所在页数
+                num:1,
+                //总数据量
+                count:undefined,
+                //    搜索数据相关
+                //    搜索框开关
+                searchFlag:false,
+                //搜索条件开启，用与翻页时候判断是否要带搜索条件
+                searchChoose:false,
+                //ajax获取的票台信息，用与搜索框中的for循环
+                ticketTable:null,
+                //ajax获取的航司信息，用与搜索框中的for循环
+                carrier:null,
+                chooseObj:{
+                    //平台
+                    ticketTable:undefined,
+                    //订单号
+                    orderNo:undefined,
+                    //    下单时间
+                    //     ordTime:undefined,
+                    //    起飞日期
+                    //     flyTime:undefined,
+                    //航司
+                    carrier:null,
+                    //    小编
+                    pnrCode:null,
+                    //    航班信息
+                    flightNumber:null,
+                    //    仓位
+                    cabin:null,
+                    //    乘机人
+                    passname:null,
+                    //    票号
+                    ticketNo:null,
+                },
+                //拷贝出来的搜索条件对象，用于ajax请求
+                chooseObjClone:null
+            }
+        },
+        methods:{
+            internationalAxiosFun(page,request){
+                axios({
+                    url:'../bingo/orderIntl.php',
+                    method:'post',
+                    data:{
+                        action:'query',
+                        page,
+                        request,
+                        type:2
+                    }
+                }).then(res=>{
+                    // console.log(res.data)
+                    // console.log(res)
+                    this.ord = res.data.row;
+                    this.pages = res.data.pageCount;
+                    this.count = res.data.count;
+                    this.ticketTable = res.data.searchOption.ticketTable
+                    this.carrier = res.data.searchOption.carrier
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //日期函数分割时间
+            //起飞时间
+            flyTimeFun(data){
+                let depTimeStart = data[0];
+                let depTimeEnd = data[1];
+                this.chooseObj.depTimeStart = depTimeStart;
+                this.chooseObj.depTimeEnd = depTimeEnd;
+            },
+            //下单时间
+            payTimeFun(data){
+                let orderTimeStart = data[0];
+                let orderTimeEnd = data[1];
+                this.chooseObj.orderTimeStart = orderTimeStart;
+                this.chooseObj.orderTimeEnd = orderTimeEnd;
+            },
+            choose(){
+                this.searchChoose = true;
+                this.chooseObjClone = JSON.parse(JSON.stringify(this.chooseObj))
+                this.internationalAxiosFun(1,this.chooseObjClone)
+            },
+            closeSearch(){
+                this.searchFlag = !this.searchFlag;
+            },
+            //分页函数
+            //向后转页面 —
+            uppage:function(){
+                if(this.num>1){
+                    this.num -= 1;
+                }else if(this.num<1){
+                    alert('没有该页码')
+                }else{
+                    return
+                }
+                this.axfun(this.num);
+            },
+            //向前转页面 +
+            downpage:function(){
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if(this.num<this.pages){
+                    this.num = this.num + 1;
+                }else{
+                    return
+                };
+                this.axfun(this.num)
+            },
+            //直接去某页面
+            gotopage:function () {
+                let val = this.$refs.num.value;
+                if(val > this.pages||val<1){
+                    //页数框页码重置
+                    this.$refs.num.value = this.num;
+                    alert('没有该页码');
+                }else{
+                    this.num = Math.round(this.num);
+                    this.num = val;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去首页
+            firstpage:function () {
+                //如果已经等于第一页，就不再请求
+                if(this.num == 1){
+                    return
+                }
+                this.num = 1;
+                this.axfun(this.nnum)
+            },
+            //直接去末尾页
+            llastpage:function () {
+                //如果已经等于最后已页，就不再请求
+                if(this.num == this.pages){
+                    return
+                }
+                this.num = this.pages;
+                this.axfun(this.num)
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun:function(page){
+                //根据不同的值 来做ajax不同请求 当choose为true;则搜索是开启状态，否则是关闭状态
+                //若搜索为真，则直接调用搜索函数，把之前保存的搜索条件传过去；请求搜索后的结果;
+                //若搜索为假，则直接调用请求函数，直接拿值；
+                if(this.searchChoose){
+                    this.internationalAxiosFun(page,this.chooseObjClone);
+                }else{
+                    this.internationalAxiosFun(page,null);
+                    this.this.chooseObjClone = null;
+                }
+            },
+        },
+        filters:{
+            time1(data){
+                if(data){
+                    data = data.replace(/(^[0-9]{4})-/,'')
+                    data = data.replace(/(:[0-9]{2}$)/,'')
+                    return data
+                }
+            }
+        },
+        created(){
+            this.internationalAxiosFun(1)
+        }
+    })
+    new Vue({
+        el:'#internationalDom',
+        data:{
+            //移动端动画标识
+            animaFlag :false,
+            name : "name1",
+        },
+        methods:{
+        },
+    })
+</script>
+</body>
+</html>

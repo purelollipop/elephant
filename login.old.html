@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>机票票务管理</title>
+		<style type="text/css">
+			{literal}
+			*{
+				font-family:"微软雅黑", "Times New Roman";
+			}
+			body {
+				background-color:#405cb4;}
+			input {
+				
+				width:220px;
+				-moz-border-radius: 5px;      /* Gecko browsers */
+				-webkit-border-radius: 5px;   /* Webkit browsers */
+				border-radius:5px;            /* W3C syntax */
+				}
+			
+			.loginbk{
+				background:url(/resource/image/logo_bk.png) center no-repeat;
+				width:680px;
+				height:340px;
+				margin:0px auto;
+			}
+			.contrel{
+				float:left;
+				width:335px;
+				height:100px;
+				padding:140px 5px 10px 80px;
+				position:relative;
+			}
+			.lgname{
+				float:left;
+				background:url(/resource/image/lg_name.png) center no-repeat;
+				width:230px;
+				height:340px;
+			}
+			.contrel .title{
+				right:20px;
+				top:50px;
+				z-index:100;
+				position:absolute;
+			}
+			
+			p[cpyrgt]{
+				font-size:9px;
+				margin:20px auto 0;
+				text-align:center;
+				position:relative;
+				color:#333;
+				position:inherit;
+			}
+			
+			p[cpyrgt] a{
+				color:inherit;
+				text-decoration:none;
+			}
+			
+			p[cpyrgt] a:link{
+				color:inherit;
+			}
+			
+			p[cpyrgt] a:visited{
+				color:inherit
+			}
+			
+			p[cpyrgt] a:active {
+				color:inherit
+			}
+			
+			p[cpyrgt] a:hover{
+				color:inherit
+			}
+			{/literal}
+		</style>
+	</head>
+	<body>
+		<div class="loginbk">
+			<form class="form-signin" role="form" action="login.php">
+                <div class="lgname">
+                </div>
+                <div class="contrel">
+                	<div class="title">
+                    	管理系统
+                    </div>
+                    <p>
+    
+                            管理员帐号:
+                            <input name="username" type="text" placeholder=" 管理员帐号" required autofocus>
+                    </p>
+                    <p>
+                            管理员密码:
+                            <input name="password" type="password" placeholder=" 管理员密码" required>
+                    </p>
+                    <p style="padding-left:250px;">
+                            <button type="submit">登　录</button>
+                            <input name="action" type="hidden" value="login">
+                    </p>
+                </div>
+			</form>
+		</div>
+        <p cpyrgt>Copyright <span>©</span> 2014. <a href="http://www.bingooooo.com/" target="_blank">Bingo Information Technology Co., ltd</a> All rights reserved.</p>
+	</body>
+</html>

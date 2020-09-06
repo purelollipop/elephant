@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>订单增加</title>
+    <script src="../vue/vue.js"></script>
+    <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+    <style>
+        .oderAddCardClass{
+            width: 300px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+<script src="../resource/iview-2.0/dist/iview.js"></script>
+
+<div id="orderAdd">
+    <!--<div>-->
+        <Card style="width: 400px;margin: 20px" title="订单导入">
+            <div class="oderAddCardClass">
+                <i-input v-model="orderNo">
+                    <span slot="prepend">订单号</span>
+                </i-input>
+            </div>
+            <div class="oderAddCardClass">
+                <i-select placeholder="订单类型" v-model="changeCode">
+                    <i-option value="0101">出票订单</i-option>
+                    <i-option value="0301">退票订单</i-option>
+                    <i-option value="0401">改签订单</i-option>
+                </i-select>
+            </div>
+            <div class="oderAddCardClass">
+                <i-select placeholder="平台选择" v-model="ticketTable">
+                    <i-option selected :value=15>XSS</i-option>
+                    <i-option :value=1>XSG</i-option>
+                    <i-option :value=2>TTR</i-option>
+                    <i-option :value=3>携程</i-option>
+                    <i-option :value=4>携程团队</i-option>
+                    <i-option :value=5>平安淘宝</i-option>
+                    <i-option :value=6>向上淘宝</i-option>
+                    <i-option :value=7>淘宝B平台</i-option>
+                    <i-option :value=8>同程</i-option>
+                    <i-option :value=9>美团</i-option>
+                    <i-option :value=10>517</i-option>
+                    <i-option :value=11>八千翼</i-option>
+                    <i-option :value=12>pai</i-option>
+                    <i-option :value=13>同程klf</i-option>
+                    <i-option :value=14>携程klf</i-option>
+                </i-select>
+            </div>
+            <i-button @click="ordFun" size="small" type="primary">确定</i-button>
+        </Card >
+
+        <Card style="width: 400px;margin: 20px" title="ip切换">
+            <div class="oderAddCardClass">
+                <i-select v-model="ipSelectVal" placeholder="官网下单ip切换">
+                    <i-option v-for="(ele,index) in this.ipSelectObj" :value="ele.val" :key="index">{{ele.name}}</i-option>
+                </i-select>
+            </div>
+            <i-button @click="ipFun" type="primary" size="small">确定</i-button>
+        </Card>
+    <!--</div>-->
+</div>
+
+<script src="../vue/axios.min.js"></script>
+<script type="text/javascript">
+    new Vue({
+        el:'#orderAdd',
+        data:{
+            //订单号
+            orderNo:undefined,
+            //订单类型
+            changeCode:undefined,
+            //平台
+            ticketTable:undefined,
+            //切换ip 所使用的值
+            ipSelectVal:undefined,
+            ipSelectObj:[],
+        },
+        methods:{
+            ordFun(){
+                axios({
+                    url:'../bingo/ticking.php?action=order_add',
+                    method:'post',
+                    data:{
+                        changeCode:this.changeCode,
+                        orderNo:this.orderNo,
+                        ticketTable:this.ticketTable
+                    }
+                }).then(res=>{
+                    alert(res.data)
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            ipFun(){
+                axios({
+                    url:'../bingo/ticking.php?action=update_ip',
+                    method:'post',
+                    data:{
+                        val:this.ipSelectVal
+                    }
+                }).then(res=>{
+                    alert(res.data)
+                }).catch(err=>{
+                    console.log(err)
+                })
+            }
+        },
+        created(){},
+        beforeMount(){
+            axios({
+                url:'../bingo/ticking.php?action=conversion_ip',
+                method:'post',
+                data:{}
+            }).then(res=>{
+                //渲染ip select 下拉框选项值
+                let choose = res.data.choose.split(';');
+                for (let i = 0; i <choose.length ; i++) {
+                    choose[i] = choose[i].split(':');
+                    choose[i] = {name:choose[i][0],val:choose[i][1]};
+                }
+                this.ipSelectObj = choose
+            }).catch(err=>{
+                console.log(err)
+            })
+        }
+    })
+
+
+    /*let select = document.getElementById('select');
+    let DocumentFragment = document.createDocumentFragment();
+    window.onload = ()=>{
+        //先获取原值
+        axios({
+            url:'../bingo/ticking.php?action=conversion_ip',
+            method:'post',
+            data:{}
+        }).then(res=>{
+            //渲染原值
+
+            let choose = res.data.choose.split(';');
+            for (let i = 0; i <choose.length ; i++) {
+                choose[i] = choose[i].split(':');
+                choose[i] = {name:choose[i][0],val:choose[i][1]};
+                let optio = document.createElement('option');
+                optio.value = choose[i].val;
+                optio.innerHTML = choose[i].name;
+                DocumentFragment.appendChild(optio)
+            }
+            select.appendChild(DocumentFragment)
+            select.value = res.data.val;
+        }).catch(err=>{
+            console.log(err)
+        })
+    }*/
+
+</script>
+</body>
+</html>

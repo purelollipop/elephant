@@ -1,0 +1,38 @@
+{extends file='left.base.html'}
+
+{block name=menu}
+<div id="divMenu">
+<span class="a5">收支管理</span>
+<div class="menu show">
+			<ul>
+				<li><a href="dosome.php?action=paperout" target="main">发放面单</a></li>
+                <li><a href="dosome.php?action=othermoney" target="main">其他收支</a></li>
+
+			</ul>
+		</div>
+<span class="a3">主体管理</span>
+<div class="menu show">
+			<ul>
+				<li><a href="dosome.php?action=paper" target="main">业务交单</a></li>
+				<li><a href="fileimport.php?action=lotpaper" target="main">批量交单</a></li>
+				<li><a href="dosome.php?action=import" target="main">数据导入</a></li>
+				<li><a href="dosome.php?action=handimport" target="main">手动导入</a></li>
+                <li><a href="dosome.php?action=inmoney" target="main">交款</a></li>
+                <li><a href="dosome.php?action=lottery" target="main">奖罚</a></li>
+				<!--<li><a href="dosome.php?action=doneuser" target="main">人员清偿</a></li>-->
+			</ul>
+		</div>
+</div>
+<span class="a1">其他交单</span>
+<div class="menu show">
+	<ul>
+		<li><a href="dosome.php?action=give_des" target="main">到付件交单</a></li>
+		<li><a href="dosome.php?action=give_pay" target="main">代收货款交单</a></li>
+		<li><a href="dosome.php?action=outmoney" target="main">公司交款</a></li>
+	</ul>
+</div>
+</div>
+{/block}
+
+{block name=foot}
+{/block}

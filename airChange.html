@@ -1,0 +1,2083 @@
+<!DOCTYPE html>
+<!--航变管理页面-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>航变管理</title>
+    <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+    <link rel="stylesheet" href="../resource/css/tableCustom.css" >
+    <style rel="stylesheet">
+        .ivu-tabs-bar{
+            margin-bottom: 2px;
+        }
+        .retainTable{
+            border: 1px silver solid;
+        }
+        .retainTable>thead>tr>th{
+            border: 1px #E7E7E7 solid;
+        }
+        .retainTable>tbody>tr>td{
+            border: 1px #E7E7E7 solid;
+            padding: 0px 2px;
+        }
+        .allSearch{
+            display: flex;
+            flex-wrap:wrap;
+            margin-bottom: 5px;
+            /*width: 300px;*/
+            /*position: absolute;*/
+            /*top: -200px;*/
+            /*display: none;*/
+            /*visibility: hidden;*/
+        }
+        .allSearch>div{
+            width: 200px;
+            margin: 3px 3px;
+        }
+        .divshow{
+            /*display: block;*/
+            top: 1px;
+            position: relative;
+            visibility: visible;
+            transition: top 2s,position 2s,visibility 2s;
+        }
+        tr[data-repeat='1']{
+            background-color: #F8EFC0;
+        }
+        td[data-color='1']{
+            background-color: red;
+        }
+        /*表格中td作为点击button的样式 鼠标移入*/
+        .tdButton{
+            cursor: pointer;
+        }
+        .tdButton:hover{
+            color: deepskyblue;
+        }
+
+        .thDiv{
+            display: inline-block;
+        }
+        .thDiv>div{
+            /*border: 1px silver solid;*/
+            height: 15px;
+            font-size: 15px;
+            line-height: 0px;
+        }
+        .thDivIcon>i{
+            vertical-align: top;
+        }
+        .thDivIcon>i:hover{
+            color: #00FF00;
+        }
+        div[data-realOne='1']{
+            color: red;
+        }
+        div[data-realTwo='2']{
+            color: red;
+        }
+        div[data-remarkOne='1']{color: red;}
+        div[data-remarkTwo='2']{color: red;}
+
+    </style>
+</head>
+<body>
+<div id="airChangeOrder">
+    <Tabs v-model="name"
+          :animated="false"
+          style="min-height: 1000px"
+          @on-click="cleanAlonObjFun"
+    >
+        <Tab-pane label="统计" name="name1" >
+            <keep-alive>
+                <all_order_table v-if="name=='name1'" :name.sync="name" @changename="changeName" ></all_order_table>
+            </keep-alive>
+        </Tab-pane>
+        <Tab-pane label="详情" name="name2">
+            <keep-alive>
+                <alone_order_table v-if="name=='name2'" :alone-obj="aloneObj"></alone_order_table>
+            </keep-alive>
+        </Tab-pane>
+        <Tab-pane label="已处理" name="name3">
+            <keep-alive>
+                <deal_order_table v-if="name=='name3'" ></deal_order_table>
+            </keep-alive>
+        </Tab-pane>
+    </Tabs>
+</div>
+<!--统计组件 显示所有单，后台已将所有单分类好，形成不同政策-->
+<template id="allOrderTable">
+    <div>
+        <!--搜索-->
+        <div class="allSearch" v-if="searchFlag">
+            <!--航班号-->
+            <i-input class="chooseChild" v-model="searchObj.code">
+                <span slot="prepend">航班号</span>
+            </i-input>
+            <!--出发-->
+            <i-input class="chooseChild" v-model="searchObj.dpt">
+                <span slot="prepend">出发</span>
+            </i-input>
+            <!--到达-->
+            <i-input class="chooseChild" v-model="searchObj.arr">
+                <span slot="prepend">到达</span>
+            </i-input>
+            <!--航司-->
+            <i-input class="chooseChild" v-model="searchObj.carrier">
+                <span slot="prepend">航司</span>
+            </i-input>
+            <!--日期-->
+            <Date-picker type="daterange"
+                         v-model="searchObj.time"
+                         placement="bottom-end"
+                         placeholder="日期"
+                         @on-change="flyTimeFun"
+            >
+            </Date-picker>
+            <!--类型-->
+            <i-input class="chooseChild" v-model="searchObj.type">
+                <span slot="prepend">类型</span>
+            </i-input>
+            <!--&lt;!&ndash;平台选择&ndash;&gt;
+            <i-select v-model="searchObj.ticketTable" placeholder="平台选择">
+                <i-option value="携程">携程</i-option>
+                <i-option value="同程">同程</i-option>
+                <i-option value="去哪儿">去哪儿</i-option>
+                <i-option value="淘宝">淘宝</i-option>
+            </i-select>-->
+            <i-button type="success" icon="ios-search" size="small" @click="sureSearch">开始搜索</i-button>
+        </div>
+        <!--批量处理-->
+        <Modal v-model="lotDealFlag" width="360">
+            <p slot="header" style="color:#f60;text-align:center">
+                <Icon type="ios-information-circle"></Icon>
+                <span>批量处理</span>
+            </p>
+            <div style="text-align:center">
+                <i-select  filterable v-model="lotDealSelectValue">
+                    <i-option value="1">1天气原因延误</i-option>
+                    <i-option value="2">2天气原因取消</i-option>
+                    <i-option value="3">3航班临时调整延误</i-option>
+                    <i-option value="4">4航班临时调整取消</i-option>
+                    <i-option value="5">5季节变动调整延误</i-option>
+                    <i-option value="6">6季节变动调整取消</i-option>
+                    <i-option value="7">7航司计划原因延误</i-option>
+                    <i-option value="8">8航司计划原因取消</i-option>
+                    <i-option value="9">9航司运力调配延误</i-option>
+                    <i-option value="10">10航司运力调配取消</i-option>
+                    <i-option value="11">11军事活动延误</i-option>
+                    <i-option value="12">12军事活动取消</i-option>
+                    <i-option value="13">13机械故障延误</i-option>
+                    <i-option value="14">14机械故障取消</i-option>
+                    <i-option value="15">15黑屏清Q航变延误</i-option>
+                    <i-option value="16">16黑屏清Q航变取消</i-option>
+                    <i-option value="17">17机场关闭延误</i-option>
+                    <i-option value="18">18机场关闭取消</i-option>
+                </i-select>
+            </div>
+            <div slot="footer">
+                <i-button type="error" size="small" @click="allOrderFun">确定批量处理</i-button>
+                <i-button type="error" size="small" @click="lotDealFun">取消</i-button>
+            </div>
+        </Modal>
+        <!--备注弹窗-->
+        <Modal
+                v-model="airChangeAllremarksFlag"
+                title="备注信息"
+                draggable
+                width="300"
+                @on-ok="airChangeAllSureMarkeFun"
+        >
+            <textarea style="width: 260px" v-model="remarksObj.remarkValue"></textarea>
+        </Modal>
+        <!--手工录入-->
+        <Modal v-model="aritificialOrderFlagValue" width="360">
+            <p slot="header" style="color:#f60;text-align:center">
+                <Icon type="ios-information-circle"></Icon>
+                <span>手工录入</span>
+            </p>
+            <div style="text-align:center">
+                <!--来源-->
+                <i-select  filterable v-model="aritificialOrderFlagObject.data_source">
+                    <i-option value="1">电话</i-option>
+                    <i-option value="2">订单匹配</i-option>
+                    <i-option value="3">短信</i-option>
+                    <i-option value="4">数据匹配</i-option>
+                </i-select>
+                <!--航班号-->
+                <i-input v-model="aritificialOrderFlagObject.code">
+                    <span slot="prepend">航班号</span>
+                </i-input>
+                <!--航班日期-->
+                <i-input v-model="aritificialOrderFlagObject.date">
+                    <span slot="prepend">航班日期</span>
+                </i-input>
+                <!--出发-->
+                <i-input v-model="aritificialOrderFlagObject.dpt">
+                    <span slot="prepend">出发</span>
+                </i-input>
+                <!--到达-->
+                <i-input v-model="aritificialOrderFlagObject.arr">
+                    <span slot="prepend">到达</span>
+                </i-input>
+                <!--计划起飞-->
+                <i-input v-model="aritificialOrderFlagObject.plan_dpt_time">
+                    <span slot="prepend">计划起飞</span>
+                </i-input>
+                <!--计划达到-->
+                <i-input v-model="aritificialOrderFlagObject.plan_arr_time">
+                    <span slot="prepend">计划达到</span>
+                </i-input>
+                <!--实际起飞-->
+                <i-input v-model="aritificialOrderFlagObject.real_dpt_time">
+                    <span slot="prepend">实际起飞</span>
+                </i-input>
+                <!--实际到达-->
+                <i-input v-model="aritificialOrderFlagObject.real_arr_time">
+                    <span slot="prepend">实际到达</span>
+                </i-input>
+                <!--延误原因-->
+                <i-select  filterable v-model="aritificialOrderFlagObject.reason">
+                    <i-option value="1">1天气原因延误</i-option>
+                    <i-option value="2">2天气原因取消</i-option>
+                    <i-option value="3">3航班临时调整延误</i-option>
+                    <i-option value="4">4航班临时调整取消</i-option>
+                    <i-option value="5">5季节变动调整延误</i-option>
+                    <i-option value="6">6季节变动调整取消</i-option>
+                    <i-option value="7">7航司计划原因延误</i-option>
+                    <i-option value="8">8航司计划原因取消</i-option>
+                    <i-option value="9">9航司运力调配延误</i-option>
+                    <i-option value="10">10航司运力调配取消</i-option>
+                    <i-option value="11">11军事活动延误</i-option>
+                    <i-option value="12">12军事活动取消</i-option>
+                    <i-option value="13">13机械故障延误</i-option>
+                    <i-option value="14">14机械故障取消</i-option>
+                    <i-option value="15">15黑屏清Q航变延误</i-option>
+                    <i-option value="16">16黑屏清Q航变取消</i-option>
+                    <i-option value="17">17机场关闭延误</i-option>
+                    <i-option value="18">18机场关闭取消</i-option>
+                </i-select>
+            </div>
+            <div slot="footer">
+                <i-button type="error" size="small" @click="aritificialOrderFun">确定手工录入</i-button>
+                <i-button type="error" size="small" @click="aritificialOrderFlagFun">关闭</i-button>
+            </div>
+        </Modal>
+        <i-button type="primary" icon="ios-search" size="small" @click="allSearchFun">搜索</i-button>
+        <i-button type="primary" size="small" @click="lotDealFun">批量确定弹窗</i-button>
+        <i-button type="primary" size="small" @click="aritificialOrderFlagFun">手工录入</i-button>
+        <i-button type="primary" size="small" @click="LotDeletFun">批量删除</i-button>
+        <table class="retainTable" style="font-size: 12px;width: 100%">
+            <colgroup>
+                <!--全选-->
+                <col style="width:50px">
+                <!--航班号-->
+                <col style="width:auto">
+                <!--来源-->
+                <col style="width:auto">
+                <!--添加方式-->
+                <col style="width:auto">
+                <!--航班日期-->
+                <col style="width:auto">
+                <!--出发到达-->
+                <col style="width:auto">
+                <!--计划-->
+                <col style="width:auto">
+                <!--实际-->
+                <col style="width:auto">
+                <!--延误原因	-->
+                <col style="width:120px">
+                <!--备注-->
+                <col style="width:auto">
+                <!--订单数-->
+                <col style="width:auto">
+                <!--更新时间-->
+                <col style="width:auto">
+                <!--操作-->
+                <col style="width:120px">
+            </colgroup>
+            <thead >
+            <tr style="text-align:center;height: 40px" class="headBorder">
+                <th>
+                    <input type="checkbox" @click="allInput" id="retain_all_input">
+                    <span>全选</span>
+                </th>
+                <th>航班号</th>
+                <th>来源</th>
+                <th>添加方式</th>
+                <th style="text-align:center">航班日期</th>
+                <th>出发到达</th>
+                <!--<th></th>-->
+                <th>计划</th>
+                <!--<th>计划</th>-->
+                <th>
+                    <div class="thDiv">
+                        <span>实际</span>
+                    </div>
+                    <div class="thDiv">
+                        <div :data-realTwo=realVal class="thDivIcon" @click="realFun(2)"><Icon type="md-arrow-dropup" /></div>
+                        <div :data-realOne=realVal class="thDivIcon" @click="realFun(1)"><Icon type="md-arrow-dropdown" /></div>
+                    </div>
+                </th>
+                <!--<th style="text-align:center">实际</th>-->
+                <th>延误原因</th>
+                <th>
+                    <div class="thDiv">
+                        <span>备注</span>
+                    </div>
+                    <div class="thDiv">
+                        <div :data-remarkTwo=remarkVal class="thDivIcon" @click="remarkFun(2)" ><Icon type="md-arrow-dropup" /></div>
+                        <div :data-remarkOne=remarkVal class="thDivIcon" @click="remarkFun(1)"><Icon type="md-arrow-dropdown" /></div>
+                    </div>
+                </th>
+                <th>订单数</th>
+                <th>更新时间</th>
+                <th style="padding: 1px">
+                    <span>操作</span>
+                </th>
+            </tr>
+            </thead>
+            <tbody class="" >
+            <tr v-for="(ord,index) in allOrderObj" :key="ord.id" style="height: 60px">
+                <td>
+                    <input type="checkbox" v-if="!ord.reason"  @click="allAloneInput(ord.id)" class="inputClick">{{index+1+(allShowCountVal*(num - 1))}}
+                    <!--{{index+1+(allShowCountVal*(num - 1))}}-->
+                </td>
+                <!--航班号-->
+                <td @click="remarksFun(ord.id,ord.remark)" class="tdButton">
+                    <div title="点击可填写备注">{{ord.code}}</div>
+                </td>
+                <!--来源-->
+                <td>{{ord.data_source | source}}</td>
+                <!--添加方式-->
+                <td>
+                    <div v-if="ord.username == 'bingo'">自动录入</div>
+                    <div v-else>{{ord.username}}</div>
+                </td>
+                <!--航班日期-->
+                <td>
+                    <div>{{ord.date}}</div>
+                </td>
+                <!--出发-->
+                <td>
+                    <div>{{ord.dpt}}-{{ord.arr}}</div>
+                </td>
+                <!--到达-->
+                <!--<td>
+                    <div></div>
+                </td>-->
+                <!--计划起飞-->
+                <td>
+                    <div>{{ord.plan_dpt_time}}</div>
+                    <div>{{ord.plan_arr_time}}</div>
+                </td>
+                <!--计划到达-->
+                <!--<td></td>-->
+                <!--实际起飞-->
+                <td>
+                    {{ord.real_dpt_time}}
+                    <div>{{ord.real_arr_time}}</div>
+                </td>
+                <!--实际到达-->
+                <!--<td></td>-->
+                <!--延误原因-->
+                <td>
+                    <div v-if="ord.reason">{{ord.reason | reason}}</div>
+                    <div v-else>
+                        <i-select v-model="ord.cloneReason"  filterable>
+                            <i-option value="1">1天气原因延误</i-option>
+                            <i-option value="2">2天气原因取消</i-option>
+                            <i-option value="3">3航班临时调整延误</i-option>
+                            <i-option value="4">4航班临时调整取消</i-option>
+                            <i-option value="5">5季节变动调整延误</i-option>
+                            <i-option value="6">6季节变动调整取消</i-option>
+                            <i-option value="7">7航司计划原因延误</i-option>
+                            <i-option value="8">8航司计划原因取消</i-option>
+                            <i-option value="9">9航司运力调配延误</i-option>
+                            <i-option value="10">10航司运力调配取消</i-option>
+                            <i-option value="11">11军事活动延误</i-option>
+                            <i-option value="12">12军事活动取消</i-option>
+                            <i-option value="13">13机械故障延误</i-option>
+                            <i-option value="14">14机械故障取消</i-option>
+                            <i-option value="15">15黑屏清Q航变延误</i-option>
+                            <i-option value="16">16黑屏清Q航变取消</i-option>
+                            <i-option value="17">17机场关闭延误</i-option>
+                            <i-option value="18">18机场关闭取消</i-option>
+                        </i-select>
+                    </div>
+                </td>
+                <!--备注-->
+                <td>
+                    {{ord.remark}}
+                </td>
+                <!--订单数-->
+                <td>{{ord.amount}}</td>
+                <!--更新时间-->
+                <td>{{ord.data_time}}</td>
+                <!--处理按钮-->
+                <td>
+                    <button class="butt"  @click="checkOrder(ord.id,ord.cloneReason)">确定</button>
+                    <!--<button class="butt"  @click="checkOrder(ord.id,ord.cloneReason)">修改</button>-->
+                    <button class="butt"  @click="deletOrderFun(ord.id)">删除</button>
+                    <button class="butt" @click="toAlonePage(ord.code,ord.date,ord.dpt,ord.arr,)">详情</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <!--分页逻辑-->
+        <div style="float: right;margin-top: 20px">
+            <span>共展示</span>
+            <input type="text" v-model="allShowCountVal" @blur="allShowCountFun" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" >
+            <span>总计{{count}}条</span>
+            <button type="button"  class=""  @click="firstpage">第一页</button>
+            <button type="button"  class=""  @click="uppage">前一页</button>
+            共<span>{{pages}}</span>页&nbsp;&nbsp;
+            第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" :value="num" ref="num">&nbsp;页&nbsp;&nbsp;
+            <button  class=""  @click="gotopage">转到</button>
+            <button  class=""  @click="downpage">后一页</button>
+            <button  class=""  @click="llastpage">最后一页</button>
+        </div>
+    </div>
+</template>
+<!--详情组件-->
+<template id="aloneOrderTable">
+    <div>
+        <!--详情搜索-->
+        <div class="allSearch" v-if="searchAloneFlag">
+            <!--航班号-->
+            <i-input class="chooseChild" v-model="searchObj.code">
+                <span slot="prepend">航班号</span>
+            </i-input>
+            <!--出发-->
+            <i-input class="chooseChild" v-model="searchObj.dpt">
+                <span slot="prepend">出发</span>
+            </i-input>
+            <!--到达-->
+            <i-input class="chooseChild" v-model="searchObj.arr">
+                <span slot="prepend">到达</span>
+            </i-input>
+            <!--航司-->
+            <i-input class="chooseChild" v-model="searchObj.carrier">
+                <span slot="prepend">航司</span>
+            </i-input>
+            <!--订单号-->
+            <i-input class="chooseChild" v-model="searchObj.orderno">
+                <span slot="prepend">订单号</span>
+            </i-input>
+            <!--日期-->
+            <Date-picker type="daterange"
+                         v-model="searchObj.time"
+                         placement="bottom-end"
+                         placeholder="日期"
+                         @on-change="flyTimeFun"
+            >
+            </Date-picker>
+            <!--类型-->
+            <i-input class="chooseChild" v-model="searchObj.type">
+                <span slot="prepend">类型</span>
+            </i-input>
+            <!--进单平台-->
+            <i-select v-model="searchObj.ticketTable" placeholder="平台选择">
+                <i-option value="携程直连">携程直连</i-option>
+                <i-option value="去哪儿pai">去哪儿pai</i-option>
+                <i-option value="去哪儿">去哪儿</i-option>
+                <i-option value="平安淘宝">平安淘宝</i-option>
+                <i-option value="同程">同程</i-option>
+            </i-select>
+            <i-button type="primary" icon="ios-search" size="small" @click="sureAloneSearch">开始搜索</i-button>
+        </div>
+        <!--详情备注-->
+        <Modal
+                v-model="remarksFlag"
+                title="备注信息"
+                draggable
+                width="300"
+                @on-ok="sureMarkeFun"
+        >
+            <textarea style="width: 260px" v-model="remarksObj.remarkValue"></textarea>
+        </Modal>
+        <!--日志-->
+        <Modal v-model="aloneOrderLogFlag" width="650" draggable scrollable title="详情日志">
+            <i-Table height="380" width="620" :columns="columns1" :data="aloneLogTable"></i-Table>
+        </Modal>
+        <!--详情批量处理结果弹窗-->
+        <Modal v-model="aloneLotResultWindowFlagValue" width="360">
+            <p slot="header" style="text-align:center">
+                <Icon type="ios-information-circle"></Icon>
+                <span>批量结果处理</span>
+            </p>
+            <div style="text-align:center">
+                <i-select  v-model="aloneLotResultSelectValue" filterable>
+                    <i-option value="1">1待处理</i-option>
+                    <i-option value="2">2已处理</i-option>
+                    <i-option value="3">3已过时间</i-option>
+                    <i-option value="4">4航班恢复正常</i-option>
+                    <i-option value="5">5重复</i-option>
+                </i-select>
+            </div>
+            <div slot="footer">
+                <i-button type="error" size="small" @click="alontLotResultWindowFlagFun">结果批量处理</i-button>
+                <i-button type="error" size="small" @click="aloneLotResultWindowFlagFun">取消</i-button>
+            </div>
+        </Modal>
+        <i-button type="primary" icon="ios-search" size="small" @click="aloneSearch">搜索</i-button>
+        <i-button type="primary" size="small" @click="aloneLotResultWindowFlagFun">结果批量处理弹窗</i-button>
+        <table class="retainTable" style="font-size: 12px;width: 100%">
+            <colgroup>
+                <col style="width:auto"><!--全选-->
+                <col style="width:auto"><!--平台-->
+                <col style="width:auto"><!--订单号-->
+                <col style="width:auto"><!--航班号-->
+                <col style="width:auto"><!--航班日期	-->
+                <col style="width:auto"><!--出发到达	-->
+                <col style="width:auto"><!--计划-->
+                <col style="width:auto"><!--实际-->
+                <col style="width:auto"><!--延误原因-->
+                <col style="width:auto"><!--订单状态-->
+                <col style="width:auto"><!--备注-->
+                <col style="width:130px"><!--处理结果-->
+                <col style="width:auto"><!--处理-->
+                <col style="width:auto"><!--操作人	-->
+                <col style="width:auto"><!--更新时间-->
+            </colgroup>
+            <thead >
+            <tr style="text-align:center;height: 40px" class="headBorder">
+                <th>
+                    <input type="checkbox" @click="alontAllInput" class="aloneLotSize" id="retain_alone_input">
+                    <span>全选</span>
+                </th>
+                <th>来源</th>
+                <th>订单号</th>
+                <th>航班号</th>
+                <th style="text-align:center">航班日期</th>
+                <th>出发到达</th>
+                <!--<th></th>-->
+                <th>计划</th>
+                <!--<th>计划</th>-->
+                <th>实际</th>
+                <!--<th>实际</th>-->
+                <th>延误原因</th>
+                <th>订单状态</th>
+                <th>备注</th>
+                <th>处理结果</th>
+                <!--<th>处理时间</th>-->
+                <th style="padding: 1px">
+                    <span>操作</span>
+                </th>
+                <th>操作人</th>
+                <th>更新时间</th>
+            </tr>
+            </thead>
+            <tbody class="" >
+            <tr v-for="(ord,index) in aloneOrderObj" :key="index" style="height: 60px">
+                <td>
+                    <input type="checkbox" v-if="ord.deal_result=='1'"  class="aloneInput" @click="detailsAloneInput(ord.id)">{{index+1+(aloneShowCountVal*(num-1))}}
+                </td>
+                <!--来源-->
+                <td>{{ord.order_source}}</td>
+                <!--订单号-->
+                <td  @click="aloneRemarksFun(ord.id,ord.order_remark)" class="tdButton" title="点击可填写备注">
+                    {{ord.order_no}}
+                    <div>{{ord.order_remark}}</div>
+                </td>
+                <!--航班号-->
+                <td @click="logFun(ord.id)" class="tdButton">{{ord.code}}</td>
+                <!--航班日期-->
+                <td>{{ord.date}}</td>
+                <!--出发-->
+                <td>{{ord.dpt}}-{{ord.arr}}</td>
+                <!--到达-->
+                <!--<td></td>-->
+                <!--计划起飞-->
+                <td>
+                    <div>{{ord.plan_dpt_time}}</div>
+                    <div>{{ord.plan_arr_time}}</div>
+                </td>
+                <!--计划到达-->
+                <!--<td></td>-->
+                <!--实际起飞-->
+                <td>
+                    <div>{{ord.real_dpt_time}}</div>
+                    <div>{{ord.real_arr_time}}</div>
+                </td>
+                <!--实际到达-->
+                <!--<td></td>-->
+                <!--延误原因-->
+                <td>{{ord.reason | reason}}</td>
+                <!--订单状态-->
+                <td>{{ord.orderstate}}</td>
+                <!--备注-->
+                <td>
+                    {{ord.remark}}
+                    {{ord.lasttime}}
+                </td>
+
+                <!--处理结果-->
+                <td>
+                    <div v-if="ord.deal_result!='1'">{{ord.deal_result | result}}</div>
+                    <div v-else>
+                        <i-select  v-model="ord.cloneReanson" filterable>
+                            <i-option value="1">1待处理</i-option>
+                            <i-option value="2">2已处理</i-option>
+                            <i-option value="3">3已过时间</i-option>
+                            <i-option value="4">4航班恢复正常</i-option>
+                            <i-option value="5">5重复</i-option>
+                        </i-select>
+                    </div>
+                    <div>{{ord.deal_time}}</div>
+                </td>
+                <!--处理时间-->
+                <!--<td></td>-->
+                <!--处理按钮-->
+                <td>
+                    <button class="butt"  @click="aloneCheckOrder(ord.id,ord.cloneReanson)">确定</button>
+                    <button class="butt" @click="aloneDeleteOrder(ord.id)">删除</button>
+                </td>
+                <!--操作人-->
+                <td>{{ord.operator}}</td>
+                <!--更新时间-->
+                <td>{{ord.data_time}}</td>
+            </tr>
+            </tbody>
+        </table>
+        <!--分页逻辑-->
+        <div style="float: right;margin-top: 20px">
+            <span>共展示</span>
+            <input type="text" v-model="aloneShowCountVal" @blur="aloneShowCountFun" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" >
+            <span>总计{{count}}条</span>
+            <button type="button"  class=""  @click="firstpage">第一页</button>
+            <button type="button"  class=""  @click="uppage">前一页</button>
+            共<span>{{pages}}</span>页&nbsp;&nbsp;
+            第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" :value="num" ref="num">&nbsp;页&nbsp;&nbsp;
+            <button  class=""  @click="gotopage">转到</button>
+            <button  class=""  @click="downpage">后一页</button>
+            <button  class=""  @click="llastpage">最后一页</button>
+        </div>
+    </div>
+</template>
+<!--已处理组件-->
+<template id="dealOrderTable">
+    <div>
+        <div class="allSearch" v-if="searchAloneFlag">
+            <!--航班号-->
+            <i-input class="chooseChild" v-model="searchObj.code">
+                <span slot="prepend">航班号</span>
+            </i-input>
+            <!--出发-->
+            <i-input class="chooseChild" v-model="searchObj.dpt">
+                <span slot="prepend">出发</span>
+            </i-input>
+            <!--到达-->
+            <i-input class="chooseChild" v-model="searchObj.arr">
+                <span slot="prepend">到达</span>
+            </i-input>
+            <!--航司-->
+            <i-input class="chooseChild" v-model="searchObj.carrier">
+                <span slot="prepend">航司</span>
+            </i-input>
+            <!--订单号-->
+            <i-input class="chooseChild" v-model="searchObj.orderno">
+                <span slot="prepend">订单号</span>
+            </i-input>
+            <!--日期-->
+            <Date-picker type="daterange"
+                         v-model="searchObj.time"
+                         placement="bottom-end"
+                         placeholder="日期"
+                         @on-change="flyTimeFun"
+            >
+            </Date-picker>
+            <!--类型-->
+            <i-input class="chooseChild" v-model="searchObj.type">
+                <span slot="prepend">类型</span>
+            </i-input>
+            <!--进单平台-->
+            <i-select v-model="searchObj.ticketTable" placeholder="平台选择">
+                <i-option value="携程直连">携程直连</i-option>
+                <i-option value="去哪儿pai">去哪儿pai</i-option>
+                <i-option value="去哪儿">去哪儿</i-option>
+                <i-option value="平安淘宝">平安淘宝</i-option>
+                <i-option value="同程">同程</i-option>
+            </i-select>
+            <i-button type="primary" icon="ios-search" size="small" @click="sureAloneSearch">开始搜索</i-button>
+        </div>
+        <i-button type="primary" icon="ios-search" size="small" @click="aloneSearch">搜索</i-button>
+        <!--日志-->
+        <log-window :id.sync="logId"></log-window>
+        <table class="retainTable" style="font-size: 12px;width: 100%">
+            <colgroup>
+                <col style="width:auto"><!--全选-->
+                <col style="width:auto"><!--平台-->
+                <col style="width:auto"><!--订单号-->
+                <col style="width:auto"><!--航班号-->
+                <col style="width:auto"><!--航班日期	-->
+                <col style="width:auto"><!--出发到达	-->
+                <col style="width:auto"><!--计划-->
+                <col style="width:auto"><!--实际-->
+                <col style="width:auto"><!--延误原因-->
+                <col style="width:auto"><!--订单状态-->
+                <col style="width:auto"><!--备注-->
+                <col style="width:auto"><!--处理结果-->
+                <col style="width:auto"><!--操作人	-->
+                <col style="width:auto"><!--更新时间-->
+            </colgroup>
+            <thead >
+            <tr style="text-align:center;height: 40px" class="headBorder">
+                <th>
+                   序号
+                </th>
+                <th>来源</th>
+                <th>订单号</th>
+                <th>航班号</th>
+                <th style="text-align:center">航班日期</th>
+                <th>出发到达</th>
+                <!--<th></th>-->
+                <th>计划</th>
+                <!--<th>计划</th>-->
+                <th>实际</th>
+                <!--<th>实际</th>-->
+                <th>延误原因</th>
+                <th>订单状态</th>
+                <th>备注</th>
+                <th>处理结果</th>
+                <th>操作人</th>
+                <th>更新时间</th>
+            </tr>
+            </thead>
+            <tbody class="" >
+            <tr v-for="(ord,index) in aloneOrderObj" :key="index" style="height: 60px">
+                <td>
+                    {{index+1+(20*(dealShowCountVal-1))}}
+                </td>
+                <!--来源-->
+                <td>{{ord.order_source}}</td>
+                <!--订单号-->
+                <td>{{ord.order_no}}</td>
+                <!--航班号-->
+                <td class="tdButton" title="点击显示日志" @click="showLogFun(ord.id)">
+                    {{ord.code}}
+                </td>
+                <!--航班日期-->
+                <td>{{ord.date}}</td>
+                <!--出发-->
+                <td>{{ord.dpt}}-{{ord.arr}}</td>
+                <!--计划起飞-->
+                <td>
+                    <div>{{ord.plan_dpt_time}}</div>
+                    <div>{{ord.plan_arr_time}}</div>
+                </td>
+                <!--实际起飞-->
+                <td>
+                    <div>{{ord.real_dpt_time}}</div>
+                    <div>{{ord.real_arr_time}}</div>
+                </td>
+                <!--延误原因-->
+                <td>{{ord.reason | reason}}</td>
+                <!--订单状态-->
+                <td>{{ord.orderstate}}</td>
+                <!--备注-->
+                <td>
+                    {{ord.remark}}
+                    {{ord.lasttime}}
+                </td>
+                <!--处理结果-->
+                <td>
+                    <div v-if="ord.deal_result!='1'">{{ord.deal_result | result}}</div>
+                    <div v-else >
+                        <i-select  v-model="ord.cloneReanson" filterable>
+                            <i-option value="1">1待处理</i-option>
+                            <i-option value="2">2已处理</i-option>
+                            <i-option value="3">3已过时间</i-option>
+                            <i-option value="4">4航班恢复正常</i-option>
+                            <i-option value="5">5重复</i-option>
+                        </i-select>
+                    </div>
+                    <div>{{ord.deal_time}}</div>
+                </td>
+                <!--操作人-->
+                <td>{{ord.operator}}</td>
+                <!--更新时间-->
+                <td>{{ord.data_time}}</td>
+            </tr>
+            </tbody>
+        </table>
+        <!--分页逻辑-->
+        <div style="float: right;margin-top: 20px">
+            <span>共展示</span>
+            <input type="text" v-model="dealShowCountVal" @blur="dealShowCountFun" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" >
+            <span>总计{{count}}条</span>
+            <button type="button"  class=""  @click="firstpage">第一页</button>
+            <button type="button"  class=""  @click="uppage">前一页</button>
+            共<span>{{pages}}</span>页&nbsp;&nbsp;
+            第&nbsp;<input type="text" style="width:40px;height:22px;padding:5px;display: inline;font-size: .9em;" :value="num" ref="num">&nbsp;页&nbsp;&nbsp;
+            <button  class=""  @click="gotopage">转到</button>
+            <button  class=""  @click="downpage">后一页</button>
+            <button  class=""  @click="llastpage">最后一页</button>
+        </div>
+    </div>
+</template>
+<!--日志-->
+<template id="logWindow">
+    <Modal
+            v-model="logFlag"
+            title="日志"
+            draggable
+            width="700"
+            @on-ok="closeFun"
+            @on-cancel="closeFun"
+    >
+        <i-Table height="380" width="650" :columns="columns1" :data="logtable"></i-Table>
+    </Modal>
+</template>
+
+<script src="../vue/vue.js"></script>
+<script src="../resource/iview-2.0/dist/iview.js"></script>
+<script src="../vue/axios.min.js"></script>
+<script src="../vue/vuex.js"></script>
+<script type="text/javascript">
+    //统计
+    Vue.component('all_order_table',{
+        template:'#allOrderTable',
+        data(){
+            return{
+                allOrderObj:null,
+                num:1,
+                pages:undefined,
+                count:undefined,
+                //共展示多少条
+                allShowCountVal:50,
+                //搜索开关
+                searchFlag:false,
+                //搜索对象
+                searchObj:{
+                    dpt:null,
+                    arr:null,
+                    starttime:null,
+                    endtime:null,
+                    code:null,
+                    pages:undefined,
+                    platformstatus:undefined,
+                },
+                //input全选数组
+                inputObject:[],
+                //批量处理开关
+                lotDealFlag:false,
+                //批量处理select 默认值
+                lotDealSelectValue:'1',
+                //手工录入弹窗开关值
+                aritificialOrderFlagValue:false,
+                //手工录入对象
+                aritificialOrderFlagObject:{
+                    code:undefined,
+                    date:undefined,
+                    dpt:undefined,
+                    arr:undefined,
+                    time:undefined,
+                    type:undefined,
+                },
+               // 备注开关
+                airChangeAllremarksFlag:false,
+               //备注相关对象
+                remarksObj:{
+                    remarksFlag:false,
+                    id:undefined,
+                    remark:undefined
+                },
+                //该开关用来给备注弹窗watch监控
+                remarksFlag:false,
+            //    real remark 排序 1代表点击上箭头 2代表点击下箭头 0代表初始
+                realVal:0,
+                remarkVal:0,
+            }
+        },
+        computed:{},
+        filters:{
+            reason(data){
+                switch (data*1) {
+                    case 1:
+                        return '天气原因延误';
+                    case 2:
+                        return '天气原因取消';
+                    case 3:
+                        return '航班临时调整延误';
+                    case 4:
+                        return '航班临时调整取消';
+                    case 5:
+                        return '季节变动调整延误';
+                    case 6:
+                        return '季节变动调整取消';
+                    case 7:
+                        return '航司计划原因延误';
+                    case 8:
+                        return '航司计划原因取消';
+                    case 9:
+                        return '航司运力调配延误';
+                    case 10:
+                        return '航司运力调配取消';
+                    case 11:
+                        return '军事活动延误';
+                    case 12:
+                        return '军事活动取消';
+                    case 13:
+                        return '机械故障延误';
+                    case 14:
+                        return '机械故障取消';
+                    case 15:
+                        return '黑屏清Q航变延误';
+                    case 16:
+                        return '黑屏清Q航变取消';
+                    case 17:
+                        return '机场关闭延误';
+                    case 18:
+                        return '机场关闭取消';
+
+                }
+            },
+            source(data){
+                switch (data*1) {
+                    case 1:
+                        return '电话';
+                    case 2:
+                        return '订单匹配';
+                    case 3:
+                        return '短信';
+                    case 4:
+                        return '数据匹配';
+                }
+            },
+        },
+        props:['name'],
+        methods:{
+            //初始化函数
+            objDataFun(pages = this.num,search = this.searchObj){
+                search = JSON.parse(JSON.stringify(search));
+                search.page = pages;
+                search.maxCount = this.allShowCountVal;
+                search.real = this.realVal;
+                search.remark = this.remarkVal;
+                axios({
+                    url:'../bingo/air_change.php?action=air_change',
+                    method:'post',
+                    data:search,
+                }).then(res=>{
+                    if(res.data.res == 'success'){
+                        //前端构造一个reason值，方便业务处理，与服务端无关，也无需传给服务端
+                        for (let i = 0; i < res.data.list.length; i++) {
+                            res.data.list[i].cloneReason = undefined
+                        };
+                        this.allOrderObj = res.data.list;
+                        this.pages = res.data.pages;
+                        this.count = res.data.count;
+
+                    }else{
+                        this.$Message.error({
+                            content:res.data.res,
+                            duration:45,
+                            closable: true,
+                        });
+                    }
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //统计页面搜索框开启关闭功能
+            allSearchFun(){
+                this.searchFlag = !this.searchFlag
+            },
+            //搜索日期格式更改方法
+            flyTimeFun(data){
+                this.searchObj.starttime = data[0];
+                this.searchObj.endtime = data[1];
+            },
+            //确定搜索
+            sureSearch(){
+                //内部加入一个开关，前端自己使用，用来判断是否在搜索状态
+                // this.searchObj.searchFlag = true;
+                this.objDataFun(1,this.searchObj);
+            },
+            //批量确定按钮
+            allOrderFun(){
+                if(confirm('是否确定出票')){
+                    if(this.inputObject.length){
+                        //批量处理的reason值 赋予到每一个单独的航线中
+                        for (let i = 0; i < this.inputObject.length; i++) {
+                            this.inputObject[i].reason = this.lotDealSelectValue
+                        };
+                        axios({
+                            url:'../bingo/air_change.php?action=air_change_deal',
+                            method:"post",
+                            data:this.inputObject
+                        }).then(res=>{
+                            if(res.data.code == 100){
+                                this.$Message.success('操作完成');
+                                this.objDataFun()
+                            }else{
+                                this.$Message.warning({
+                                    content:'业务操作失败',
+                                    duration:45,
+                                    closable: true
+                                });
+                            }
+                        }).catch(err=>{
+                            console.log(err);
+                            this.$Message.error({
+                                content:err,
+                                duration:45,
+                                closable: true,
+                            });
+                        })
+                    }else{
+                        this.$Message.error({
+                            content:'请至少选择一条航线',
+                            duration:45,
+                            closable: true,
+                        });
+                    }
+                }
+            },
+            //批量确定弹窗开关按钮
+            lotDealFun(){
+                this.lotDealFlag = !this.lotDealFlag
+            },
+            //批量删除按钮
+            LotDeletFun(){
+                if(confirm('是否确定批量删除')){
+                    if(this.inputObject.length){
+                        //批量处理的reason值 赋予到每一个单独的航线中
+                        for (let i = 0; i < this.inputObject.length; i++) {
+                            this.inputObject[i].reason = this.lotDealSelectValue
+                        };
+                        axios({
+                            url:'../bingo/air_change.php?action=air_change_delete',
+                            method:"post",
+                            data:this.inputObject
+                        }).then(res=>{
+                            if(res.data.code == 100){
+                                this.$Message.success('操作完成');
+                                this.objDataFun();
+                            }else{
+                                this.$Message.warning({
+                                    content:'业务操作失败',
+                                    duration:45,
+                                    closable: true
+                                });
+                            }
+                        }).catch(err=>{
+                            console.log(err);
+                            this.$Message.error({
+                                content:err,
+                                duration:45,
+                                closable: true,
+                            });
+                        })
+                    }else{
+                        this.$Message.error({
+                            content:'请至少选择一条航线',
+                            duration:45,
+                            closable: true,
+                        });
+                    }
+                }
+            },
+            //手工录入开关按钮
+            aritificialOrderFlagFun(){
+                this.aritificialOrderFlagValue = !this.aritificialOrderFlagValue;
+            },
+            //确定手工录入函数
+            aritificialOrderFun(){
+                axios({
+                    url:'../bingo/air_change.php?action=air_change_add',
+                    method:'post',
+                    data:this.aritificialOrderFlagObject,
+                }).then(res=>{
+                    if(res.data.code == 100){
+                        this.$Message.success({
+                            content:'操作成功',
+                            duration:45,
+                            closable: true,
+                        });
+                        this.aritificialOrderFlagValue = false;
+                    }else{
+                        this.$Message.error({
+                            content:res.data.res,
+                            duration:45,
+                            closable: true,
+                        });
+                    }
+                }).catch(err=>{
+                    this.$Message.error({
+                        content:err,
+                        duration:45,
+                        closable: true,
+                    })
+                })
+            },
+            //删除按钮
+            deletOrderFun(id){
+                axios({
+                    url:'../bingo/air_change.php?action=air_change_delete',
+                    method:'post',
+                    data:[{id}]
+                }).then(res=>{
+                    if(res.data.code == 100){
+                        this.$Message.success({
+                            content:'操作成功',
+                            duration:45,
+                            closable: true,
+                        });
+                        this.objDataFun();
+                    }else{
+                        this.$Message.success({
+                            content:'操作失败',
+                            duration:45,
+                            closable: true,
+                        });
+                    }
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //统计页面单独出票按钮
+            checkOrder(id,reason){
+                if(confirm('是否确定出票')){
+                    let obj = [];
+                    obj.push({id,reason});
+                    axios({
+                        url:'../bingo/air_change.php?action=air_change_deal',
+                        method:"post",
+                        data:obj
+                    }).then(res=>{
+                        if(res.data.code == 100){
+                            this.$Message.success('操作完成');
+                            this.objDataFun();
+                        }else{
+                            this.$Message.warning('操作失败');
+                        }
+                    }).catch(err=>{
+                        this.$Message.error({
+                            content:err,
+                            duration:45,
+                            closable: true,
+                        });
+                    })
+                }
+            },
+            //全选按钮
+            allInput(){
+                let all_input = document.getElementsByClassName('inputClick');
+                let leng = all_input.length;
+                //防止勾选单个Input时，造成数据重复
+                this.inputObject = [];
+                //全选按钮是否被勾选判断，触发添加子元素
+                if(event.target.checked){
+                    for(let a=0;a<leng;a++){
+                        all_input[a].checked = true;
+                        this.inputObject.push({
+                            id:this.allOrderObj[a].id,
+                        })
+                    }
+                }else{
+                    for(let a=0;a<leng;a++){
+                        all_input[a].checked = false;
+                    }
+                    this.inputObject = [];
+                }
+            },
+            //备注功能函数
+            remarksFun(id,remark){
+                this.airChangeAllremarksFlag = true;
+                this.$set(this.remarksObj,'id',id);
+                this.$set(this.remarksObj,'remarkValue',remark);
+            },
+            //备注功能回调函数(当备注确定按钮触发，从而触发该函数)
+            airChangeAllSureMarkeFun(){
+                axios({
+                    url:'../bingo/air_change.php?action=remark',
+                    method:'post',
+                    data:{
+                        id:this.remarksObj.id,
+                        remark:this.remarksObj.remarkValue,
+                    }
+                }).then(res=>{
+                    if(res.data.sus){
+                        this.objDataFun()
+                    }else{
+                        this.$Message.error({
+                            content:'备注填写操作失败',
+                            duration:45,
+                            closable: true,
+                        });
+                    }
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //单独input按钮
+            allAloneInput(id){
+                let all_input = document.getElementById('retain_all_input');
+                //此处直接传入，不使用for循环来保证数据正确对应性，前提在于删除的时候，保证删除正确性
+                if(event.target.checked){
+                    this.inputObject.push({
+                        id,
+                        reason:null
+                    });
+                    //判断单独点击input按钮后，是否触发全选按钮
+                    if(this.inputObject.length==this.allOrderObj.length){
+                        all_input.checked = true;
+                    }
+                }else{
+                    for(let a=0;a<this.inputObject.length;a++){
+                        if(this.inputObject[a].id == id){
+                            this.inputObject.splice(a,1);
+                            // 此处不要-- 因为每次点击都会重新触发，且只删除一个
+                        };
+                    };
+                    //全选置为false
+                    all_input.checked = false;
+                };
+            },
+            //跳转明细页面按钮
+            toAlonePage(code,date,dpt,arr){
+                this.$listeners.changename(code,date,dpt,arr)
+            },
+            //实际th 排序
+            realFun(data){
+                console.log(data)
+                this.realVal = data;
+                this.remarkVal = 0;
+                this.objDataFun();
+            },
+            remarkFun(data){
+                this.remarkVal = data;
+                this.realVal = 0;
+                this.objDataFun();
+            },
+            //修改当前共展示多少条
+            allShowCountFun(){
+                this.allShowCountVal = this.allShowCountVal*1;
+                if(typeof this.allShowCountVal === 'number'){
+                    this.objDataFun();
+                }else{
+                    this.$Message.error({
+                        content:'请填写数字',
+                        duration:15,
+                        closable: true,
+                    });
+                }
+            },
+            //分页函数
+            //向后转页面 —
+            uppage:function(){
+                if(this.num>1){
+                    this.num -= 1;
+                }else if(this.num<1){
+                    alert('没有该页码')
+                }else{
+                    return
+                }
+                this.axfun(this.num);
+            },
+            //向前转页面 +
+            downpage:function(){
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if(this.num<this.pages){
+                    this.num = this.num + 1;
+                }else{
+                    return
+                };
+                this.axfun(this.num)
+            },
+            //直接去某页面
+            gotopage:function () {
+                let val = this.$refs.num.value;
+                if(val > this.pages||val<1){
+                    //页数框页码重置
+                    this.$refs.num.value = this.num;
+                    alert('没有该页码');
+                }else{
+                    this.num = Math.round(this.num);
+                    this.num = val;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去首页
+            firstpage:function () {
+                //如果num已经是第一页了，就不再请求了
+                if(this.num == 1){
+                    return
+                }
+                this.num = 1;
+                this.axfun(this.num)
+            },
+            //直接去末尾页
+            llastpage:function () {
+                //如果已经等于最后已页，就不再请求
+                if(this.num == this.pages){
+                    return
+                }
+                this.num = this.pages;
+                this.axfun(this.num)
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun:function(page){
+                //根据不同的值 来做ajax不同请求 当choose为true;则搜索是开启状态，否则是关闭状态
+                //若搜索为真，则直接调用搜索函数，把之前保存的搜索条件传过去；请求搜索后的结果;
+                //若搜索为假，则直接调用请求函数，直接拿值；
+                this.objDataFun(page,this.searchObj)
+
+            },
+        },
+        created(){},
+        activated(){
+            this.objDataFun()
+        }
+    });
+    //详情
+    Vue.component('alone_order_table',{
+        template:'#aloneOrderTable',
+        data(){
+            return{
+                //table数据载体
+                aloneOrderObj:null,
+                num:1,
+                pages:undefined,
+                count:undefined,
+                aloneShowCountVal:50,
+                //全选按钮出票需要传给后台的数组
+                aloneInputCheckedArray:[],
+                //搜索开关
+                searchAloneFlag:false,
+                //搜索对象
+                searchObj:{
+                    // code:undefined,
+                    // dpt:undefined,
+                    // arr:undefined,
+                    // time:undefined,
+                    // type:undefined,
+                    // ticketTable:undefined,
+                },
+                //批量处理结果弹窗
+                aloneLotResultWindowFlagValue:false,
+                //批量处理select值
+                aloneLotResultSelectValue:'1',
+                //详情处理的备注
+                remarksObj:{},
+                //详情备注开关
+                remarksFlag:false,
+            //    日志开关
+                aloneOrderLogFlag:false,
+            //    日志数据载体
+                aloneLogTable:[],
+                columns1: [
+                    {
+                        title: '操作人',
+                        key: 'operator',
+                        width:100
+                    },
+                    {
+                        title: '时间',
+                        key: 'time',
+                    },
+                    {
+                        title: '操作',
+                        key: 'action',
+                        width:300,
+                    }
+                ],
+            }
+        },
+        props:['aloneObj'],
+        filters:{
+            reason(data){
+                switch (data*1) {
+                    case 1:
+                        return '天气原因延误';
+                    case 2:
+                        return '天气原因取消';
+                    case 3:
+                        return '航班临时调整延误';
+                    case 4:
+                        return '航班临时调整取消';
+                    case 5:
+                        return '季节变动调整延误';
+                    case 6:
+                        return '季节变动调整取消';
+                    case 7:
+                        return '航司计划原因延误';
+                    case 8:
+                        return '航司计划原因取消';
+                    case 9:
+                        return '航司运力调配延误';
+                    case 10:
+                        return '航司运力调配取消';
+                    case 11:
+                        return '军事活动延误';
+                    case 12:
+                        return '军事活动取消';
+                    case 13:
+                        return '机械故障延误';
+                    case 14:
+                        return '机械故障取消';
+                    case 15:
+                        return '黑屏清Q航变延误';
+                    case 16:
+                        return '黑屏清Q航变取消';
+                    case 17:
+                        return '机场关闭延误';
+                    case 18:
+                        return '机场关闭取消';
+
+                }
+            },
+            result(data){
+                switch (data*1){
+                    case 1:
+                        return '待处理'
+                    case 2:
+                        return '已处理'
+                    case 3:
+                        return '已过时间'
+                    case 4:
+                        return '航班恢复正常'
+                    case 5:
+                        return '重复'
+                }
+            }
+        },
+        methods:{
+            //数据初始化函数
+            dataFun(pages = this.num,searchAlone = this.searchObj){
+                searchAlone = JSON.parse(JSON.stringify(searchAlone));
+                searchAlone.page = pages;
+                searchAlone.maxCount = this.aloneShowCountVal;
+                axios({
+                    url:'../bingo/air_change.php?action=air_change_order',
+                    // url:'http://127.0.0.1:3000/refund/list',
+                    method:"post",
+                    data:searchAlone,
+                }).then(res=>{
+                    for (let i = 0; i < res.data.list.length; i++) {
+                        res.data.list[i].cloneReason = undefined;
+                    };
+                    this.aloneOrderObj = res.data.list;
+                    this.pages = res.data.pages;
+                    this.count = res.data.count;
+                    this.searchAloneFlag = false;
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //搜索开关函数
+            aloneSearch(){
+                this.searchAloneFlag = !this.searchAloneFlag
+            },
+            //日期格式修改函数
+            flyTimeFun(data){
+                this.searchObj.starttime = data[0];
+                this.searchObj.endtime = data[1];
+            },
+            //确定搜索函数
+            sureAloneSearch(){
+                this.dataFun(1,this.searchObj)
+            },
+            //导出功能
+            exportFun(){
+                axios({
+                    url:"../bingo/retain_order.php?action=out",
+                    method:'post',
+                    responseType: 'blob',
+                    data:this.searchObj
+                }).then(response=>{
+                    if(response.data.size>0){
+                        let filename = 'AQ留单管理';
+                        let url = window.URL.createObjectURL(response.data);
+                        let link = document.createElement('a');
+                        link.style.display = 'none';
+                        link.href = url;
+                        link.setAttribute('download', filename + '.xls');
+                        document.body.appendChild(link);
+                        link.click();
+                    }else{
+                        alert('暂无数据');
+                    }
+                }).catch(err=>{
+                    console.log(err);
+                });
+            },
+            //单独出票按钮
+            aloneCheckOrder(id,reason){
+                let aloneArray = [];
+                aloneArray.push({id,reason})
+                axios({
+                    url:'../bingo/air_change.php?action=air_change_order_deal',
+                    method:"post",
+                    data:aloneArray
+                }).then(res=>{
+                    if(res.data.code == 100){
+                        alert('出票操作完成')
+                        this.dataFun(this.num,this.searchObj)
+                    }else{
+                        alert('出票操作失败')
+                    }
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //删除按钮
+            aloneDeleteOrder(id){
+                let flag = window.confirm('确定是否删除？');
+                if(flag){
+                    axios({
+                        url:'../bingo/air_change.php?action=air_change_order_delete',
+                        method:"post",
+                        data:[{id}]
+                    }).then(res=>{
+                        console.log(res)
+                        if(res.data.code == 100){
+                            alert('删除完成')
+                            this.dataFun(this.num,this.searchObj)
+                        }else{
+                            alert('出票操作失败')
+                        }
+                    }).catch(err=>{
+                        console.log(err)
+                    })
+                }
+            },
+            //全选按钮
+            alontAllInput(event){
+                let allAloneInput = document.getElementsByClassName('aloneInput');
+                let leng = allAloneInput.length;
+                //此处重置为空，在于单独input勾选后，已经加入数组，再勾选会造成数据重复
+                this.aloneInputCheckedArray = [];
+                if(event.target.checked){
+                    for(let a=0;a<leng;a++){
+                        allAloneInput[a].checked = true;
+                        //此出正确做法应用Input的data-id,而不是用数据内的id
+                        this.aloneInputCheckedArray.push({id:this.aloneOrderObj[a].id});
+                    }
+                }else{
+                    for(let a=0;a<leng;a++){
+                        allAloneInput[a].checked = false;
+                    }
+                    this.aloneInputCheckedArray = [];
+                }
+            },
+            //批量结果弹窗开关
+            aloneLotResultWindowFlagFun(){
+                this.aloneLotResultWindowFlagValue = !this.aloneLotResultWindowFlagValue
+            },
+            //批量出票
+            alontLotResultWindowFlagFun(){
+                if(!this.aloneInputCheckedArray.length){
+                    alert('请至少选择一条出票');
+                    return
+                }
+                for (let i = 0; i < this.aloneInputCheckedArray.length; i++) {
+                    this.aloneInputCheckedArray[i].reason = this.aloneLotResultSelectValue;
+                }
+                axios({
+                    url:'../bingo/air_change.php?action=alone_lot_of_deal',
+                    method:'post',
+                    data:this.aloneInputCheckedArray,
+                }).then(res=>{
+                    if(res.data.code == 100){
+                        this.$Message.success({
+                            content:'操作完成',
+                            duration: 3,
+                            closable: true
+                        });
+                        this.aloneLotResultWindowFlagValue = false;
+                        this.aloneInputCheckedArray = [];
+                        let allAloneInput = document.getElementsByClassName('aloneInput');
+                        let leng = allAloneInput.length;
+                        for(let a=0;a<leng;a++){
+                            allAloneInput[a].checked = false;
+                        }
+                        this.dataFun(this.num,this.searchObj)
+                    }else{
+                        this.$Message.success({
+                            content:'操作失败',
+                            duration: 3,
+                            closable: true
+                        });
+                    }
+                }).catch(err=>{
+                    this.$Message.error({
+                        content:err,
+                        duration: 3,
+                        closable: true
+                    });
+                })
+            },
+            //单独input
+            detailsAloneInput(id){
+                console.log(id)
+                let leng = this.aloneInputCheckedArray.length;
+                //获取全选按钮
+                let retain_alone_input = document.getElementById('retain_alone_input');
+                if(event.target.checked){
+                    this.aloneInputCheckedArray.push({id,});
+                    //当选定的input数量与当前页面单的数量一致时候，改变全选的勾选状态
+                    if(this.aloneInputCheckedArray.length == this.aloneOrderObj.length){
+                        retain_alone_input.checked = true;
+                    }
+                }else{
+                    for(let a=0;a<leng;a++){
+                        if(this.aloneInputCheckedArray[a].id == id){
+                            this.aloneInputCheckedArray.splice(a,1);
+                            break
+                        }
+                    };
+                    retain_alone_input.checked = false;
+                }
+            },
+            //修改最大展示多少天
+            aloneShowCountFun(){
+                this.aloneShowCountVal = this.aloneShowCountVal*1;
+                if(typeof this.aloneShowCountVal === 'number'){
+                    this.dataFun();
+                }else{
+                    this.$Message.error({
+                        content:'请填写数字',
+                        duration:15,
+                        closable: true,
+                    });
+                }
+                this.dataFun()
+            },
+            //详情备注 弹出备注框
+            aloneRemarksFun(id,remark){
+                this.remarksFlag = !this.remarksFlag;
+                this.$set(this.remarksObj,'id',id);
+
+                this.$set(this.remarksObj,'remarkValue',remark);
+
+            },
+            //确定修改按钮 由备注弹窗组件调用
+            sureMarkeFun(val){
+                axios({
+                    url:'../bingo/air_change.php?action=alone_remark',
+                    method:'post',
+                    data:{
+                        id:this.remarksObj.id,
+                        remark:this.remarksObj.remarkValue,
+                    }
+                }).then(res=>{
+                    if(res.data.sus){
+                        this.dataFun();
+                    }else{
+                        alert('备注填写操作失败');
+                    }
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //日志函数
+            logFun(id){
+
+                axios({
+                    url:'../bingo/air_change.php?action=log',
+                    method:'post',
+                    data:{id}
+                }).then(res=>{
+                    if(res.data.sus){
+                        this.aloneLogTable = res.data.data
+                        this.aloneOrderLogFlag = true;
+                    }else{
+                        this.$Message.error({
+                            content:'日志暂无',
+                            closable:true,
+                            duration:10,
+                        })
+                    }
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            //分页函数
+            //向后转页面 —
+            uppage:function(){
+                if(this.num>1){
+                    this.num -= 1;
+                }else if(this.num<1){
+                    alert('没有该页码')
+                }else{
+                    return
+                }
+                this.axfun(this.num);
+            },
+            //向前转页面 +
+            downpage:function(){
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if(this.num<this.pages){
+                    this.num = this.num + 1;
+                }else{
+                    return
+                };
+                this.axfun(this.num)
+            },
+            //直接去某页面
+            gotopage:function () {
+                let val = this.$refs.num.value;
+                if(val > this.pages||val<1){
+                    //页数框页码重置
+                    this.$refs.num.value = this.num;
+                    alert('没有该页码');
+                }else{
+                    this.num = Math.round(this.num);
+                    this.num = val;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去首页
+            firstpage:function () {
+                //如果num已经是第一页了，就不再请求了
+                if(this.num == 1){
+                    return
+                }
+                this.num = 1;
+                this.axfun(this.num)
+            },
+            //直接去末尾页
+            llastpage:function () {
+                //如果已经等于最后已页，就不再请求
+                if(this.num == this.pages){
+                    return
+                }
+                this.num = this.pages;
+                this.axfun(this.num)
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun:function(page){
+                //根据不同的值 来做ajax不同请求 当choose为true;则搜索是开启状态，否则是关闭状态
+                //若搜索为真，则直接调用搜索函数，把之前保存的搜索条件传过去；请求搜索后的结果;
+                //若搜索为假，则直接调用请求函数，直接拿值；
+                this.dataFun(page,this.searchObj)
+            },
+        },
+        created(){
+            //刷新重置搜索值
+            // this.searchObj = {
+            //     dpt:null,
+            //     arr:null,
+            //     starttime:null,
+            //     endtime:null,
+            //     code:null,
+            //     pages:'',
+            //     ticketTable:null,
+            //     type:'',
+            // };
+
+        },
+        activated(){
+            if(this.aloneObj){
+                this.searchObj = Object.assign({},this.searchObj,this.aloneObj,)
+            }
+            this.dataFun(this.num,this.searchObj)
+        }
+    });
+    //已处理
+    Vue.component('deal_order_table',{
+        template:'#dealOrderTable',
+        data(){
+            return{
+                //table数据载体
+                aloneOrderObj:null,
+                num:1,
+                pages:undefined,
+                count:undefined,
+                dealShowCountVal:50,
+                //全选按钮出票需要传给后台的数组
+                aloneInputCheckedArray:[],
+                //搜索开关
+                searchAloneFlag:false,
+                //搜索对象
+                searchObj:{},
+                //日志需要的id
+                logId:undefined
+            }
+        },
+        filters:{
+            reason(data){
+                switch (data*1) {
+                    case 1:
+                        return '天气原因延误';
+                    case 2:
+                        return '天气原因取消';
+                    case 3:
+                        return '航班临时调整延误';
+                    case 4:
+                        return '航班临时调整取消';
+                    case 5:
+                        return '季节变动调整延误';
+                    case 6:
+                        return '季节变动调整取消';
+                    case 7:
+                        return '航司计划原因延误';
+                    case 8:
+                        return '航司计划原因取消';
+                    case 9:
+                        return '航司运力调配延误';
+                    case 10:
+                        return '航司运力调配取消';
+                    case 11:
+                        return '军事活动延误';
+                    case 12:
+                        return '军事活动取消';
+                    case 13:
+                        return '机械故障延误';
+                    case 14:
+                        return '机械故障取消';
+                    case 15:
+                        return '黑屏清Q航变延误';
+                    case 16:
+                        return '黑屏清Q航变取消';
+                    case 17:
+                        return '机场关闭延误';
+                    case 18:
+                        return '机场关闭取消';
+
+                }
+            },
+            result(data){
+                switch (data*1){
+                    case 1:
+                        return '待处理'
+                    case 2:
+                        return '已处理'
+                    case 3:
+                        return '已过时间'
+                    case 4:
+                        return '航班恢复正常'
+                    case 5:
+                        return '重复'
+                }
+            }
+        },
+        methods:{
+            //数据初始化函数
+            dataFun(pages = this.num,searchAlone = this.searchObj){
+                searchAlone = JSON.parse(JSON.stringify(searchAlone));
+                searchAlone.page = pages;
+                searchAlone.maxCount = this.dealShowCountVal;
+                axios({
+                    url:'../bingo/air_change.php?action=air_change_order2',
+                    method:"post",
+                    data:searchAlone,
+                }).then(res=>{
+                    if(res.data.list.length){
+                        for (let i = 0; i < res.data.list.length; i++) {
+                            res.data.list[i].cloneReason = undefined;
+                        };
+                        this.aloneOrderObj = res.data.list;
+                        this.pages = res.data.pages;
+                        this.count = res.data.count;
+                        this.searchAloneFlag = false;
+                    }else{
+                        alert('暂无数据')
+                    }
+                }).catch(err=>{
+                    alert('数据请求失败')
+                    console.log(err)
+                })
+            },
+            //搜索开关函数
+            aloneSearch(){
+                this.searchAloneFlag = !this.searchAloneFlag
+            },
+            //日期格式修改函数
+            flyTimeFun(data){
+                this.searchObj.starttime = data[0];
+                this.searchObj.endtime = data[1];
+            },
+            //确定搜索函数
+            sureAloneSearch(){
+                this.dataFun(1,this.searchObj)
+            },
+            //是否展示日志函数
+            showLogFun(id){
+                this.logId = id;
+            },
+            //修改最大展示多少天
+            dealShowCountFun(){
+                this.dealShowCountVal = this.dealShowCountVal*1;
+                if(typeof this.dealShowCountVal === 'number'){
+                    this.dataFun();
+                }else{
+                    this.$Message.error({
+                        content:'请填写数字',
+                        duration:15,
+                        closable: true,
+                    });
+                }
+            },
+            //分页函数
+            //向后转页面 —
+            uppage:function(){
+                if(this.num>1){
+                    this.num -= 1;
+                }else if(this.num<1){
+                    alert('没有该页码')
+                }else{
+                    return
+                }
+                this.axfun(this.num);
+            },
+            //向前转页面 +
+            downpage:function(){
+                this.num = Number(this.num); //之前的显示数字其本质为字符串导致无法数字计算
+                if(this.num<this.pages){
+                    this.num = this.num + 1;
+                }else{
+                    return
+                };
+                this.axfun(this.num)
+            },
+            //直接去某页面
+            gotopage:function () {
+                let val = this.$refs.num.value;
+                if(val > this.pages||val<1){
+                    //页数框页码重置
+                    this.$refs.num.value = this.num;
+                    alert('没有该页码');
+                }else{
+                    this.num = Math.round(this.num);
+                    this.num = val;
+                    this.axfun(this.num)
+                }
+            },
+            //直接去首页
+            firstpage:function () {
+                //如果num已经是第一页了，就不再请求了
+                if(this.num == 1){
+                    return
+                }
+                this.num = 1;
+                this.axfun(this.num)
+            },
+            //直接去末尾页
+            llastpage:function () {
+                //如果已经等于最后已页，就不再请求
+                if(this.num == this.pages){
+                    return
+                }
+                this.num = this.pages;
+                this.axfun(this.num)
+            },
+            //跳转后把页面值传入，用来获取要跳转页面的数据，此函数为上面所有跳转函数的通用操作
+            axfun:function(page){
+                //根据不同的值 来做ajax不同请求 当choose为true;则搜索是开启状态，否则是关闭状态
+                //若搜索为真，则直接调用搜索函数，把之前保存的搜索条件传过去；请求搜索后的结果;
+                //若搜索为假，则直接调用请求函数，直接拿值；
+                this.dataFun(page)
+            },
+        },
+        created(){
+            //刷新重置搜索值
+            /*this.searchObj = {
+                dpt:null,
+                arr:null,
+                starttime:null,
+                endtime:null,
+                code:null,
+                pages:'',
+                ticketTable:null,
+                type:'',
+            };*/
+        },
+        activated(){
+            this.dataFun()
+        }
+    });
+    //日志
+    Vue.component('logWindow',{
+        template:'#logWindow',
+        props:['id'],
+        data(){
+            return{
+                //弹窗的开关
+                logFlag:false,
+                logtable:[],
+                columns1: [
+                    {
+                        title: '操作人',
+                        key: 'operator',
+                    },
+                    {
+                        title: '时间',
+                        key: 'time',
+                    },
+                    {
+                        title: '操作',
+                        key: 'action',
+                        width:300,
+                    }
+                ],
+            }
+        },
+        watch:{
+            id:{
+                handler:function (data) {
+                    if(data){
+                        this.logFlag = true;
+                        this.logFun();
+                    }
+                },
+                deep:true,
+            }
+        },
+        computed:{},
+        methods:{
+            logFun(){
+                axios({
+                    url:'../bingo/air_change.php?action=log',
+                    method:'post',
+                    data:{
+                        id:this.id,
+                    }
+                }).then(res=>{
+                    if(res.data.sus){
+                        this.logtable = res.data.data
+                    }else{
+                        alert('日志暂无')
+                    }
+                }).catch(err=>{
+                    console.log(err)
+                })
+            },
+            closeFun(){
+                this.$emit('update:id',undefined)
+            }
+        },
+    });
+    new Vue({
+        el:'#airChangeOrder',
+        data:{
+            name:'name1',
+            aloneObj:null,
+        },
+        methods:{
+            //统计页面跳转到详情页面的时，需要用到的函数，
+            // 统计前往详情的时候，详情需要接收统计里面航线的数据，
+            // 详情才能根据这些数据，请求到具体信息
+            changeName(code,date,dpt,arr){
+                let starttime = date;
+                let endtime = date;
+                this.aloneObj = {
+                    code,starttime,dpt,arr,endtime
+                };
+                this.name = 'name2'
+            },
+            //
+            cleanAlonObjFun(){
+                this.aloneObj = null;
+            }
+        },
+        created(){},
+        mounted(){}
+    });
+</script>
+
+</body>
+</html>

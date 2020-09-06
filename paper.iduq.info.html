@@ -1,0 +1,93 @@
+{extends file='main.base.html'}
+
+{block name=headjs}
+<link type="text/css" rel="stylesheet" media="screen" href="/resource/css/base.iduq.info.css">
+<script type="text/javascript" src="/resource/javascripts/Validform_v5.3.2_min.js"></script>
+<script type="text/javascript" src="/resource/javascripts/base.iduq.info.js"></script>
+<script>
+$(function(){
+	$('select[name="in_user_id"]').on('change',function(){
+		var id = $(this).val();
+		if(id){
+			bingo_ajax('paper.php?action=ajax_show_pirce',{
+				id:id
+			},function(data){
+				$('input[name="pmoney"]').val(data);
+			},true);
+		}
+	});
+});
+</script>
+{/block}
+
+{block name=body}
+<form class="reg" role="form" method="POST" enctype="multipart/form-data" action="{$cur_url}">
+	<div class="right_title">
+		<h2>{if $doaction == 'insert'}新建{elseif $doaction == 'update'}编辑{/if}{$table_name}</h2>
+    </div>
+    <div class="r_bg">
+    	<table class="aa02_table" widtd="100%" border="0" align="center" cellpadding="0" cellspacing="0">
+    		<tbody>
+            	{foreach $columns as $column}
+                    {if $column.need}
+                    	{if $column.static}
+                        	<input name="{$column.Field}" type="hidden" style="width:128px;" datatype="{$column.datatype}" value="{$column.val}">
+                        {else}
+                            <tr>
+                                <td width="33%" align="right">{$column.name}：</td>
+                                <td width="67%">
+                                
+                                {if $column.readonly}
+                        		<input name="{$column.Field}" type="text" style="width:128px;" readonly="readonly" datatype="{$column.datatype}" value="{$column.val}">
+                                {else if $column.sel == 'sel'}
+                                <select name="{$column.Field}" style="width:128px;" datatype="{$column.datatype}">
+                                    <option value>=请选择=</option>
+                                    {foreach $column.seldata as $data}
+                                    <option value="{$data.id}" {if $data.set} selected="selected" {/if} >{$data.name}</option>
+                                    {/foreach}
+                                </select>
+                                {elseif $column.sel == 'msel'}
+                                <msel toname="{$column.Field}">
+                                <input name="{$column.Field}" type="hidden" style="width:128px;" datatype="{$column.datatype}" value="{$column.val}">
+                                <select style="width:128px;">
+                                    <option value>=请选择=</option>
+                                    {foreach $column.seldata as $data}
+                                    <option value="{$data.id}">{$data.name}</option>
+                                    {/foreach}
+                                </select>
+                                {foreach $column.seldata as $data}
+                                    {if $data.set}
+                                    <defsel mval="{$data.id}" mtext="{$data.name}"/>
+                                    {/if}
+                                {/foreach}
+                                </msel>
+                                {else}
+                                	{if $column.txt}
+                                    	<textarea name="{$column.Field}" style="width:230px; height:100px;"  datatype="{$column.datatype}">{$column.val}</textarea>
+                                    {else}
+                                		<input name="{$column.Field}" type="text" style="width:128px;" datatype="{$column.datatype}" value="{$column.val}">
+                                	{/if}
+                                {/if}
+                                </td>
+                            </tr>
+                        {/if}
+                    {/if}
+                {/foreach}
+    		</tbody>
+    	</table>
+    </div>
+    <div class="r_bot">
+    	<button conf type="submit" class="aa02_menu_butt" style="width: 100px; background-size: 100% 100%;">
+        {if $doaction == 'insert'}添加{elseif $doaction == 'update'}修改{/if}{$table_name}
+        </button>
+    	<button type="button" class="aa02_menu_butt" onclick="location.href='{$cur_url}?t={$table}&us=1{$other_sp}'">返回</button>
+    </div>
+    <input type="hidden" name="t" value="{$table}"/>
+    <input type="hidden" name="action" value="{$doaction}"/>
+    {if $doaction == 'update'}
+        <input type="hidden" name="id" value="{$id}"/>
+    {/if}
+    
+    
+</form>
+{/block}

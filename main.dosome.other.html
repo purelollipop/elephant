@@ -1,0 +1,107 @@
+{extends file='main.base.html'}
+
+{block name=headjs}
+<link type="text/css" rel="stylesheet" media="screen" href="/resource/css/base.iduq.info.css">
+<script type="text/javascript" src="/resource/javascripts/Validform_v5.3.2_min.js"></script>
+<script type="text/javascript" src="/resource/javascripts/base.iduq.info.js"></script>
+<script>
+    {literal}
+    function gotopp(){
+        var money = $('input[name="money"]').val();
+        var note = $('input[name="note"]').val();
+        var bindcode = $('input[name="bindcode"]').val();
+
+        if(!note || note == ""){
+            bingo.alert('请选择填写备注');
+            return false;
+        }
+
+        if(!money || money == "" || !g_regexp_list.F.test(money)){
+            bingo.alert('请输入正确金额');
+            return false;
+        }
+
+
+
+        if(confirm('确认添加?')){
+            var param = {
+                money:money,
+                note:note,
+                bindcode:bindcode
+            };
+
+            bingo_ajax('dosome.php?action=ajax_new_other',param,function(){
+                alert('添加成功!');
+                bingo_jump('dosome.php?action=othermoney');
+            })
+        }
+
+        return false;
+    }
+
+    {/literal}
+</script>
+{/block}
+
+{block name=body}
+<div style="width:50%; margin:20px auto;">
+	<form action="info.php" method="post">
+        <table class="aa02_table" width="100" border="0" align="center" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="r_h2" colspan="2">其他收支</td>
+            </tr>
+            <tbody>
+                <tr>
+                    <td width="15%" align="right">金额：</td>
+                    <td width="30%">
+                        <input type="text" name="money" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">备注：</td>
+                    <td width="30%">
+                        <input type="text" name="note" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">关联单号(没有留空)：</td>
+                    <td width="30%">
+                        <input type="text" id="bindcode" name="bindcode" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <input type="button" value="提交" onclick="gotopp();"/>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+	</form>
+    <table class="aa02_table"  widtd="100" border="0" align="center" cellpadding="0" cellspacing="0">
+        <tr class="list_th">
+            <td>时间(最近10笔)</td>
+            <td>金额</td>
+            <td>备注</td>
+        </tr>
+        <tbody id="paperlist">
+        {foreach $list as $one}
+        <tr>
+            <td>{$one.ctime}</td>
+            <td>{$one.money}</td>
+            <td>{$one.note}</td>
+        </tr>
+        {/foreach}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    {literal}
+    $(function(){
+        var scanfcount = new gun($('input[name="money"]'),function(isscanf){
+            gotopp();
+        })
+    })
+    {/literal}
+</script>
+{/block}

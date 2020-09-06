@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>9c实时数据</title>
+  <link rel="stylesheet" href="../resource/iview-2.0/dist/styles/iview.css">
+  <script src="../vue/vue.js"></script>
+  <script src="../resource/iview-2.0/dist/iview.min.js"></script>
+  <style>
+  .ivu-table-cell {
+    padding: 10px;
+    /*padding-right: 2px;*/
+  }
+
+  /*.ivu-card-body {*/
+  /*padding: 2px;*/
+  /*!*padding-left: 0px;*!*/
+  /*!*padding-right: 0px;*!*/
+  /*!*padding-bottom: 3px;*!*/
+
+  /*}*/
+
+  /*.chooseChild {*/
+  /*width: 180px;*/
+  /*!*margin-right: 10px;*!*/
+  /*margin-top: 5px;*/
+  /*}*/
+
+  /*.ivu-input-group {*/
+  /*display: table;*/
+  /*border-collapse: separate;*/
+  /*position: relative;*/
+  /*font-size: 12px;*/
+  /*top: 0px;*/
+  /*}*/
+
+  /*.ivu-select-single .ivu-select-selection .ivu-select-placeholder {*/
+  /*color: #000000;*/
+  /*}*/
+  </style>
+
+</head>
+<body>
+<div id="orderApp">
+  <com-Accomplish></com-Accomplish>
+</div>
+<template id="test">
+  <Row span="24">
+    <i-Col>
+      <Card dis-hover style="margin-bottom: 2px;">
+        <i-Button type="primary" size="small" @click="closeSearch">
+          <Icon type="ios-search"></Icon>
+          搜索
+        </i-Button>
+        <Card v-if="searchFlag" style="margin-top: 5px">
+          <Row type="flex" justify="start" :gutter="5" class="code-row-bg">
+            <i-Col>
+              <i-Input style="width: 180px" v-model="carrier">
+                <span slot="prepend">航司</span>
+              </i-Input>
+            </i-Col>
+            <i-Col>
+              <i-Input style="width: 180px;" v-model="jiucdptComputed">
+                <span slot="prepend">出发地三字码</span>
+              </i-Input>
+            </i-Col>
+            <i-Col>
+              <i-Input style="width: 180px" v-model="jiucarrComputed">
+                <span slot="prepend">到达地三字码</span>
+              </i-Input>
+            </i-Col>
+            <i-Col>
+              <Date-picker type="date"
+                           placement="bottom-end"
+                           placeholder="起飞日期"
+                           @on-change="flyTimeFun">
+              </Date-picker>
+            </i-Col>
+            <i-Col>
+              <i-Input style="width: 180px" v-model="jiuccode">
+                <span slot="prepend">航班号</span>
+              </i-Input>
+            </i-Col>
+          </Row>
+          <Row type="flex" justify="end" :gutter="5" class="code-row-bg">
+            <i-Col>
+              <i-Button @click="initTable">确定</i-Button>
+            </i-Col>
+          </Row>
+        </Card>
+      </Card>
+      </Card>
+    </i-Col>
+    <i-Col>
+      <i-Table ref="ticketTable" border highlight-row stripe height="600" size="small" :loading="loading"
+               :columns="accomplishColumns" :data="accomplishData">
+      </i-Table>
+    </i-Col>
+  </Row>
+</template>
+</body>
+<script src="../vue/axios.min.js"></script>
+<script>
+const comAccomplish = {
+  template: '#test',
+  data () {
+    return {
+      accomplishColumns: [
+        {
+          align: 'center',
+          width: 50,
+          fixed: 'left',
+          render: (h, params) => {
+            return h('span', params.index + (this.pageNum - 1) * this.pageSize + 1)
+          }
+        },
+        {
+          title: '更新时间',
+          key: 'lasttime',
+          align: 'center'
+        },
+        {
+          title: '出发',
+          key: 'dptAirport',
+          align: 'center'
+        },
+        {
+          title: '到达',
+          key: 'arrAirPort',
+          align: 'center'
+        },
+        {
+          title: '日期',
+          key: 'date',
+          align: 'center'
+        },
+        // {
+        //   title: '航司',
+        //   key: 'carrier',
+        //   align: 'center'
+        // },
+        {
+          title: '航班号',
+          key: 'code',
+          align: 'center'
+        },
+        {
+          title: '起飞',
+          key: 'dptTime',
+          align: 'center'
+        },
+        {
+          title: '到达',
+          key: 'arrTime',
+          align: 'center'
+        },
+        /*{
+          title: '机型',
+          key: 'planeType',
+          align: 'center'
+        },*/
+        {
+          title: '余位',
+          key: 'seatsForSale',
+          align: 'center'
+        },
+        {
+          title: '经济余位',
+          key: 'seatsForJinji',
+          align: 'center'
+        },
+        {
+          title: 'Y舱价',
+          key: 'cabinYPrice',
+          align: 'center'
+        },
+        {
+          title: '舱位',
+          key: 'saleCabinCode',
+          align: 'center'
+        },
+        {
+          title: '经济舱位',
+          key: 'jinjiCabinCode',
+          align: 'center'
+        },
+        {
+          title: '年龄限制',
+          key: 'ageLimit',
+          align: 'center'
+        },
+        {
+          title: '直享',
+          key: 'printPrice',
+          align: 'center'
+        },
+        {
+          title: '经济舱价',
+          key: 'jinjiPrice',
+          align: 'center'
+        },
+        /*{
+          title: '编号',
+          key: 'pos',
+          align: 'center'
+        },*/
+        /*{
+          title: 'app直享价',
+          key: 'appCabinPrice',
+          align: 'center'
+        },*/
+        /*{
+          title: '星期',
+          key: 'weekNumber',
+          align: 'center'
+        },*/
+        {
+          title: '出发航站楼',
+          key: 'dptStation',
+          align: 'center'
+        },
+        {
+          title: '到达航站楼',
+          key: 'arrStation',
+          align: 'center'
+        },
+        /*{
+          title: 'app经济舱价',
+          key: 'appjinjiPrice',
+          align: 'center'
+        },
+        {
+          title: '来源',
+          key: 'isapp',
+          align: 'center'
+        },*/
+        {
+          title: '操作',
+          align: 'center',
+          width: 80,
+          fixed: 'right',
+          render: (h, params) => {
+            /*let ninC = "hidden";
+            if(params.row.carrier === '9C'){
+              ninC = 'visible'
+            }*/
+            return h('div',{},[
+                    // h('i-button',{
+                    //   domProps:{innerHTML:'查看'},
+                    //   style:{
+                    //     display:params.row.carrier === '9C'?'':'none'
+                    //   },
+                    //   attrs:{size:'small'},
+                    //   on:{
+                    //     click:()=>{
+                    //       this.showOrderZZ(params.row.id)
+                    //     }
+                    //   }
+                    // }),
+                    h('i-button',{
+                      domProps:{innerHTML:'经济压位'},
+                      attrs:{size:'small'},
+                      on:{
+                        click:()=>{
+                          this.positionWind(params.index);
+                          this.economicFun()
+                        }
+                      }
+                    }),
+                    h('i-button',{
+                      domProps:{innerHTML:'直享压位'},
+                      attrs:{size:'small'},
+                      on:{
+                          click:()=>{
+                            this.positionWind(params.index);
+                            this.enjoymentFun()
+                          }
+                      }
+                    }),
+            ])
+            // if (params.row.carrier === '9C') {
+            //   return h('div', [
+            //     h('Button', {
+            //       props: {
+            //         type: 'error',
+            //         size: 'small'
+            //         // icon: 'md-battery-charging',
+            //       },
+            //       on: {
+            //         click: () => {
+            //           this.showOrderZZ(params.row.id)
+            //         }
+            //       }
+            //     }, '查看')
+            //   ])
+            // }
+          }
+        }
+      ],
+      accomplishData: [],
+
+      loading: false,
+
+      searchFlag: true,
+
+      carrier:undefined,
+      jiucdpt: '',
+      jiucarr: null,
+      jiucdate: null,
+      jiuccode: null,
+
+      // carrier:'AQ',
+      // jiucdpt: 'CAN',
+      // jiucarr: 'XIY',
+      // jiucdate: '2019-08-12',
+      // jiuccode: null,
+
+      // carrier:'9C',
+      // jiucdpt: 'AVA',
+      // jiucarr: 'PVG',
+      // jiucdate: '2019-08-012',
+      // jiuccode: null,
+      //压位数
+      positionNum:undefined,
+      //直享压位
+      enjoyment:undefined,
+      //经济压位
+      economic:undefined,
+      modal6:false
+    }
+  },
+  methods: {
+    //初始函数
+    initTable () {
+      // this.accomplishData = {};
+
+      if (this.jiucdpt == null || this.jiucdpt == '') {
+        this.$Message.warning('请输入出发地')
+        return
+      }
+      if (this.jiucarr == null || this.jiucarr == '') {
+        this.$Message.warning('请输入到达地')
+        return
+      }
+      if (this.jiucdate == null || this.jiucdate == '') {
+        this.$Message.warning('请输入起飞日期')
+        return
+      }
+      if (this.loading) return
+      this.loading = true
+      axios({
+        url: '../bingo/real_time_data.php?action=get_data',
+        method: 'post',
+        data: {
+          carrier:this.carrier,
+          'dpt': this.jiucdpt,
+          'arr': this.jiucarr,
+          'date': this.jiucdate,
+          'code': this.jiuccode
+        }
+      }).then(response => {
+        if(response.data){
+          this.accomplishData = response.data;
+        }else{
+          this.accomplishData = [];
+          alert('暂无数据')
+        }
+        this.loading = false
+      }).catch(err => {
+        console.log(err)
+      })
+
+
+    },
+    //压位弹窗
+    positionWind(index){
+      this.$Modal.confirm({
+        onOk:()=>{
+          let a = this.positionNum;
+          a = a+'';
+          if(a){
+              a = a.search(/[^0-9]/);
+          }else{
+            return this.$Message.warning({content:'格式错误',duration: 5});
+          }
+          if(a!=-1) {
+            return this.$Message.warning({content:'格式错误',duration: 5});
+          }
+          this.positionNumFun(index)
+        },
+        render: (h) => {
+          return h('Input', {
+            attrs:{
+              placeholder:'请在此填入压位数'
+            },
+            on: {
+              input: (val) => {
+                this.positionNum = val;
+              }
+            }
+          })
+        }
+      })
+    },
+    //压位请求函数
+    positionNumFun(index){
+      Vue.set(this.accomplishData[index],'positionNum',this.positionNum*1);
+      Vue.set(this.accomplishData[index],'enjoyment',this.enjoyment);
+      Vue.set(this.accomplishData[index],'economic',this.economic);
+      Vue.set(this.accomplishData[index],'carrier',this.carrier);
+      axios({
+        url:'../bingo/real_time_data.php?action=admittance',
+        method:'post',
+        data: this.accomplishData[index],
+      }).then(res=>{
+        if(res.data.sus){
+          this.$Message.info(res.data.msg);
+        }else{
+          this.$Message.info(res.data.msg);
+        }
+      }).catch(err=>{console.log(err)})
+    },
+    //压位函数 经济压位
+    economicFun(){
+      this.enjoyment = 0;
+      this.economic = 1;
+    },
+    //压位函数 直享压位
+    enjoymentFun(){
+      this.enjoyment = 1;
+      this.economic = 0;
+    },
+    //起飞时间
+    flyTimeFun (data) {
+      this.jiucdate = data
+    },
+    closeSearch () {
+      this.searchFlag = !this.searchFlag
+    }
+  },
+  // watch: {
+  //   jiucdpt (date) {
+  //     this.jiucdpt = date.toUpperCase()
+  //   }
+  // },
+  computed: {
+    jiucdptComputed: {
+      get () {
+        return this.jiucdpt
+      },
+      set (val) {
+        this.jiucdpt = val.toUpperCase()
+      }
+    },
+    jiucarrComputed: {
+      get () {
+        return this.jiucarr
+      },
+      set (val) {
+        this.jiucarr = val.toUpperCase()
+      }
+    }
+  }
+}
+new Vue({
+  el: '#orderApp',
+  components: {
+    comAccomplish
+  },
+  data: {},
+  computed: {},
+  methods: {}
+})
+</script>
+</html>

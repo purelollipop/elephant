@@ -1,0 +1,241 @@
+{extends file='main.base.html'}
+
+{block name=headjs}
+<link type="text/css" rel="stylesheet" media="screen" href="/resource/css/base.iduq.info.css">
+<script type="text/javascript" src="/resource/javascripts/Validform_v5.3.2_min.js"></script>
+<script type="text/javascript" src="/resource/javascripts/base.iduq.info.js"></script>
+<script>
+    var mysum = {$case};
+	var mypmoney = {$caseed};
+    var mycount = {$mycount};
+    var mytocpy = {$tocompany};
+    var cpycount = {$cpycount};
+    {literal}
+    function gotopp(){
+        if(mycount<1){
+            bingo.alert('没有数据要上传!')
+            return;
+        }
+        if(confirm('确认上传提交?')){
+            var param = {
+                count:mycount,
+                type:2
+            };
+
+            bingo_ajax('dosome.php?action=ajax_do_givepaper',param,function(){
+                alert('添加成功!');
+                bingo_jump('dosome.php?action=give_pay');
+            })
+        }
+
+        return false;
+    }
+
+    function fixdata(){
+        var check = $('#tocompp').is(':checked');
+        var user = $('#user').val();
+        var code = $('input[name="code"]').val();
+        var needpirce = $('input[name="needpirce"]').val();
+        var pirce = $('input[name="pirce"]').val();
+
+
+        if(!user || user == ""){
+            bingo.alert('请选择交单用户!');
+            return;
+        }
+
+        if(!code || code == ""){
+            bingo.alert('请输入单号!');
+            return;
+        }
+
+        if(!needpirce || needpirce == "" || !g_regexp_list.NFF.test(needpirce)){
+            bingo.alert('请输入正确应交金额!');
+            return;
+        }
+
+        if(!pirce || pirce == "" || !g_regexp_list.NFF.test(pirce)){
+            bingo.alert('请输入正确已交金额!');
+            return;
+        }
+
+        if(pirce > needpirce){
+            bingo.alert('请输入正确已交金额!');
+            return;
+        }
+
+        bingo_ajax('dosome.php?action=ajax_do_fix_givepaper',{
+            user:user,
+            code:code,
+            needpirce:needpirce,
+            pirce:pirce,
+            tocpy:check,
+            type:2
+        },function(data){
+            $('input[name="code"]').val('');
+            $('input[name="needpirce"]').val('');
+            $('input[name="pirce"]').val('');
+            $('#tocompp').prop("checked", false);
+
+            var mycompany = data.tocompany == 1?'已交公司':'未交';
+
+            var html = '<tr class="paperitem" myval="'+data.id+'"><td>'+data.ctime+'</td><td>'+data.code+'</td><td>'+data.username+'</td><td>'+data.case+'</td><td>'+data.caseed+'</td><td>'+mycompany+'</td><td><a href="javascript:void(0);" onclick="delitme('+data.id+',\''+data.code+'\');">删除</a> </td> </tr>';
+            $('#paperlist').prepend(html);
+
+            mypmoney += parseFloat(data.caseed);
+            mysum += parseFloat(data.case);
+            mycount ++;
+            if(data.tocompany == 1){
+                cpycount ++;
+                mytocpy += parseFloat(data.case);
+            }
+
+            var curneed = mysum - mypmoney;
+            $('#needpay').html(curneed+' 元');
+            $('#allyuan').html(mysum+' 元');
+            $('#allpmoney').html(mypmoney+' 元');
+            $('#needcpy').html(mytocpy+' 元');
+            $('#tocpycount').html(cpycount+' 笔');
+            $('#allcount').html(mycount+' 笔');
+        },true);
+    }
+
+    function delitme(id,code){
+        if(confirm('确认删除['+code+']这笔代收货款交单吗?')){
+            bingo_ajax('dosome.php?action=ajax_del_givepaper',{
+                id:id
+            },function(data){
+                mypmoney -= parseFloat(data.caseed);
+                mysum -= parseFloat(data.case);
+                mycount --;
+                if(data.tocompany == 1){
+                    cpycount --;
+                    mytocpy -= parseFloat(data.case);
+                }
+
+                var curneed = mysum - mypmoney;
+                $('#needpay').html(curneed+' 元');
+                $('#allyuan').html(mysum+' 元');
+                $('#allpmoney').html(mypmoney+' 元');
+                $('#needcpy').html(mytocpy+' 元');
+                $('#tocpycount').html(cpycount+' 笔');
+                $('#allcount').html(mycount+' 笔');
+
+                $('.paperitem[myval="'+id+'"]').remove();
+            },true);
+        }
+    }
+
+    {/literal}
+</script>
+{/block}
+
+{block name=body}
+<div style="width:50%; margin:20px auto;">
+	<form action="info.php" method="post">
+        <table class="aa02_table" width="100" border="0" align="center" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="r_h2" colspan="2">代收货款交单</td>
+            </tr>
+            <tbody>
+                <tr>
+                    <td width="15%" align="right">交单人：</td>
+                    <td width="30%">
+                        <select id="user" name="user">
+                            <option value>== 请选择 ==</option>
+                            {foreach $userlist as $one}
+                            <option value="{$one.id}">{$one.name}</option>
+                            {/foreach}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">快递单号：</td>
+                    <td width="30%">
+                        <input type="text" name="code" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">应交金额：</td>
+                    <td width="30%">
+                        <input type="text" name="needpirce" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">已交金额：</td>
+                    <td width="30%">
+                        <input type="text" name="pirce" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">交公司情况：</td>
+                    <td width="30%">
+                        <label><input type="checkbox" id="tocompp">已交公司</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <input type="button" value="提交" onclick="fixdata();"/>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+	</form>
+    <table class="aa02_table"  widtd="100" border="0" align="center" cellpadding="0" cellspacing="0">
+        <tr class="list_th">
+        	<td>总未欠交</td>
+            <td id="needpay" colspan="2">{$case-$caseed} 元</td>
+            <td>总应交金额</td>
+            <td id="allyuan">{$case} 元</td>
+            <td>总已缴</td>
+            <td id="allpmoney">{$caseed} 元</td>
+        </tr>
+        <tr class="list_th">
+            <td >总应交公司金额</td>
+            <td id="needcpy" colspan="2">{$tocompany} 元</td>
+            <td>总应交公司笔数</td>
+            <td id="tocpycount" colspan="3">{$cpycount} 笔</td>
+        </tr>
+        <tr class="list_th">
+            <td >总笔数</td>
+            <td id="allcount" colspan="2">{$mycount} 笔</td>
+            <td>操作</td>
+            <td colspan="3"><input type="button" value="全部上传" onclick="gotopp();"/></td>
+        </tr>
+        <tr class="list_th">
+            <td>交单时间</td>
+            <td>单号</td>
+            <td>交单用户</td>
+            <td>应交金额</td>
+            <td>已交金额</td>
+            <td>是否交公司</td>
+            <td>操作</td>
+        </tr>
+        <tbody id="paperlist">
+        {foreach $bindlist as $one}
+        <tr class="paperitem" myval="{$one.id}">
+            <td>{$one.ctime}</td>
+            <td>{$one.code}</td>
+            <td>{$one.username}</td>
+            <td>{$one.case}</td>
+            <td>{$one.caseed}</td>
+            <td>{if $one.tocompany == 1}已交公司{else}未交{/if}</td>
+            <td><a href="javascript:void(0);" onclick="delitme({$one.id},'{$one.code}');">删除</a> </td>
+        </tr>
+        {/foreach}
+        </tbody>
+
+    </table>
+</div>
+
+<script>
+    {literal}
+    $(function(){
+        var scanf = new gun($('input[name="code"]'),function(){
+            $('input[name="needpirce"]').focus();
+            $('input[name="needpirce"]').select();
+        });
+    })
+    {/literal}
+</script>
+{/block}

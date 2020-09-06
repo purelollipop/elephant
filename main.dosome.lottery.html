@@ -1,0 +1,160 @@
+{extends file='main.base.html'}
+
+{block name=headjs}
+<link type="text/css" rel="stylesheet" media="screen" href="/resource/css/base.iduq.info.css">
+<script type="text/javascript" src="/resource/javascripts/Validform_v5.3.2_min.js"></script>
+<script type="text/javascript" src="/resource/javascripts/base.iduq.info.js"></script>
+<script>
+    {literal}
+	var checkMoney = function(){
+		var v = $('#money').val();
+		var type = $('input[name="type"]:checked').val();
+		if(type > 0){
+			$('option[myval="0"]').hide();
+			$('option[myval="1"]').show();
+		}else{
+			$('option[myval="0"]').show();
+			$('option[myval="1"]').hide();
+		}
+		if(v != 0){
+			if((type > 0 && v < 0)
+			   ||(type < 0 && v > 0)){
+				$('#money').val(0-v);
+			}
+		}
+	}
+	
+    function gotopp(){
+		checkMoney();
+        var userid = $('#user').val();
+		var usertext = $('#user option:selected').text();
+        var note = $('#note').val();
+        var money = $('#money').val();
+        if(!userid || userid == ""){
+            bingo.alert('请选择主体用户');
+            return false;
+        }
+
+        if(!note || note == ""){
+            bingo.alert('请输入奖罚内容');
+            return false;
+        }
+
+        if(!money || money == "" || money == 0 || !g_regexp_list.F.test(money)){
+            bingo.alert('请输入正确金额');
+            return false;
+        }
+		
+		var typestr = "";
+		if(money>0){
+			typestr = "奖励"
+		}else{
+			typestr = "罚款"
+		}
+
+        return confirm('确认['+typestr+'] 给 ' +usertext+ ' '+ Math.abs(money)+' 元?' );
+    }
+    {/literal}
+</script>
+{/block}
+
+{block name=body}
+<div style="width:50%; margin:20px auto;">
+	<form action="dosome.php?action=dolottery" method="post">
+        <table class="aa02_table" width="100" border="0" align="center" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="r_h2" colspan="2">奖励与罚款</td>
+            </tr>
+            <tbody>
+            	<tr>
+                    <td width="15%" align="right">类别：</td>
+                    <td width="30%">
+                    <label><input type="radio" name="type" value="-1" checked="checked" /> 罚款 </label>
+                    <label><input type="radio" name="type" value="1" /> 奖励</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">主体：</td>
+                    <td width="30%">
+                        <select id="user" name="user">
+                            <option value>== 请选择 ==</option>
+                            {foreach $userlist as $one}
+                            <option value="{$one.id}">{$one.name}</option>
+                            {/foreach}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">内容：</td>
+                    <td width="30%">
+                        <input type="text" id="note" name="note" value="">
+                        <select id="notedic" name="notedic">
+                            <option value>== 请选择 ==</option>
+                            {foreach $lottdic as $one}
+                            <option value="{$one.id}" myval='{$one.type}'>{$one.note}</option>
+                            {/foreach}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">金额(正数为奖励,负数为罚款)：</td>
+                    <td width="30%">
+                        <input type="text" id="money" name="money" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">关联单号(没有留空)：</td>
+                    <td width="30%">
+                        <input type="text" id="bindcode" name="bindcode" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <input type="submit" value="提交" onclick="return gotopp();"/>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+	</form>
+    <table class="aa02_table"  widtd="100" border="0" align="center" cellpadding="0" cellspacing="0">
+        <tr class="list_th">
+            <td>处理时间</td>
+            <td>对应用户</td>
+            <td>奖惩金额</td>
+            <td>奖惩类型</td>
+        </tr>
+        <tbody id="paperlist">
+        {foreach $list as $one}
+        <tr class="paperitem" myval="{$one.id}">
+            <td>{$one.ctime}</td>
+            <td>{$one.username}</td>
+            <td>{$one.lotmoney}</td>
+            <td>{$one.typestr}</td>
+        </tr>
+        {/foreach}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    {literal}
+    $(function(){
+        $('#notedic').on('change',function(){
+			var text = $(this).find("option:selected").text();
+			$('#note').val($('#note').val()+text);
+			$(this).val('');
+		});
+		
+		checkMoney();
+		
+		$('#money').on('blur',checkMoney);
+		
+		$('input[name="type"]').on('change',function(){
+			$('#note').val('');
+			checkMoney();
+		});
+
+    })
+    {/literal}
+</script>
+{/block}

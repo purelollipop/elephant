@@ -1,0 +1,134 @@
+{extends file='main.base.html'}
+
+{block name=headjs}
+<link type="text/css" rel="stylesheet" media="screen" href="/resource/css/base.iduq.info.css">
+<script type="text/javascript" src="/resource/javascripts/Validform_v5.3.2_min.js"></script>
+<script type="text/javascript" src="/resource/javascripts/base.iduq.info.js"></script>
+<script>
+    {literal}
+    function gotopp(){
+        var id = $('input[name="id"]').val();
+        var v = $('input[name="name"]').val();
+        if(!v || v == ""){
+            alert('请填写运费模板名!');
+            return false;
+        }
+        var param = [];
+        for(var i = 1 ; i <= 31 ; i ++){
+            var sub = {
+                id: i,
+                name:'',
+                list:[]
+            }
+            sub.name = $('.conitem[myval="'+i+'"]').attr('mystr');
+            var $itemlist = $('.conitem[myval="'+i+'"] tr');
+            var count = $itemlist.length;
+            for(var j = 0 ; j < count ; j ++){
+                $curobj = $itemlist.eq(j);
+                var limt = $curobj.find('input[name="limt"]').val();
+                var pirce = $curobj.find('input[name="pirce"]').val();
+                var step = $curobj.find('input[name="step"]').val();
+                var more = $curobj.find('input[name="more"]').val();
+                if(!limt || limt == ""
+                   || !pirce || pirce == ""
+                   || !step || step == ""
+                   || !more || more == ""){
+                    alert('请填写完整摸版参数!');
+                    return false;
+                }
+                sub.list.push({
+                    limt : limt,
+                    pirce : pirce,
+                    step : step,
+                    more : more,
+                })
+            }
+            param.push(sub);
+        }
+
+        if(confirm('确认添加?')){
+            bingo_ajax('param.php?action=ajax_doupdate_temlp',{
+                id:id,
+                tit:v,
+                data:param
+            },function(){
+                alert('修改成功!');
+                bingo_jump('temlp.php?t=move_temlp');
+            })
+        }
+        return false;
+    }
+
+    function removeitem(obj){
+        $(obj).parent().parent().remove();
+    }
+
+    function goback(){
+        bingo_jump('temlp.php?t=move_temlp');
+    }
+    {/literal}
+</script>
+{/block}
+
+{block name=body}
+<div style="width:50%; margin:20px auto;">
+	<form action="info.php" method="post">
+        <table class="aa02_table" width="100" border="0" align="center" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="r_h2" colspan="2">添加运费摸版</td>
+            </tr>
+            <tbody>
+                <tr>
+                    <td width="15%" align="right">摸版名称：</td>
+                    <td width="30%">
+                        <input type="text" name="name" value="{$move.name}" />
+                    </td>
+                </tr>
+                {foreach $paramlist as $one}
+                <tr>
+                    <td width="15%" align="right">
+                        {$one.name}
+                        <a href="javascript:void(0);" class="addbtn" myval="{$one.id}" >添加(+)</a>
+                    </td>
+                    <td width="30%">
+                        <table class="conitem" width="100%" myval="{$one.id}" mystr="{$one.name}">
+                            {foreach $one.list as $sub}
+                            <tr>
+                                <td>
+                                    大于 <input type="text" name="limt" value="{$sub.limt}" style="width: 60px;" /> 公斤
+                                    收费 <input type="text" name="pirce" value="{$sub.pirce}" style="width: 60px;" /> 元
+                                    <br/>每超 <input type="text" name="step" value="{$sub.step}" style="width: 60px;" /> 公斤
+                                    收费 <input type="text" name="more" value="{$sub.more}" style="width: 60px;" /> 元
+                                    {if !$sub@first}
+                                    <a href="javascript:void(0);" onclick="javascript:removeitem(this);" >删除(-)</a>
+                                    {/if}
+                                </td>
+                            </tr>
+                            {/foreach}
+                        </table>
+                    </td>
+                </tr>
+                {/foreach}
+                <tr>
+                    <td colspan="2" align="center">
+                        <input type="hidden" name="id" value="{$move.id}"/>
+                        <input type="button" value="修改" onclick="gotopp();"/>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" value="返回" onclick="goback()"/>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+	</form>
+</div>
+
+<script>
+    {literal}
+    $('.addbtn').on('click',function(){
+        var v = $(this).attr('myval');
+        $('.conitem[myval="'+v+'"]').append(
+            '<tr><td>大于 <input type="text" name="limt" value="1" style="width: 60px;" /> 公斤 收费 <input type="text" name="pirce" value="3" style="width: 60px;" /> 元<br/>每超 <input type="text" name="step" value="1" style="width: 60px;" /> 公斤 收费 <input type="text" name="more" value="5" style="width: 60px;" /> 元 <a href="javascript:void(0);" onclick="javascript:removeitem(this);" >删除(-)</a></td></tr>'
+        );
+    })
+    {/literal}
+</script>
+{/block}

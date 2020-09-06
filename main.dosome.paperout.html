@@ -1,0 +1,197 @@
+{extends file='main.base.html'}
+
+{block name=headjs}
+<link type="text/css" rel="stylesheet" media="screen" href="/resource/css/base.iduq.info.css">
+<script type="text/javascript" src="/resource/javascripts/Validform_v5.3.2_min.js"></script>
+<script type="text/javascript" src="/resource/javascripts/base.iduq.info.js"></script>
+<script>
+    {literal}
+    function gotopp(){
+        var userid = $('#user').val();
+        var becode = $('#becode').val();
+        var count = $('#count').val();
+        if(!userid || userid == ""){
+            bingo.alert('请选择主体用户');
+            return false;
+        }
+
+        if(!becode || becode == ""){
+            bingo.alert('请输入起始单号');
+            return false;
+        }
+
+        if(!count || count == "" || count == 0 || !g_regexp_list.ZZ.test(count)){
+            bingo.alert('请输入数量');
+            return false;
+        }
+
+
+        mathsome(function(data){
+            if(confirm('确认添加?')){
+                var payed = 1;
+                if($('input[name="payed"]').is(':checked')){
+                    payed = 0;
+                }
+
+                data['payed'] = payed;
+
+                bingo_ajax('dosome.php?action=ajax_doout_paper',data,function(){
+                    alert('添加成功!');
+                    bingo_jump('dosome.php?action=paperout');
+                })
+            }
+        });
+
+
+        return false;
+    }
+
+    function mathsome(callback){
+        var userid = $('#user').val();
+        var becode = $('#becode').val();
+        var count = $('#count').val();
+        bingo_ajax('dosome.php?action=ajax_fix_code',{
+            userid:userid,
+            becode:becode,
+            count:count
+        },function(data){
+            $('input[name="encode"]').val(data.encode);
+            $('input[name="case"]').val(data.case);
+            $('input[name="pirce"]').val(data.pirce);
+            if(typeof(callback) == 'function') {
+                callback(data);
+            }
+        },true);
+    }
+    function delitme(id,username){
+        if(confirm('确认删除 ['+username+'] 本次面单发放吗?')){
+            bingo_ajax('dosome.php?action=ajax_del_outpaper_id',{
+                id:id
+            },function(data){
+                bingo_jump('dosome.php?action=paperout');
+            },true);
+        }
+    }
+    {/literal}
+</script>
+{/block}
+
+{block name=body}
+<div style="width:50%; margin:20px auto;">
+	<form action="info.php" method="post">
+        <table class="aa02_table" width="100" border="0" align="center" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="r_h2" colspan="2">发放单号</td>
+            </tr>
+            <tbody>
+                <tr>
+                    <td width="15%" align="right">发放给：</td>
+                    <td width="30%">
+                        <select id="user" name="user">
+                            <option value>== 请选择 ==</option>
+                            {foreach $userlist as $one}
+                            <option value="{$one.id}">{$one.name}</option>
+                            {/foreach}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">起始单号：</td>
+                    <td width="30%">
+                        <input type="text" id="becode" name="becode" value="{$endcode}">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">数量：</td>
+                    <td width="30%">
+                        <input type="text" id="count" name="count" value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">结束单号：</td>
+                    <td width="30%">
+                        <input type="text" name="encode" value="" disabled readonly>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">面单单价：</td>
+                    <td width="30%">
+                        <input type="text" name="case" value="" disabled readonly>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">应付款：</td>
+                    <td width="30%">
+                        <input type="text" name="pirce" value="0" disabled readonly>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%" align="right">是否欠款：</td>
+                    <td width="30%">
+                        <label><input type="checkbox" name="payed" checked> 欠款</label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="2" align="center">
+                        <input type="button" value="提交" onclick="gotopp();"/>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+	</form>
+    <table class="aa02_table"  widtd="100" border="0" align="center" cellpadding="0" cellspacing="0">
+        <tr class="list_th">
+            <td>发放时间</td>
+            <td>发放用户</td>
+            <td>起始单号</td>
+            <td>结束单号</td>
+            <td>总数量</td>
+            <td>已使用数量</td>
+            <td>面单价格</td>
+            <td>总价</td>
+            <td>状态</td>
+            <td>操作</td>
+        </tr>
+        <tbody id="paperlist">
+        {foreach $list as $one}
+        <tr class="paperitem" myval="{$one.id}">
+            <td>{$one.outtime}</td>
+            <td>{$one.username}</td>
+            <td>{$one.becode}</td>
+            <td>{$one.encode}</td>
+            <td>{$one.ccount}</td>
+            <td>{$one.useccount}</td>
+            <td>{$one.case}</td>
+            <td>{$one.price}</td>
+            <td>{$one.statestr}</td>
+            <td>
+                {if $one.useccount == 0}
+                <a href="javascript:void(0);" onclick="delitme({$one.id},'{$one.username}');">删除</a>
+                {/if}
+            </td>
+        </tr>
+        {/foreach}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    {literal}
+    $(function(){
+        var scanfcount = new gun($('#count'),function(isscanf){
+            mathsome();
+        })
+        var scanf = new gun($('#becode'),function(isscanf){
+            $('#count').focus();
+        })
+        //scanf.removeCur();
+
+        $('#user').on('change',function(){
+            mathsome();
+        })
+
+    })
+    {/literal}
+</script>
+{/block}
